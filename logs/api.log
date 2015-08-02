@@ -1,0 +1,18 @@
+{"level":"error","message":"Bad login request from 84.228.90.159Error: Already login","timestamp":"2015-07-29T19:03:41.799Z"}
+{"level":"info","message":"Games has been retrieved.Request from address 84.228.90.159.","timestamp":"2015-07-29T21:10:47.387Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T21:14:47.153Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T21:17:43.752Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T21:19:32.277Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T21:25:09.142Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T21:35:47.211Z"}
+{"level":"info","message":"User amit.rotbard@gmail.com successfully logged in using application from: 84.228.90.159.","timestamp":"2015-07-29T21:51:59.112Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T23:10:33.417Z"}
+{"level":"info","message":"Bad request from 84.228.90.159. Api access token and user id are mandatory.","timestamp":"2015-07-29T23:14:12.392Z"}
+{"level":"info","message":"Bad request from 192.118.117.100. Api access token and user id are mandatory.","timestamp":"2015-07-30T07:51:53.911Z"}
+{"level":"info","message":"Bad request from 192.118.117.100. Api access token and user id are mandatory.","timestamp":"2015-07-30T08:36:45.700Z"}
+{"level":"error","message":"Bad login request from 192.118.117.100Account not found","timestamp":"2015-07-30T08:42:11.536Z"}
+{"level":"info","message":"User amit.rotbard@gmail.com successfully logged in using application from: 192.118.117.100.","timestamp":"2015-07-30T08:46:40.167Z"}
+{"level":"info","message":"Bad request from 192.118.117.100. Api access token is mandatory.","timestamp":"2015-07-30T08:49:23.597Z"}
+{"level":"error","message":"An error has occurred while processing a request  from 192.118.117.100. Stack trace: ReferenceError: userId is not defined\n    at SecurityToken.authorise.then.catch.res.json.error (/opt/node/bet-pool-server/securityPolicy.js:50:40)\n    at _fulfilled (/opt/node/bet-pool-server/node_modules/q/q.js:834:54)\n    at self.promiseDispatch.done (/opt/node/bet-pool-server/node_modules/q/q.js:863:30)\n    at Promise.promise.promiseDispatch (/opt/node/bet-pool-server/node_modules/q/q.js:796:13)\n    at /opt/node/bet-pool-server/node_modules/q/q.js:604:44\n    at runSingle (/opt/node/bet-pool-server/node_modules/q/q.js:137:13)\n    at flush (/opt/node/bet-pool-server/node_modules/q/q.js:125:13)\n    at process._tickCallback (node.js:419:13)","timestamp":"2015-07-30T08:57:18.950Z"}
+{"level":"info","message":"User  is not authorised. Request from address 192.118.117.100.","timestamp":"2015-07-30T08:58:17.679Z"}
+{"level":"info","message":"Bad request from 192.118.117.100. Api access token is mandatory.","timestamp":"2015-07-30T14:08:46.269Z"}
