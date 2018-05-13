@@ -8,10 +8,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var teamSchema = new Schema({
-    event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
-    name : {type : String},
-    code : {type : String}
+    nationality: {type : String, required: true},
+    name : {type : String, required: true},
+    flag : {type : String},
+    isClub : {type : Boolean, required: true , default: true}
 });
-teamSchema.index( { event: 1, code: 1 }, { unique: true } );
+teamSchema.index( { nationality: 1, name: 1 }, { unique: true } );
 
 module.exports =  mongoose.model('Team', teamSchema);

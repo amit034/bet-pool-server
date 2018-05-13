@@ -1,15 +1,15 @@
 {
-  "name": "ShopWithMe",
-  "description": "ShopWithMe allows you to create and share your shopping lists with your friends to collaboratively edit them",
+  "name": "BetPool",
   "version": "0.1.0",
   "private": false,
+  "main": "sdk/index.js",
   "dependencies": {
-    "express": "3.x",
     "method-override": "^2.3.3",
     "moment": "2.1.x",
-    "mongoose": "^4.0.7",
+    "mongoose": "^5.1.0",
     "q": "^1.4.1",
     "request": "~2.27.0",
+    "request-promise-native": "^1.0.5",
     "winston": "0.6.x"
   },
   "devDependencies": {

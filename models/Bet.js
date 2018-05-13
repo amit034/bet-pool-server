@@ -1,8 +1,3 @@
-/***
- * Author: Valerio Gheri
- * Date: 13/03/2013
- * Account model
- */
 var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;

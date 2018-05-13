@@ -1,10 +1,3 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 10/05/13
- * Time: 12.58
- * To change this template use File | Settings | File Templates.
- */
 
 var Game = require('../models/Game');
 var logger = require('../utils/logger');
@@ -14,7 +7,7 @@ var Q = require('q');
 function GameRepository() {
 	this.findById = findGameById;
     this.findActiveGameByIds = findActiveGameByIds;
-    this.findActiveGameByEventIds = findActiveGameByEventIds
+    this.findActiveGameByEventIds = findActiveGameByEventIds;
     this.findActive = findActive;
 	this.createGame = createGame;
 	this.updateGame = updateGame;
@@ -71,24 +64,12 @@ function findActiveGameByIds(gameIds) {
     return deferred.promise;
 }
 function findActive() {
-    var deferred = Q.defer();
-    var now = new Date();
-
-    console.log(now);
-    var query = {
-        "playAt": {$gte: new Date()}
-    }
-    Game.find(query).populate('team1 team2' , "name code -_id").exec(function(err, games) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            if(games && games.length>0){
-                console.log(new Date(games[0].playAt));
-            }
-            deferred.resolve(games);
-    }});
-    return deferred.promise;
+    return Game.find({
+        "playAt": {$gte: moment()}
+    }).populate('team1 team2' , "name code -_id").exec()
+    .then(function (games){
+        return games;
+    });
 }
 function createGame(eventId,team1_id,team2_id,playAt) {
 	var deferred = Q.defer();

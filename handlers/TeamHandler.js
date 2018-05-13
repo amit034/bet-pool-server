@@ -15,54 +15,21 @@ var TeamHandler = function() {
 	this.createTeam = handleCreateTeamRequest;
 };
 
-// On success should return status code 201 to notify the client the account
-// creation has been successful
-// On error should return status code 400 and the error message
 function handleCreateTeamRequest(req, res) {
-	var eventId = req.params.eventId || null;
-	var name = req.body.name || null;
-	var code = req.body.code || null;
-
-	var repository = new Repository();
-    var eventRepository = new EventRepository();
-
-    eventRepository.findById(eventId).then(function(event) {
-        if (event){
-            repository.createTeam(event._id, name, code)
-                .then(
-                function (team) {
-                    logger.log('info', 'Team ' + name + ' has been created.' +
-                        'Request from address ' + req.connection.remoteAddress + '.');
-                    event.teams.push(team);
-                    event.save();
-                    res.json(201, team);
-                }).catch(
-                function (err) {
-                    logger.log('error', 'An error has occurred while processing a request to create an ' +
-                        'Team from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                    res.json(400, {
-                        error: err.message
-                    });
-                }
-            );
-        }else{
-            var massage = "No event found for id " + eventId;
-            logger.log('error', 'An error has occurred while processing a request to create an ' +
-                'Team ' + massage + req.connection.remoteAddress );
-            res.json(400, {
-                error: massage
-            });
-        }
-
-    }).catch(function(err){
+	const repository = new Repository();
+    repository.createTeam(req.body)
+    .then(function (team) {
+        logger.log('info', 'Team ' + name + ' has been created.' +
+            'Request from address ' + req.connection.remoteAddress + '.');
+        res.status(201).send(team);
+    }).catch(function (err) {
         logger.log('error', 'An error has occurred while processing a request to create an ' +
             'Team from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-        res.json(400, {
+        res.status(400).send({
             error: err.message
         });
-    }).done();
+    });
 }
-
 
 module.exports = TeamHandler;
 

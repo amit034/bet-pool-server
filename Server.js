@@ -1,29 +1,23 @@
-// *******************************************************
-// expressjs template
-//
-// assumes: npm install express
-// defaults to jade engine, install others as needed
-//
-// assumes these subfolders:
-//   public/
-//   public/javascripts/
-//   public/stylesheets/
-//   views/
-//
-var express = require('express');
-var methodOverride = require('method-override')
-var app = express();
-var AccountHandler = require('./handlers/AccountHandler');
-var EventHandler = require('./handlers/EventHandler');
-var GameHandler = require('./handlers/GameHandler');
-var TeamHandler = require('./handlers/TeamHandler');
-var PoolHandler = require('./handlers/PoolHandler');
-var BetHandler = require('./handlers/BetHandler');
-var ShoppingListHandler = require('./handlers/ShoppingListHandler');
-var AuthenticationHandler = require('./handlers/AuthenticationHandler');
-var routes = require('./Routes');
-var fs = require('fs');
-var securityPolicy = require('./securityPolicy');
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const errorHandler = require('errorhandler');
+const methodOverride = require('method-override');
+const morgan = require('morgan');
+
+const app = express();
+const AccountHandler = require('./handlers/AccountHandler');
+const EventHandler = require('./handlers/EventHandler');
+const GameHandler = require('./handlers/GameHandler');
+const TeamHandler = require('./handlers/TeamHandler');
+const PoolHandler = require('./handlers/PoolHandler');
+const BetHandler = require('./handlers/BetHandler');
+const ShoppingListHandler = require('./handlers/ShoppingListHandler');
+const AuthenticationHandler = require('./handlers/AuthenticationHandler');
+
+const routes = require('./Routes');
+const fs = require('fs');
+const securityPolicy = require('./securityPolicy');
 
 var expressLogFile = fs.createWriteStream('./logs/express.log', {flags: 'a'}); 
 //var viewEngine = 'jade'; // modify for your view engine
@@ -48,19 +42,19 @@ var allowCrossDomain = function(req, res, next) {
 };
 
 app.use(allowCrossDomain);  
-app.use(express.logger({stream: expressLogFile}));
-app.use(express.urlencoded());
+app.use(morgan('combined', {stream: expressLogFile}));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(express.json());
-  app.use(methodOverride());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+app.use(methodOverride());
+app.use(express.static(__dirname + '/public'));
 
 
 if (process.env.NODE_ENV === 'development') {
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(errorHandler({ dumpExceptions: true, showStack: true }));
 }
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.errorHandler());
+  app.use(errorHandler());
 }
 
 

@@ -17,19 +17,7 @@ function TeamRepository() {
 }
 
 function findById(id) {
-	var deferred = Q.defer();
-	var query = {
-		_id: id
-	};
-    Team.findOne(query, function(err, team) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(team);
-		}
-	});
-	return deferred.promise;
+    return Team.findOne({_id: id}).exec();
 }
 
 
@@ -54,7 +42,7 @@ function findByCode(code,eventId) {
     return deferred.promise;
 }
 
-function createTeam(eventId, name, code) {
+function createTeam(req) {
 	var deferred = Q.defer();
 	var team = new Team({
 		event: eventId,

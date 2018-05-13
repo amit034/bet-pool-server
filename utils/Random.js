@@ -1,10 +1,3 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 20/08/13
- * Time: 19.35
- * To change this template use File | Settings | File Templates.
- */
 
 var Random = {
 	generateApiAccessToken : generateToken

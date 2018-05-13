@@ -1,11 +1,3 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 10/05/13
- * Time: 12.58
- * To change this template use File | Settings | File Templates.
- */
-
 var Account = require('../models/Account');
 var logger = require('../utils/logger');
 var Q = require('q');

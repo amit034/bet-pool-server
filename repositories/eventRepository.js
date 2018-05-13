@@ -12,7 +12,6 @@ var Q = require('q');
 
 function EventRepository() {
 	this.findById = findById;
-    this.findByName = findByName;
 	this.createEvent = createEvent;
     this.findActiveEventsByIds = findActiveEventsByIds;
 }

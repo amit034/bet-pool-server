@@ -1,11 +1,6 @@
-/***
- * Author: Valerio Gheri
- * Date: 13/03/2013
- * Account model
- */
 var mongoose = require('mongoose');
 
-var Schema = mongoose.Schema
+var Schema = mongoose.Schema;
 
 var gameSchema = new Schema({
     event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
