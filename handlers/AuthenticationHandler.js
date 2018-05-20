@@ -74,17 +74,17 @@ function handleLoginRequest(req, res) {
                         if(loginViewModel){
                             logger.log('info', 'User ' + loginViewModel.username + ' successfully logged in using application' +
                                  ' from: ' + req.connection.remoteAddress + '.');
-                            res.json(200, loginViewModel);
+                            res.send(loginViewModel);
                         }else{
                             logger.log('error', 'Bad login request from ' +
                                 req.connection.remoteAddress );
-                            res.json(401,{error: 'Bad login request'});
+                            res.status(401).send({error: 'Bad login request'});
                         }
 
             }).catch(function(err){
                logger.log('error', 'Bad login request from ' +
                    req.connection.remoteAddress + err);
-               res.json(401,{error:err.message});
+               res.status(401).send({error:err.message});
            }).done();
     }
     else {
