@@ -29,7 +29,16 @@ function loginError(message) {
     message
   }
 }
+export function authHeader() {
 
+    let user = JSON.parse(localStorage.getItem('user'));
+
+    if (user && user.apiAccessToken) {
+        return { 'Authorization': 'Bearer ' + user.apiAccessToken };
+    } else {
+        return {};
+    }
+}
 export function loginUser(creds) {
 
   return dispatch => {
@@ -39,7 +48,7 @@ export function loginUser(creds) {
     return axios.post('http://localhost:3000/api/auth/login', creds)
       .then((response) => {
           const user = response.data;
-          localStorage.setItem('user', user);
+          localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('apiAccessToken', user.apiAccessToken);
           // Dispatch the success action
           dispatch(receiveLogin(user))

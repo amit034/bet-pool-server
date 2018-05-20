@@ -25,7 +25,7 @@ class LoginPage extends React.Component {
       errors: {},
       successMessage,
       user: {
-        username: 'amit2',
+        username: 'amit',
         password: 'am053450'
       }
     };

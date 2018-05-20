@@ -12,43 +12,57 @@ var Q = require('q');
 var mongoose = require('mongoose');
 
 function PoolRepository() {
-	this.findById = findById;
-	this.createPool = createPool;
+    this.findById = findById;
+    this.createPool = createPool;
     this.addGames = addGames;
     this.addEvents = addEvents;
-    this.addParticipates =addParticipates;
+    this.addParticipates = addParticipates;
     this.findGameById = findGameById;
-    this.findParticipateByUserId = findParticipateByUserId
+    this.findParticipateByUserId = findParticipateByUserId;
+    this.findByUserId = findByUserId;
 }
 
 function findById(id) {
-	var deferred = Q.defer();
-	var query = {
-		_id: id
-	};
-    Pool.findOne(query).populate('owner' , "name email").exec(function(err, doc) {
-		if (err) {
-			deferred.reject(err);
-		}
-		else {
-			deferred.resolve(doc);
-		}
-	});
-	return deferred.promise;
+    var deferred = Q.defer();
+    var query = {
+        _id: id
+    };
+    Pool.findOne(query).populate('owner', "name email").exec(function (err, doc) {
+        if (err) {
+            deferred.reject(err);
+        }
+        else {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise;
 }
 
-function findParticipateByUserId(poolId,userId){
+function findByUserId(userId) {
+    var deferred = Q.defer();
+    Pool.find({'participates.user': userId}, function (err, pools) {
+        if (err) {
+            deferred.reject(err);
+        }
+        else {
+            deferred.resolve(pools);
+        }
+    });
+    return deferred.promise;
+}
+
+function findParticipateByUserId(poolId, userId) {
     var deferred = Q.defer();
 
-    Pool.findOne({_id: poolId , 'participates.user': userId , 'participates.joined' : true},function(err, pool) {
+    Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true}, function (err, pool) {
 
         if (err) {
             deferred.reject(err);
         }
         else {
-            if (pool && pool.participates ){
+            if (pool && pool.participates) {
                 deferred.resolve(pool.participates[0]);
-            }else{
+            } else {
                 deferred.resolve(null);
             }
         }
@@ -56,18 +70,18 @@ function findParticipateByUserId(poolId,userId){
     return deferred.promise;
 }
 
-function findGameById(poolId,gameId){
+function findGameById(poolId, gameId) {
     var deferred = Q.defer();
 
-    Pool.findOne({_id: poolId  ,'games' : gameId}).populate({path:'games',model: 'Game'}).exec(function(err, pool){
+    Pool.findOne({_id: poolId, 'games': gameId}).populate({path: 'games', model: 'Game'}).exec(function (err, pool) {
 
         if (err) {
             deferred.reject(err);
         }
         else {
-            if (pool && pool.games ){
+            if (pool && pool.games) {
                 deferred.resolve(pool.games[0]);
-            }else{
+            } else {
                 deferred.resolve(null);
             }
 
@@ -75,33 +89,14 @@ function findGameById(poolId,gameId){
     });
     return deferred.promise;
 }
-function createPool(owner ,name) {
-	var deferred = Q.defer();
-	var pool = new Pool({
-		owner: owner,
+
+function createPool(owner, name) {
+    var deferred = Q.defer();
+    var pool = new Pool({
+        owner: owner,
         name: name
-	});
-    pool.save(function(err, doc) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(doc);
-		}
-	});
-	return deferred.promise;
-}
-
-
-
-function addGames(poolId,games) {
-    var deferred = Q.defer();
-
-    var query = {
-        _id: poolId
-    };
-
-    Pool.update(query, {$addToSet:{ games:{$each: games}}},function(err, doc) {
+    });
+    pool.save(function (err, doc) {
         if (err) {
             deferred.reject(new Error(err));
         }
@@ -112,13 +107,15 @@ function addGames(poolId,games) {
     return deferred.promise;
 }
 
-function addEvents(poolId,events) {
+
+function addGames(poolId, games) {
     var deferred = Q.defer();
+
     var query = {
         _id: poolId
     };
 
-    Pool.update(query, {$addToSet:{ events:{$each: events}}},function(err, doc) {
+    Pool.update(query, {$addToSet: {games: {$each: games}}}, function (err, doc) {
         if (err) {
             deferred.reject(new Error(err));
         }
@@ -129,13 +126,13 @@ function addEvents(poolId,events) {
     return deferred.promise;
 }
 
-function addInvitees(poolId,accounts) {
+function addEvents(poolId, events) {
     var deferred = Q.defer();
     var query = {
         _id: poolId
     };
 
-    Pool.update(query, {$addToSet:{ invitees:{$each:accounts}}},function(err, doc) {
+    Pool.update(query, {$addToSet: {events: {$each: events}}}, function (err, doc) {
         if (err) {
             deferred.reject(new Error(err));
         }
@@ -146,15 +143,13 @@ function addInvitees(poolId,accounts) {
     return deferred.promise;
 }
 
-function addParticipates(poolId,participates) {
+function addInvitees(poolId, accounts) {
     var deferred = Q.defer();
     var query = {
         _id: poolId
     };
 
-
-
-    Pool.update(query, {$addToSet:{ 'participates':{$each: participates}}},function(err, doc) {
+    Pool.update(query, {$addToSet: {invitees: {$each: accounts}}}, function (err, doc) {
         if (err) {
             deferred.reject(new Error(err));
         }
@@ -164,4 +159,23 @@ function addParticipates(poolId,participates) {
     });
     return deferred.promise;
 }
+
+function addParticipates(poolId, participates) {
+    var deferred = Q.defer();
+    var query = {
+        _id: poolId
+    };
+
+
+    Pool.update(query, {$addToSet: {'participates': {$each: participates}}}, function (err, doc) {
+        if (err) {
+            deferred.reject(new Error(err));
+        }
+        else {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise;
+}
+
 module.exports = PoolRepository;

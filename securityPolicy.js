@@ -1,10 +1,3 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 22/06/13
- * Time: 15.14
- * To change this template use File | Settings | File Templates.
- */
 
 var SecurityToken = require('./infrastructure/securityToken');
 var logger = require('./utils/logger');
@@ -38,8 +31,10 @@ function userCanUpdateOrDeleteShoppingList(account, shoppingList) {
 }
 
 function authorise(req, res, next) {
-  var apiAccessToken = req.params.apiAccessToken || req.body.apiAccessToken || req.query.apiAccessToken || req.headers['authorization'] || null;
-  console.log("aa" + req.headers['authorization'])
+  const authorizationHeader  =  req.headers['authorization'] || '';
+  var apiAccessToken = req.params.apiAccessToken || req.body.apiAccessToken || req.query.apiAccessToken || authorizationHeader.replace('Bearer ', '') ||  null;
+
+  console.log("token" + apiAccessToken);
   if (apiAccessToken ) {
     SecurityToken.authorise(apiAccessToken)
       .then(function(authorised) {
@@ -48,7 +43,7 @@ function authorise(req, res, next) {
         }
         else {
           logger.log('info', 'User  is not authorised. Request from address ' + req.connection.remoteAddress + '.');
-          res.json(401, {
+          res.status(401).send({
             error: "User is not authorised"
           });
         }
@@ -56,7 +51,7 @@ function authorise(req, res, next) {
         logger.log('error', 'An error has occurred while processing a request ' +
           ' from ' +
           req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-        res.json(500, {
+        res.status(500).send({
           error: err.message
         });
       });
@@ -64,7 +59,7 @@ function authorise(req, res, next) {
   else {
     logger.log('info', 'Bad request from ' +
       req.connection.remoteAddress + '. Api access token is mandatory.');
-    res.json(401, {
+    res.status(401).send({
       error: 'Api access token is mandatory.'
     });
   }

@@ -11,12 +11,12 @@ class App extends React.Component {
         return (
             <div className="app-wrapper">
                 <Switch>
+                    <ProtectedRoute path="/pools" component={PoolContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <Route path="/" render={(props)=>{
                        return  this.props.auth.isAuthenticated ?
                         <Redirect to= "/pools"/> :
                         <LoginPage {...props}/>
                     }} />
-                    <ProtectedRoute path="/pools" component={PoolContainer}/>
                 </Switch>
             </div>
         )

@@ -20,6 +20,7 @@ var PoolHandler = function() {
     this.addGames = handleAddGames;
     this.addEvents = handleAddEvents;
     this.addParticipates = handleAddParticipates;
+    this.getPools = handleGetUserPools;
 };
 
 // On success should return status code 201 to notify the client the account
@@ -170,6 +171,19 @@ function handleAddParticipates(req, res) {
             res.json(500, {error: err.message});
         }
     }).done();
+}
+function handleGetUserPools(req, res) {
+    var userId = req.params.userId;
+    var repository = new Repository();
+    return repository.findByUserId(userId)
+    .then(function(pools){
+         return res.send(pools);
+    })
+    .catch(function(err){
+        return res.status(500).send({
+            error: err.message
+        });
+    })
 }
 function handleUpdatePoolRequest(req, res) {
     var gameIds = req.body.games || [];

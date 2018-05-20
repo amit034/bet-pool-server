@@ -7,7 +7,11 @@ var config = {
     entry: APP_DIR + '/index.jsx',
     output: {
         path: BUILD_DIR,
-        filename: 'js/bundle.js'
+        filename: 'js/bundle.js',
+        publicPath: '/'
+    },
+    devServer: {
+        historyApiFallback: true,
     },
     plugins: [
         new webpack.EnvironmentPlugin(['NODE_ENV']),

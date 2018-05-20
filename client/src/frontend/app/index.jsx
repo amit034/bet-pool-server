@@ -12,15 +12,7 @@ const store = createStore(
     rootReducer,
     applyMiddleware(thunk)
 );
-// const Title = ({poolCount}) => {
-//   return (
-//     <div>
-//        <div>
-//           <h1>pools ({poolCount})</h1>
-//        </div>
-//     </div>
-//   );
-// }
+
 //
 // const NewForm = ({addTodo}) => {
 //   // Input Tracker
