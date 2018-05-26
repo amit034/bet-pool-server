@@ -10,7 +10,8 @@ var poolSchema = new Schema({
     owner: {type: mongoose.Schema.ObjectId,required: true , ref: 'Account'},
     participates : {type: [participateSchema], 'default': []},
     games: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Game'},
-    events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'}
+    events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'},
+    name : {type : String  ,required: true},
 });
 
 mongoose.set('debug', true);

@@ -1,13 +1,8 @@
-/***
- * Author: Valerio Gheri
- * Date: 15/03/2013
- * Entry point
- */
-
 var config = require('./Config-debug');
 var winston = require('winston');
 var mongoose = require('mongoose');
 var server = require('./Server');
+var jobs = require('./Jobs');
 
 // We will log normal api operations into api.log
 console.log("starting logger...");
@@ -22,5 +17,6 @@ console.log("logger started. Connecting to MongoDB...");
 mongoose.connect(config.db.mongodb);
 console.log("Successfully connected to MongoDB. Starting web server...");
 server.start();
+jobs.start();
 console.log("Successfully started web server. Waiting for incoming connections...");
 

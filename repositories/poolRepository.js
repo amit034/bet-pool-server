@@ -1,12 +1,6 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 10/05/13
- * Time: 12.58
- * To change this template use File | Settings | File Templates.
- */
 
-var Pool = require('../models/Pool');
+const Pool = require('../models/Pool');
+const Game = require('../models/Game');
 var logger = require('../utils/logger');
 var Q = require('q');
 var mongoose = require('mongoose');
@@ -23,19 +17,15 @@ function PoolRepository() {
 }
 
 function findById(id) {
-    var deferred = Q.defer();
     var query = {
         _id: id
     };
-    Pool.findOne(query).populate('owner', "name email").exec(function (err, doc) {
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve(doc);
-        }
+    return Pool.findOne(query)
+    .populate({path: 'events', model: 'Event'}).exec()
+    .then((pool) => {
+        return Game.populate(pool.events, {path: 'games'}).then(() => pool);
     });
-    return deferred.promise;
+
 }
 
 function findByUserId(userId) {

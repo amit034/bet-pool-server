@@ -1,4 +1,4 @@
-
+const _ = require('lodash');
 var Game = require('../models/Game');
 var logger = require('../utils/logger');
 var moment = require('moment');
@@ -7,10 +7,11 @@ var Q = require('q');
 function GameRepository() {
 	this.findById = findGameById;
     this.findActiveGameByIds = findActiveGameByIds;
-    this.findActiveGameByEventIds = findActiveGameByEventIds;
+    this.findGamesByEventIds = findGamesByEventIds;
     this.findActive = findActive;
 	this.createGame = createGame;
 	this.updateGame = updateGame;
+	this.findBy3ptData = findBy3ptData;
 }
 
 function findGameById(gameId) {
@@ -29,22 +30,14 @@ function findGameById(gameId) {
 	return deferred.promise;
 }
 
-function findActiveGameByEventIds(eventIds) {
+function findGamesByEventIds(eventIds, active) {
     var deferred = Q.defer();
 
     var query = {
         event: {$in: eventIds},
-        "playAt": {$gte: new Date()}
     };
-    Game.find(query, function(err, games) {
-            if (err) {
-                deferred.reject(err);
-            }
-            else {
-                deferred.resolve(games);
-            }
-    });
-    return deferred.promise;
+    if (active) query.playAt = {$gte: new Date()};
+    return Game.find(query)
 }
 function findActiveGameByIds(gameIds) {
     var deferred = Q.defer();
@@ -71,51 +64,36 @@ function findActive() {
         return games;
     });
 }
-function createGame(eventId,team1_id,team2_id,playAt) {
-	var deferred = Q.defer();
-	var game = new Game({
-		event: eventId,
-		team1 : team1_id,
-        team2 : team2_id,
-        playAt : new Date(playAt)
-	});
-    game.save(function(err, doc) {
-		if (err) {
-            console.log("reject create game " + err);
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(doc);
-		}
-	});
-	return deferred.promise;
+function createGame(data) {
+	var game = new Game(data);
+    return game.save();
 }
 
 
 function updateGame(game) {
-    var deferred = Q.defer();
+
     var query = {
         _id: game._id
     };
     var options = {
         'new': false
     };
-    Game.findOneAndUpdate(query,
+    return Game.findOneAndUpdate(query,
         {
             score1: game.score1,
             score2: game.score2
         },
-        options,
-        function(err, game) {
-            if (err) {
-                deferred.reject(new Error(err));
-            }
-            else {
-                deferred.resolve(game);
-            }
-        }
-    );
-    return deferred.promise;
+        options
+    ).exec();
+}
+
+function findBy3ptData(identifier) {
+    var deferred = Q.defer();
+    var query = _.reduce(identifier, (result, value, key) => {
+        result[`3pt.${key}`] = value;
+        return result;
+    }, {});
+    return Game.findOne(query).exec();
 }
 
 

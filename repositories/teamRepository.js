@@ -1,11 +1,4 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 10/05/13
- * Time: 12.58
- * To change this template use File | Settings | File Templates.
- */
-
+const _ = require('lodash');
 var Team = require('../models/Team');
 var logger = require('../utils/logger');
 var Q = require('q');
@@ -14,6 +7,7 @@ function TeamRepository() {
 	this.findById = findById;
     this.findByCode = findByCode;
 	this.createTeam = createTeam;
+    this.findBy3ptData = findBy3ptData;
 }
 
 function findById(id) {
@@ -43,21 +37,16 @@ function findByCode(code,eventId) {
 }
 
 function createTeam(req) {
-	var deferred = Q.defer();
-	var team = new Team({
-		event: eventId,
-        name: name,
-        code: code
-	});
-    team.save(function(err, team) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(team);
-		}
-	});
-	return deferred.promise;
+	var team = new Team(req);
+    return team.save();
+}
+
+function findBy3ptData(identifier) {
+    var query = _.reduce(identifier, (result, value, key) => {
+        result[`3pt.${key}`] = value;
+        return result;
+    }, {});
+    return Team.findOne(query).exec();
 }
 
 module.exports = TeamRepository;

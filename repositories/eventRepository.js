@@ -1,21 +1,19 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 10/05/13
- * Time: 12.58
- * To change this template use File | Settings | File Templates.
- */
-
-var Event = require('../models/Event');
-var logger = require('../utils/logger');
-var Q = require('q');
+const _ = require('lodash');
+const Event = require('../models/Event');
+const logger = require('../utils/logger');
+const Q = require('q');
 
 function EventRepository() {
 	this.findById = findById;
 	this.createEvent = createEvent;
     this.findActiveEventsByIds = findActiveEventsByIds;
+    this.findBy3ptData = findBy3ptData;
+    this.findAll = findAll;
 }
 
+function findAll(query) {
+    return Event.find(query).exec();
+}
 function findById(id) {
 	var deferred = Q.defer();
 	var query = {
@@ -58,7 +56,7 @@ function findByName(name) {
     Event.findOne(query, function(err, event) {
 
         if (err) {
-            console.log("searching team error " +err);
+            console.log("searching event error " +err);
             deferred.reject(new Error(err));
         }
         else {
@@ -69,20 +67,17 @@ function findByName(name) {
     return deferred.promise;
 }
 
-function createEvent(name) {
-	var deferred = Q.defer();
-	var event = new Event({
-        name: name
-	});
-    event.save(function(err, event) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(event);
-		}
-	});
-	return deferred.promise;
+function createEvent(data) {
+	var event = new Event(data);
+    return event.save();
+}
+
+function findBy3ptData(identifier) {
+    var query = _.reduce(identifier, (result, value, key) => {
+        result[`3pt.${key}`] = value;
+        return result;
+    }, {});
+    return Event.findOne(query).exec();
 }
 
 module.exports = EventRepository;

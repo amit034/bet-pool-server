@@ -1,21 +1,14 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 26/08/13
- * Time: 13.42
- * To change this template use File | Settings | File Templates.
- */
 
-var Account = require('../models/Account');
-var AccountRepository = require('../repositories/accountRepository');
-var ApiAccessToken = require('../infrastructure/apiAccessToken');
-var SecurityToken = require('../infrastructure/securityToken');
-var LoginViewModel = require('../viewModels/loginViewModel');
-var logger = require('../utils/logger');
-var Q = require('q');
-var request = require('request');
+const Q = require('q');
+const request = require('request');
+const moment = require('moment');
+const AccountRepository = require('../repositories/accountRepository');
+const ApiAccessToken = require('../infrastructure/apiAccessToken');
+const SecurityToken = require('../infrastructure/securityToken');
+const LoginViewModel = require('../viewModels/loginViewModel');
+const logger = require('../utils/logger');
 
-var AuthenticationHandler = function() {
+const AuthenticationHandler = function() {
 	this.handleLoginRequest = handleLoginRequest;
 	this.logout = handleLogoutRequest;
 };
@@ -205,7 +198,8 @@ function performLogin(password,username) {
                             var loginViewModel = new LoginViewModel(account._id, account.username, account.firstName, account.lastName,
                                 securityToken.apiAccessToken);
                             accountRepository.updateLastLoginDate(account, Date.now());
-                            deferred.resolve(loginViewModel);
+							securityToken.expirationDate = moment().add('h', 24).toString();
+							securityToken.save().then(() => deferred.resolve(loginViewModel));
                         }else{
                             var apiAccessToken = new ApiAccessToken(account._id, password);
                             var securityToken = SecurityToken.createFromApiToken(apiAccessToken);

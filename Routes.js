@@ -2,6 +2,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/profiles', handlers.account.createAccount);
     app.get('/api/profiles/:userId', handlers.account.getAccount);
     app.delete('/api/profiles/:userId', handlers.account.deleteAccount);
+    app.get('/api/admin/events',  handlers.event.handleActiveEventsRequest);
     app.post('/api/admin/events',  handlers.event.createEvent);
     app.post('/api/admin/teams',  handlers.team.createTeam);
     app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
@@ -9,7 +10,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
     app.get('/api/:userId/pools', authorisationPolicy, handlers.pools.getPools);
     app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
-
+    app.get('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.getGames);
     app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
     app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);

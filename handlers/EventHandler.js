@@ -2,24 +2,36 @@ const EventRepository = require('../repositories/eventRepository');
 const TeamRepository = require('../repositories/teamRepository');
 const logger = require('../utils/logger');
 const EventHandler = function() {
+	this.handleActiveEventsRequest = handleActiveEventsRequest;
 	this.createEvent = handleCreateEventRequest;
 	this.addTeam = handleAddTeamToEventRequest
 };
-
+function handleActiveEventsRequest(req, res){
+	const repository = new EventRepository();
+    return repository.findAll({isActive: true})
+    .then(function(events){
+         return res.send(events);
+    })
+    .catch(function(err){
+        return res.status(500).send({
+            error: err.message
+        });
+    })
+}
 function handleCreateEventRequest(req, res) {
-	var name = req.body.name || null;
-	var repository = new Repository();
-    repository.createEvent(name)
+	const name = req.body.name || null;
+	const repository = new EventRepository();
+    repository.createEvent({name})
 	.then(
 		function (event) {
 			logger.log('info', 'Event ' + name + ' has been created.' +
 				'Request from address ' + req.connection.remoteAddress + '.');
-			res.json(201, event);
+			return res.status(201).send(event);
 		}).catch(
 		function (err) {
 			logger.log('error', 'An error has occurred while processing a request to create an ' +
 				'Event from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-			res.json(400, {
+			return res.status(400).send({
 				error: err.message
 			});
 		}

@@ -1,9 +1,4 @@
-/***
- * Author: Valerio Gheri
- * Date: 15/03/2013
- * This class contains all the methods to handle Account related requests
- */
-
+const _ = require('lodash');
 var Pool = require('../models/Pool');
 var Repository = require('../repositories/poolRepository');
 var Account = require('../models/Account');
@@ -18,6 +13,7 @@ var Q = require('q');
 var PoolHandler = function() {
 	this.createPool = handleCreatePoolRequest;
     this.addGames = handleAddGames;
+    this.getGames = handleGetGames;
     this.addEvents = handleAddEvents;
     this.addParticipates = handleAddParticipates;
     this.getPools = handleGetUserPools;
@@ -106,7 +102,25 @@ function handleAddGames(req, res) {
             });
     }) .done()
 }
-
+function handleGetGames(req, res){
+    const poolId = req.params.poolId || null;
+    const repository = new Repository();
+    var gameRepository = new GameRepository();
+    return repository.findById(poolId)
+    .then(function(pool) {
+        return _.reduce(pool.events, function(total, event) {
+            return gameRepository.findGamesByEventIds([event._id]).then((games) => {
+                return _.concat(total, games);
+            });
+        }, []).then((games)=> {
+            return res.send(games);
+        });
+    }).catch(function(err){
+        return res.status(500).send({
+            error: err.message
+        });
+    });
+}
 function handleAddEvents(req, res) {
     var eventIds = req.body.events || [];
     var poolId = req.params.poolId || null;
