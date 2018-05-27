@@ -12,10 +12,14 @@ var Q = require('q');
 
 function BetRepository() {
 	this.createOrUpdate = createOrUpdate;
+	this.findUserBetsByPoolId = findUserBetsByPoolId;
 }
 
 
-
+function findUserBetsByPoolId(userId , poolId) {
+	var query  = {participate :userId , pool: poolId};
+	return Bet.find(query).exec();
+}
 function createOrUpdate(poolId,participateId, gameId,score1,score2) {
 	var deferred = Q.defer();
 //	var bet = new Bet({

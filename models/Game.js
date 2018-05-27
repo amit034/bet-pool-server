@@ -8,7 +8,9 @@ var gameSchema = new Schema({
     team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: true},
     playAt: { type: Date ,required: true},
     score1 : { type: Number},
-    score2 : { type: Number}
+    score2 : { type: Number},
+    status: {type: String},
+    '3pt': {type: mongoose.Schema.Types.Mixed}
 });
 
 gameSchema.index( { team1: 1, team2: 1 , playAt :1 }, { unique: true } );

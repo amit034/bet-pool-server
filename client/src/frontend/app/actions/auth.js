@@ -39,6 +39,24 @@ export function authHeader() {
         return {};
     }
 }
+export function authError(err) {
+    let action = {};
+    if (err && err.response && err.response.status == 401){
+        localStorage.removeItem('user');
+        localStorage.removeItem('apiAccessToken');
+        action = loginError(err.message);
+    }
+    return action;
+}
+export function getUserFromLocalStorage() {
+    let currentUser;
+    try{
+        currentUser = JSON.parse(localStorage.getItem('user'));
+    }catch (e) {
+        currentUser = {}
+    }
+    return currentUser;
+}
 export function loginUser(creds) {
 
   return dispatch => {

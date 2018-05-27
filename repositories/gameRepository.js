@@ -37,14 +37,13 @@ function findGamesByEventIds(eventIds, active) {
         event: {$in: eventIds},
     };
     if (active) query.playAt = {$gte: new Date()};
-    return Game.find(query)
+    return Game.find(query).populate('team1').populate('team2');
 }
 function findActiveGameByIds(gameIds) {
     var deferred = Q.defer();
     var query = {
         _id: {$in: gameIds},
-
-        "playAt": {$gte: new Date()}
+        playAt: {$gte: moment()}
     };
     Game.find(query, function(err, games) {
         if (err) {
@@ -73,7 +72,8 @@ function createGame(data) {
 function updateGame(game) {
 
     var query = {
-        _id: game._id
+        _id: game._id,
+        status: {$ne: 'FINISHED'}
     };
     var options = {
         'new': false

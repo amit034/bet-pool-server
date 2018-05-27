@@ -1,40 +1,55 @@
 import React from 'react';
+import _ from 'lodash';
 import {withRouter} from 'react-router-dom';
-import {getPoolGames} from '../actions/pools';
+import {getUserBets , updateUserBets} from '../actions/pools';
 import {connect} from 'react-redux';
 
 class PoolContainer extends React.Component{
   constructor(props){
     super(props);
-
+      this.submitBets = this.submitBets.bind(this);
+      this.onBetChange = this.onBetChange.bind(this);
+      this.state = {
+          updates: {}
+      }
   }
   // Lifecycle method
 
   componentDidMount(){
-      this.props.dispatch(getPoolGames(this.props.match.params.id));
+      this.props.dispatch(getUserBets(this.props.match.params.id));
+  }
+  onBetChange(betId, key, value){
+        const update = {};
+        update[betId] ={};
+        update[betId][key] = value;
+        this.setState(_.set(this.props.updates, `${betId}.${key}`, value));
+  }
+  submitBets(){
+      updateUserBets(this.props.match.params.id, this.props.pools.bets);
   }
 
-  handleAddEventToPool(){
-
-  }
   render(){
 
-    const GameList = ({games}) => {
-        const gameNode = games.map((game) => {
-            return (<Game game={game} key={game._id}/>)
+    const GameList = ({bets}) => {
+        const gameNode = bets.map((bet) => {
+            return (<Game bet={bet} key={bet._id}/>)
         });
-        return (<ul className="list-group" style={{marginTop: '30px'}}>{gameNode}</ul>);
+        return (<div><a onClick={this.submitBets}>Submit</a><ul className="list-group" style={{marginTop: '30px'}}>{gameNode}</ul></div>);
     };
-    const Game = ({game}) => {
-    return (<li>
-                <span>{game.team1}</span>
-                <span>{game.team2}</span>
+    const Game = ({bet}) => {
+    return (
+            <li>
+                <img width={"25px"} height={"18px"} src={bet.game.team1.flag} alt={bet.game.team1.name}/>
+                <input onChange={(e) => this.onBetChange(bet._id, "score1", e.target.value)} value={bet.score1}></input>
+                <span>{bet.game.playAt}</span>
+                <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={bet.score2}></input>
+                <img width={"25px"} height={"18px"} src={bet.game.team2.flag} alt={bet.game.team2.name}/>
             </li>);
     }
     return (
       <div>
         <GameList
-          games={this.props.pools.games}
+            bets={this.props.pools.bets}
         />
       </div>
     );

@@ -1,34 +1,36 @@
 const _ = require('lodash');
-var Pool = require('../models/Pool');
-var Repository = require('../repositories/poolRepository');
-var Account = require('../models/Account');
-var AccountRepository = require('../repositories/accountRepository');
-var GameRepository = require('../repositories/gameRepository');
-var EventRepository = require('../repositories/eventRepository');
-var SecurityToken = require('../infrastructure/securityToken');
-var logger = require('../utils/logger');
-var winston = require('winston');
-var Q = require('q');
+const moment = require('moment');
+const Q = require('q');
+const Pool = require('../models/Pool');
+const Bet = require('../models/Bet');
+const Repository = require('../repositories/poolRepository');
+const AccountRepository = require('../repositories/accountRepository');
+const GameRepository = require('../repositories/gameRepository');
+const BetRepository = require('../repositories/betRepository');
+const EventRepository = require('../repositories/eventRepository');
+const logger = require('../utils/logger');
+const repository  = new Repository();
+const eventRepository = new EventRepository();
+const accountRepository = new AccountRepository();
+const gameRepository = new GameRepository();
+const betRepository = new BetRepository();
 
-var PoolHandler = function() {
+const PoolHandler = function() {
 	this.createPool = handleCreatePoolRequest;
     this.addGames = handleAddGames;
     this.getGames = handleGetGames;
     this.addEvents = handleAddEvents;
     this.addParticipates = handleAddParticipates;
     this.getPools = handleGetUserPools;
+    this.getUserBets = handleGetUserBets;
 };
 
 // On success should return status code 201 to notify the client the account
 // creation has been successful
 // On error should return status code 400 and the error message
 function handleCreatePoolRequest(req, res) {
-    var name = req.body.name || null;
-    var userId = req.params.userId || null;
-
-	var repository = new Repository();
-    var accountRepository = new AccountRepository();
-
+    const name = req.body.name || null;
+    const userId = req.params.userId || null;
     if (userId) {
         accountRepository.findById(userId)
             .then(
@@ -78,12 +80,11 @@ function handleCreatePoolRequest(req, res) {
 }
 
 function handleAddGames(req, res) {
-    var gameIds = req.body.games || [];
-    var poolId = req.params.poolId || null;
-    var userId = req.params.userId;
-    var repository = new Repository();
-    repository.findById(poolId)
+    const gameIds = req.body.games || [];
+    const poolId = req.params.poolId || null;
+    const userId = req.params.userId;
 
+    repository.findById(poolId)
     .then(function(pool) {
             if (userId != pool.owner.id){
                 res.json(403, {error: "you are not the owner of the pool"});
@@ -102,10 +103,46 @@ function handleAddGames(req, res) {
             });
     }) .done()
 }
+function handleGetUserBets(req, res) {
+    const poolId = req.params.poolId || null;
+    const userId = req.params.userId || null;
+    return Promise.all([
+        accountRepository.findById(userId),
+        repository.findById(poolId),
+        betRepository.findUserBetsByPoolId(userId, poolId)
+    ]).then(([account, pool, userBets]) => {
+        if (_.isNull(account) || _.isNull(pool)) {
+            return res.status(400).send({
+                error: err.message
+            });
+        }
+        return _.reduce(pool.events, function(total, event) {
+            return gameRepository.findGamesByEventIds([event._id]).then((games) => {
+                return _.concat(total, games);
+            });
+        }, pool.games).then((games)=> {
+            const bets = userBets;
+            _.forEach(games, (game) => {
+                if (game.playAt > moment())
+                bets.push( new Bet({
+                    participate: account._id,
+                    pool: pool._id,
+                    game: game,
+                    score1: null,
+                    score2: null
+                }));
+            });
+            return res.send(bets);
+        });
+    }).catch(function(err){
+       return res.status(500).send({
+           error: err.message
+       });
+   });
+}
 function handleGetGames(req, res){
     const poolId = req.params.poolId || null;
-    const repository = new Repository();
-    var gameRepository = new GameRepository();
+
     return repository.findById(poolId)
     .then(function(pool) {
         return _.reduce(pool.events, function(total, event) {
@@ -122,16 +159,14 @@ function handleGetGames(req, res){
     });
 }
 function handleAddEvents(req, res) {
-    var eventIds = req.body.events || [];
-    var poolId = req.params.poolId || null;
-    var userId = req.params.userId;
-    var repository = new Repository();
-    var gameRepository = new GameRepository();
-    var poolObj = null;
+    const eventIds = req.body.events || [];
+    const poolId = req.params.poolId || null;
+    const userId = req.params.userId;
+    let poolObj = null;
     repository.findById(poolId)
     .then(function(pool) {
 
-        var deferred = Q.defer();
+        const deferred = Q.defer();
         if (userId != pool.owner.id){
                 res.json(403, {error: "you are not the owner of the pool"});
                 return Q.reject({error: "you are not the owner of the pool" , code :403})
@@ -151,19 +186,18 @@ function handleAddEvents(req, res) {
            return  addGamesToPool(poolObj,gamesIds,req);
      })
      .then(function(docs){
-                res.json(201, {"addedEvents" :docs});
+                res.status(201).send({"addedEvents" :docs});
      })
      .catch(function(err){
-        res.json(500, { error: err.message});
+        res.status(500).send({ error: err.message});
      })
     .done()
 }
 
 function handleAddParticipates(req, res) {
-    var inviteesIds = req.body.invitees || [];
-    var poolId = req.params.poolId || null;
-    var userId = req.params.userId;
-    var repository = new Repository();
+    const inviteesIds = req.body.invitees || [];
+    const poolId = req.params.poolId || null;
+    const userId = req.params.userId;
     repository.findById(poolId).then(function(pool) {
         if (userId === pool.owner.id){
             return addParticipatesToPool(pool, inviteesIds, req);
@@ -187,8 +221,7 @@ function handleAddParticipates(req, res) {
     }).done();
 }
 function handleGetUserPools(req, res) {
-    var userId = req.params.userId;
-    var repository = new Repository();
+    const userId = req.params.userId;
     return repository.findByUserId(userId)
     .then(function(pools){
          return res.send(pools);
@@ -200,13 +233,12 @@ function handleGetUserPools(req, res) {
     })
 }
 function handleUpdatePoolRequest(req, res) {
-    var gameIds = req.body.games || [];
-    var eventsIds = req.body.events || [];
-    var inviteesIds = req.body.invitees || [];
-    var poolId = req.params.poolId || null;
+    const gameIds = req.body.games || [];
+    const eventsIds = req.body.events || [];
+    const inviteesIds = req.body.invitees || [];
+    const poolId = req.params.poolId || null;
 
-    var repository = new Repository();
-    repository.findById(poolId).then(function(pool){
+    return repository.findById(poolId).then(function(pool){
         Q.all([addGamesToPool(pool,gameIds,req), addEventsToPool(pool,eventsIds,req) , addParticipatesToPool(pool,inviteesIds,req)]).then(function(promises){
             res.json(201, {"addedGames":promises[0] , "addedEvents": promises[1]});
         }).catch(function(err){
@@ -216,15 +248,10 @@ function handleUpdatePoolRequest(req, res) {
         })
     })
    .done();
-
-
-
 }
 
 function addGamesToPool(pool,gamesIds,req){
-    var deferred = Q.defer();
-    var gameRepository = new GameRepository();
-    var repository = new Repository();
+    const deferred = Q.defer();
     gameRepository.findActiveGameByIds(gamesIds)
         .then(function (games) {
 
@@ -261,9 +288,7 @@ function addGamesToPool(pool,gamesIds,req){
     return deferred.promise;
 }
 function addEventsToPool(pool,eventsIds,req) {
-    var deferred = Q.defer();
-    var repository = new Repository();
-    var eventRepository = new EventRepository();
+    const deferred = Q.defer();
 
     eventRepository.findActiveEventsByIds(eventsIds)
         .then(function (events) {
@@ -300,14 +325,12 @@ function addEventsToPool(pool,eventsIds,req) {
 
 
 function addParticipatesToPool(pool,usersIds,req){
-    var deferred = Q.defer();
-    var accountRepository = new AccountRepository();
-    var repository = new Repository();
+    const deferred = Q.defer();
     accountRepository.findActiveAccountsByIds(usersIds)
         .then(function (users) {
 
             if (users && users.length > 0) {
-                var participatesToAdd = [];
+                const participatesToAdd = [];
                 users.forEach(function(user){
                     participatesToAdd.push({'user': user._id , 'joined' : user.equals(pool.owner)});
                 });

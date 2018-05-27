@@ -10,7 +10,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
     app.get('/api/:userId/pools', authorisationPolicy, handlers.pools.getPools);
     app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
-    app.get('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.getGames);
+    app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.pools.getUserBets);
     app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
     app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);

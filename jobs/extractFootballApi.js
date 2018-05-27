@@ -45,8 +45,10 @@ function extractGame(event, game) {
                         playAt: game.date,
                         team1: team1Model._id,
                         team2: team2Model._id,
+                        status: game.status,
                         '3pt': _.assign({
                             '3ptName': 'apiFootball',
+                            status: game.status,
                             id: _.get(game, '_links.self.href')
                         })
                     });
@@ -65,6 +67,7 @@ module.exports = {
         //schedule.scheduleJob('1 * * * *', () => {
         return apiFootballSdk().getCompetitions(moment().year())
             .then((competitions) => {
+                competitions = _.filter(competitions, {id: 467}); // WORLD CUP only
                 return Promise.all(_.forEach(competitions, (competition) => {
                     return eventRepository.findBy3ptData({'3ptName': 'apiFootball', id: competition.id})
                         .then((event) => {

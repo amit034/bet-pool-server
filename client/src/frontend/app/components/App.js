@@ -5,13 +5,17 @@ import { Route, Switch, withRouter, Redirect } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./LoginPage";
 import PoolContainer from './PoolContainer';
+import PoolsContainer from './PoolsContainer';
+import NewPool from './NewPool';
 
 class App extends React.Component {
     render() {
         return (
             <div className="app-wrapper">
                 <Switch>
-                    <ProtectedRoute path="/pools" component={PoolContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
+                    <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
+                    <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
+                    <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <Route path="/" render={(props)=>{
                        return  this.props.auth.isAuthenticated ?
                         <Redirect to= "/pools"/> :
