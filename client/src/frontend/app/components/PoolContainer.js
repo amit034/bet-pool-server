@@ -18,11 +18,15 @@ class PoolContainer extends React.Component{
   componentDidMount(){
       this.props.dispatch(getUserBets(this.props.match.params.id));
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.pools.bets) {
+      this.setState({
+        updates: _.keyBy(nextProps.pools.bets, '_id')
+      });
+    }
+  }
   onBetChange(betId, key, value){
-        const update = {};
-        update[betId] ={};
-        update[betId][key] = value;
-        this.setState(_.set(this.props.updates, `${betId}.${key}`, value));
+        this.setState(_.set(this.state.updates, `${betId}.${key}`, value));
   }
   submitBets(){
       updateUserBets(this.props.match.params.id, this.props.pools.bets);
@@ -39,11 +43,11 @@ class PoolContainer extends React.Component{
     const Game = ({bet}) => {
     return (
             <li>
-                <img width={"25px"} height={"18px"} src={bet.game.team1.flag} alt={bet.game.team1.name}/>
+                <img width={"25px"} height={"18px"} src={bet.game.team1.flag} alt={bet.game.team1.name} title={bet.game.team1.name}/>
                 <input onChange={(e) => this.onBetChange(bet._id, "score1", e.target.value)} value={bet.score1}></input>
                 <span>{bet.game.playAt}</span>
-                <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={bet.score2}></input>
-                <img width={"25px"} height={"18px"} src={bet.game.team2.flag} alt={bet.game.team2.name}/>
+                <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={bet.score2} ></input>
+                <img width={"25px"} height={"18px"} src={bet.game.team2.flag} alt={bet.game.team2.name} title={bet.game.team2.name}/>
             </li>);
     }
     return (
