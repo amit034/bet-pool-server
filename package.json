@@ -38,6 +38,8 @@
   },
   "scripts": {
     "test": "make test",
+    "start": "node Index.js",
+    "start-dev": "DEBUG=dev:* node Index.js",
     "blanket": {
       "pattern": [
         "handlers",

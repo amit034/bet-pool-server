@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
-const debug = require('debug')('server');
+const debug = require('debug')('dev:server');
 const fs = require('fs');
 const routes = require('./Routes');
 const securityPolicy = require('./securityPolicy');
@@ -41,21 +41,6 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(methodOverride());
 app.use(express.static(__dirname + '/public'));
-
-// 404
-app.use((req, res, next) => {
-    debug(req.url);
-    return res.status(404).send({ msg: 'oh no! your page not found' });
-})
-
-// Error handler
-app.use((err, req, res, next) => {
-    debug(err);
-    switch(err.code) {
-        default:
-            return res.status(500).send({ msg: 'oh no! we issue some problems' })
-    }
-})
 
 if (process.env.NODE_ENV === 'development') {
     app.use(errorHandler({ dumpExceptions: true, showStack: true }));

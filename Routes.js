@@ -1,3 +1,5 @@
+const debug = require('debug')('dev:routes');
+
 function setup(app, handlers, authorisationPolicy) {
     app.post('/api/profiles', handlers.account.createAccount);
     app.get('/api/profiles/:userId', handlers.account.getAccount);
@@ -30,6 +32,21 @@ function setup(app, handlers, authorisationPolicy) {
     //app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
     app.post('/api/auth/login', handlers.auth.handleLoginRequest);
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
+
+    // 404
+    app.use((req, res, next) => {
+        debug(req.url);
+        return res.status(404).send({ msg: 'oh no! your page not found' });
+    })
+
+    // Error handler
+    app.use((err, req, res, next) => {
+        debug(err);
+        switch(err.code) {
+            default:
+                return res.status(500).send({ msg: 'oh no! we issue some problems' })
+        }
+    })
 }
 
 exports.setup = setup;
