@@ -8,9 +8,7 @@ var Game = require('../models/Game');
 var GameRepository = require('../repositories/gameRepository');
 var EventRepository = require('../repositories/eventRepository');
 var TeamRepository = require('../repositories/teamRepository');
-var SecurityToken = require('../infrastructure/securityToken');
 var logger = require('../utils/logger');
-var winston = require('winston');
 var Q = require('q');
 
 var GameHandler = function () {

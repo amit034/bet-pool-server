@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import {withRouter} from 'react-router-dom';
-import {getUserBets , updateUserBets} from '../actions/pools';
+import {getUserBets , updateUserBets, updateUserBet} from '../actions/pools';
 import {connect} from 'react-redux';
 
 class PoolContainer extends React.Component{
@@ -14,7 +14,6 @@ class PoolContainer extends React.Component{
       }
   }
   // Lifecycle method
-
   componentDidMount(){
       this.props.dispatch(getUserBets(this.props.match.params.id));
   }
@@ -27,9 +26,10 @@ class PoolContainer extends React.Component{
   }
   onBetChange(betId, key, value){
         this.setState(_.set(this.state.updates, `${betId}.${key}`, value));
+        this.props.dispatch(updateUserBet(this.props.match.params.id, this.state.updates[betId]))
   }
   submitBets(){
-      updateUserBets(this.props.match.params.id, this.props.pools.bets);
+      this.props.dispatch(updateUserBets(this.props.match.params.id, this.props.pools.bets));
   }
 
   render(){

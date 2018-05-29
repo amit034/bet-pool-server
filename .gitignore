@@ -4,3 +4,7 @@ package-lock.json
 logs/*
 logs/**
 client/node_modules/**
+logs/api.log
+logs/exceptions.log
+logs/express.log
+logs/**

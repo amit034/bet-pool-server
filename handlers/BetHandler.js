@@ -1,24 +1,43 @@
-/***
- * Author: Valerio Gheri
- * Date: 15/03/2013
- * This class contains all the methods to handle Account related requests
- */
-
-var Bet = require('../models/Bet');
-var Repository = require('../repositories/betRepository');
-var PoolRepository = require('../repositories/poolRepository');
-var SecurityToken = require('../infrastructure/securityToken');
-var logger = require('../utils/logger');
-var winston = require('winston');
-var Q = require('q');
+const _ = require('lodash');
+const moment = require('moment');
+const Repository = require('../repositories/betRepository');
+const PoolRepository = require('../repositories/poolRepository');
+const GameRepository = require('../repositories/gameRepository');
+const logger = require('../utils/logger');
+const repository = new Repository();
+const poolRepository = new PoolRepository();
+const gameRepository = new GameRepository();
 
 var BetHandler = function() {
 	this.createOrUpdate = handleCreateOrUpdateRequest;
+	this.updateUserBets = handleUpdateUserBets;
 };
-
-// On success should return status code 201 to notify the client the account
-// creation has been successful
-// On error should return status code 400 and the error message
+function handleUpdateUserBets(req, res){
+    const poolId = req.params.poolId ||null;
+    const userId =req.params.userId || null;
+    const userBets = _.isArray(req.body) ? req.body: [];
+    return poolRepository.findById(poolId).then(function(pool) {
+        if (_.isNil(pool) || !_.contains(pool.participates, userId)){
+            const massage = "No Pool or participate found for pool id " + poolId;
+            logger.log('error', 'An error has occurred while processing a request to create a ' +
+                'Pool ' + massage + req.connection.remoteAddress );
+            return res.status(400).send({
+                error: massage
+            });
+        }
+        return _.map(userBets, (bet) => {
+            if (!_.contains(pool.games, bet.game._id)){
+                const massage = "No Game found for pool id " + poolId + " And Game id:" + bet.game._id;
+                logger.log('error', 'An error has occurred while processing a request to update a ' +
+                    'Bet ' + massage + req.connection.remoteAddress );
+                return res.status(400).send({
+                    error: massage
+                });
+            }
+            return repository.createOrUpdate(poolId,userId, bet.game._id,bet.score1,bet.score2)
+        });
+    });
+}
 function handleCreateOrUpdateRequest(req, res) {
 	var poolId = req.params.poolId || null;
 	var userId =req.params.userId || null;
@@ -26,14 +45,19 @@ function handleCreateOrUpdateRequest(req, res) {
     var score1 = req.body.score1 || null;
     var score2 = req.body.score2 || null;
 
-	var repository = new Repository();
-    var poolRepository = new PoolRepository();
 
-    Q.all([poolRepository.findGameById(poolId,gameId), poolRepository.findParticipateByUserId(poolId,userId)]).then(function(promisses) {
-        var game = promisses[0];
-        var participate =  promisses[1];
+
+    return Promise.all([
+        gameRepository.findById(gameId),
+        poolRepository.findParticipateByUserId(poolId, userId)])
+    .then(function([game, participate]) {
         if (game && participate){
-            repository.createOrUpdate(poolId,participate._id, game._id,score1,score2)
+            if (game.playAt < moment()){
+                res.send(400).status({
+                    error: "too late to change bet for this game"
+                });
+            }
+            return repository.createOrUpdate(poolId, participate.user._id, game._id, score1, score2)
                 .then(
                 function (bet) {
                     logger.log('info', 'bet for' + poolId + ' has been submitted.' +
@@ -63,7 +87,7 @@ function handleCreateOrUpdateRequest(req, res) {
         res.json(400, {
             error: err.message
         });
-    }).done();
+    });
 }
 
 

@@ -9,6 +9,6 @@ var betSchema = new Schema({
     score1 : {type : Number},
     score2 : {type : Number}
 });
-betSchema.index( { participate: 1, game: 1 }, { unique: true } );
+betSchema.index( { pool: 1, participate: 1, game: 1 }, { unique: true } );
 
 module.exports =  mongoose.model('Bet', betSchema);
