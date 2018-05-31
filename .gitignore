@@ -9,3 +9,5 @@ logs/exceptions.log
 logs/express.log
 logs/**
 npm-debug.log
+logs/api.log
+logs/express.log
