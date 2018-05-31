@@ -12,6 +12,12 @@ var poolSchema = new Schema({
     games: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Game'},
     events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'},
     name : {type : String  ,required: true},
+    factors: {
+        0: {type : Number, required: true, default: 0},
+        1: {type : Number  ,required: true, default: 10},
+        2: {type : Number  ,required: true, default: 20},
+        3: {type : Number  ,required: true, default: 30},
+    }
 });
 
 mongoose.set('debug', true);

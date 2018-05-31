@@ -10,6 +10,7 @@ var gameSchema = new Schema({
     score1 : { type: Number},
     score2 : { type: Number},
     status: {type: String},
+    factor: {type: Number, default: 1},
     '3pt': {type: mongoose.Schema.Types.Mixed}
 });
 

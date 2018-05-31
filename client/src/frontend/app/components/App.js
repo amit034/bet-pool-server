@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./LoginPage";
 import PoolContainer from './PoolContainer';
 import PoolsContainer from './PoolsContainer';
+import LeadersContainer from  './LeadersContainer'
 import NewPool from './NewPool';
 
 class App extends React.Component {
@@ -13,6 +14,7 @@ class App extends React.Component {
         return (
             <div className="app-wrapper">
                 <Switch>
+                    <ProtectedRoute path="/pools/:id/participates" component={LeadersContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={this.props.auth.isAuthenticated}/>

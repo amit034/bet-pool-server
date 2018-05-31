@@ -1,6 +1,7 @@
 
 const Pool = require('../models/Pool');
 const Game = require('../models/Game');
+const Account = require('../models/Account');
 var logger = require('../utils/logger');
 var Q = require('q');
 var mongoose = require('mongoose');
@@ -21,11 +22,15 @@ function findById(id) {
         _id: id
     };
     return Pool.findOne(query)
-    .populate({path: 'events', model: 'Event'}).exec()
+    .populate({path: 'events', model: 'Event'})
+    .exec()
     .then((pool) => {
-        return Game.populate(pool.events, {path: 'games'}).then(() => pool);
+        return Game.populate(pool.events, {path: 'games'})
+        .then(() => {
+            return Account.populate(pool.participates, {path: 'user'});
+        })
+        .then(() => pool);
     });
-
 }
 
 function findByUserId(userId) {

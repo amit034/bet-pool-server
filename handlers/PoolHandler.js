@@ -23,6 +23,7 @@ const PoolHandler = function() {
     this.addParticipates = handleAddParticipates;
     this.getPools = handleGetUserPools;
     this.getUserBets = handleGetUserBets;
+    this.getParticipates = handleGetParticipates;
 };
 
 // On success should return status code 201 to notify the client the account
@@ -102,6 +103,33 @@ function handleAddGames(req, res) {
                 error: err.message
             });
     }) .done()
+}
+
+function handleGetParticipates(req,res) {
+    const poolId = req.params.poolId || null;
+    return repository.findById(poolId).then((pool) => {
+            const participatesPromises = _.map(pool.participates, (participateModel) => {
+
+                return betRepository.findUserBetsByPoolId(participateModel.user.id, poolId)
+                .then((userBets) => {
+                        const participate = _.pick(participateModel,['joined']);
+                        const totalScore = _.reduce(userBets, (total, bet) => {
+                            const game = bet.game;
+                            const gameFactor = _.get(game, 'factor', 1);
+                            const poolFactors = _.get(pool, 'factors', {0:0, 1:10, 2:20, 3:30});
+                            const score =  bet.score(game.score1, game.score2);
+                            total  += _.get(poolFactors, score, 0) * gameFactor;
+                            return total;
+                        }, 0);
+                        participate.score = totalScore;
+                        _.assign(participate, _.pick(participateModel.user, ['id', 'username', 'joined', 'facebookUserId']));
+                        return participate;
+                });
+            });
+            return Promise.all(participatesPromises).then((participates) => {
+                return res.send(participates);
+            });
+    })
 }
 function handleGetUserBets(req, res) {
     const poolId = req.params.poolId || null;

@@ -8,3 +8,4 @@ logs/api.log
 logs/exceptions.log
 logs/express.log
 logs/**
+npm-debug.log

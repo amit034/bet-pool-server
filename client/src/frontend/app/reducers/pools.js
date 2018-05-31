@@ -4,7 +4,8 @@ function pools(state = {
     isFetching: false,
     pools:[],
     games:[],
-    bets: []
+    bets: [],
+    participates: []
   }, action) {
   switch (action.type) {
     case poolActions.GET_USER_POOLS_REQUEST:
@@ -46,6 +47,12 @@ function pools(state = {
          isFetching: false,
          bets: action.bets
        });
+      case poolActions.GET_POOL_PARTICIPATES_SUCCESS:
+        return Object.assign({}, state, {
+             isFetching: false,
+             participates: action.participates
+           });
+
     default:
       return state;
   }

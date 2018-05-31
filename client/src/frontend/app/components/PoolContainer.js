@@ -38,7 +38,7 @@ class PoolContainer extends React.Component{
         const gameNode = bets.map((bet) => {
             return (<Game bet={bet} key={bet._id}/>)
         });
-        return (<div><a onClick={this.submitBets}>Submit</a><ul className="list-group" style={{marginTop: '30px'}}>{gameNode}</ul></div>);
+        return (<div><a onClick={this.submitBets}>Submit</a><a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}/participates`)}>Leaders</a><ul className="list-group" style={{marginTop: '30px'}}>{gameNode}</ul></div>);
     };
     const Game = ({bet}) => {
     return (
