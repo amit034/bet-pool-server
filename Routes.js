@@ -1,3 +1,5 @@
+const debug = require('debug')('dev:routes');
+
 function setup(app, handlers, authorisationPolicy) {
     app.post('/api/profiles', handlers.account.createAccount);
     app.get('/api/profiles/:userId', handlers.account.getAccount);
@@ -19,19 +21,34 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/games/:gameId', authorisationPolicy, handlers.bets.createOrUpdate);
 
     //app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
-	//app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
-	//app.post('/api/profiles/:userId/lists/:templateId', authorisationPolicy, handlers.list.createShoppingList);
-	//app.put('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.updateShoppingList);
-	//app.get('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.getShoppingList);
-	//app.get('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.getShoppingLists);
-	//app.delete('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.deleteShoppingList);
-	//app.post('/api/profiles/:userId/lists/:shoppingListId/item/', authorisationPolicy, handlers.list.addShoppingItem);
-	//app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.updateShoppingItem);
-	//app.delete('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.deleteShoppingItem);
-	//app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', authorisationPolicy, handlers.list.crossoutShoppingItem);
-	//app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
+    //app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
+    //app.post('/api/profiles/:userId/lists/:templateId', authorisationPolicy, handlers.list.createShoppingList);
+    //app.put('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.updateShoppingList);
+    //app.get('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.getShoppingList);
+    //app.get('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.getShoppingLists);
+    //app.delete('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.deleteShoppingList);
+    //app.post('/api/profiles/:userId/lists/:shoppingListId/item/', authorisationPolicy, handlers.list.addShoppingItem);
+    //app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.updateShoppingItem);
+    //app.delete('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.deleteShoppingItem);
+    //app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', authorisationPolicy, handlers.list.crossoutShoppingItem);
+    //app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
     app.post('/api/auth/login', handlers.auth.handleLoginRequest);
-	app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
+    app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
+
+    // 404
+    app.use((req, res, next) => {
+        debug(req.url);
+        return res.status(404).send({ msg: 'oh no! your page not found' });
+    })
+
+    // Error handler
+    app.use((err, req, res, next) => {
+        debug(err);
+        switch(err.code) {
+            default:
+                return res.status(500).send({ msg: 'oh no! we issue some problems' })
+        }
+    })
 }
 
 exports.setup = setup;

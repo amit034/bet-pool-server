@@ -1,8 +1,8 @@
 .idea/*
+.history
+.vscode
 node_modules/*
 package-lock.json
-logs/*
-logs/**
 client/node_modules/**
 logs/api.log
 logs/exceptions.log
