@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash';
 import {authHeader, authError, getUserFromLocalStorage} from './auth'
 export const GET_USER_POOLS_REQUEST = 'GET_USER_POOLS_REQUEST';
 export const GET_USER_POOLS_SUCCESS = 'GET_USER_POOLS_SUCCESS';
@@ -95,6 +96,37 @@ function getUserBetsFail(userId, poolId, message) {
     message
   }
 }
+
+function postUserBets(userId, poolId) {
+  return {
+    type: GET_POOL_GAMES_REQUEST,
+    isFetching: true,
+    poolId,
+    userId,
+    bets: []
+  }
+}
+
+function userBetsUpdated(userId, poolId, bets) {
+  return {
+    type: GET_POOL_GAMES_SUCCESS,
+    isFetching: false,
+  poolId,
+  userId,
+  bets: bets
+  }
+}
+
+function postUserBetsFail(userId, poolId, message) {
+  return {
+    type: GET_POOL_GAMES_FAILURE,
+    isFetching: false,
+      poolId,
+      userId,
+      bets: [],
+    message
+  }
+}
 export function getPoolGames(poolId, userId){
     return dispatch => {
         userId = userId || getUserFromLocalStorage().userId;
@@ -146,5 +178,32 @@ export function getUserBets(poolId, userId) {
 }
 
 export function updateUserBets(poolId, bets, userId){
+    return dispatch => {
+       userId = userId || getUserFromLocalStorage().userId;
+       dispatch(postUserBets(userId, poolId));
+       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/bets`, bets, {headers: authHeader()})
+         .then((response) => {
+             const bets = response.data;
+             dispatch(userBetsUpdated(userId, poolId, bets))
+         }).catch((err) => {
+             const authErr = authError(err);
+             if (authErr) dispatch(authErr);
+             dispatch(postUserBetsFail(err.message));
+         });
+     }
+}
 
+
+export function updateUserBet(poolId, bet, userId){
+    return dispatch => {
+       userId = userId || getUserFromLocalStorage().userId;
+       const gameId = _.get(bet , 'game._id');
+       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/games/${gameId}`, bet, {headers: authHeader()})
+         .then((response) => {
+             const bets = response.data;
+         }).catch((err) => {
+             const authErr = authError(err);
+             if (authErr) dispatch(authErr);
+         });
+     }
 }

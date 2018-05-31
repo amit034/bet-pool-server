@@ -121,16 +121,22 @@ function handleGetUserBets(req, res) {
                 return _.concat(total, games);
             });
         }, pool.games).then((games)=> {
-            const bets = userBets;
-            _.forEach(games, (game) => {
-                if (game.playAt > moment())
-                bets.push( new Bet({
-                    participate: account._id,
-                    pool: pool._id,
-                    game: game,
-                    score1: null,
-                    score2: null
-                }));
+            const bets = _.map(games, (game) => {
+                let bet = _.find(userBets, (bet) => {
+                    return bet.game.id === game.id;
+                });
+                if (bet) {
+                    bet.game = game; // populate teams;
+                } else {
+                    bet = new Bet({
+                       participate: account._id,
+                       pool: pool._id,
+                       game: game,
+                       score1: null,
+                       score2: null
+                   });
+                }
+                return bet;
             });
             return res.send(bets);
         });
