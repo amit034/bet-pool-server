@@ -1,13 +1,24 @@
-/**
- * Created with JetBrains WebStorm.
- * User: Valerio Gheri
- * Date: 21/04/13
- * Time: 14.16
- * To change this template use File | Settings | File Templates.
- */
 module.exports = {
 	"db": {
 		"mongodb": "mongodb://api:239rtjss9akjksf82@ds035787.mongolab.com:35787/shopwithme"
+	},
+	'facebookAuth' : {
+		'clientID'      : 'your-clientID-here',
+		'clientSecret'  : 'your-client-secret-here',
+		'callbackURL'     : 'http://localhost:3000/api/auth/facebook/callback',
+		'profileURL': 'https://graph.facebook.com/v2.5/me?fields=first_name,last_name,email'
+
+	},
+
+	'twitterAuth' : {
+		'consumerKey'        : 'your-consumer-key-here',
+		'consumerSecret'     : 'your-client-secret-here',
+		'callbackURL'        : 'http://localhost:3000/auth/twitter/callback'
+	},
+	'googleAuth' : {
+		'clientID'         : 'your-clientID-here',
+		'clientSecret'     : 'your-client-secret-here',
+		'callbackURL'      : 'http://localhost:3000/auth/google/callback'
 	},
 	"logger": {
 		"api": "logs/api.log",

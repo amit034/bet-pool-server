@@ -76,3 +76,51 @@ export function loginUser(creds) {
   }
 }
 
+export function verifyFacebookToken(response) {
+    return dispatch => {
+        const tokenBlob = new Blob([JSON.stringify({accessToken: response.accessToken}, null, 2)], {type: 'application/json'});
+        // const options = {
+        //     method: 'POST',
+        //     body: tokenBlob,
+        //     mode: 'cors',
+        //     cache: 'default'
+        // };
+        axios.post('http://localhost:3000/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+        }).then(r => {
+            const user = r.data;
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('apiAccessToken', user.apiAccessToken);
+            // Dispatch the success action
+            dispatch(receiveLogin(user))
+        }).catch((err) => {
+          dispatch(loginError(err.message));
+        });
+    }
+}
+
+export function verifyGoogleToken(response) {
+    return dispatch => {
+       // const tokenBlob = new Blob([JSON.stringify({access_token: response.accessToken}, null, 2)], {type : 'application/json'});
+       // const options = {
+       //     method: 'POST',
+       //     body: tokenBlob,
+       //     mode: 'cors',
+       //     cache: 'default'
+       // };
+        axios.post('http://localhost:3000/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(r => {
+            const user = r.data;
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('apiAccessToken', user.apiAccessToken);
+            dispatch(receiveLogin(user))
+        }).catch((err) => {
+          dispatch(loginError(err.message));
+        });
+    }
+}

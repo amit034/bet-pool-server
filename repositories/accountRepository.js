@@ -7,7 +7,7 @@ function AccountRepository() {
 	//this.addShoppingListToUser = addShoppingListToUser;
 	//this.removeShoppingListFromUser = removeShoppingListFromUser;
 	this.createAccount = createAccount;
-	this.findAccountByUsername = findAccountByUsername;
+	this.findAccountByQuery = findAccountByQuery;
     this.findActiveAccountsByIds  =findActiveAccountsByIds;
     this.findAccountByUsernamePassword = findAccountByUsernamePassword;
 	this.updateAccount = updateAccount;
@@ -88,7 +88,6 @@ function findActiveAccountsByIds(ids) {
 // }
 
 function createAccount(username, password, firstName, lastName, email, facebookUserId) {
-	var deferred = Q.defer();
 	var account = new Account({
 		username: username,
 		password: password,
@@ -97,32 +96,12 @@ function createAccount(username, password, firstName, lastName, email, facebookU
 		facebookUserId: facebookUserId || null,
 		email: email
 	});
-	account.save(function(err, account) {
-		if (err) {
-			deferred.reject(err);
-		}
-		else {
-			deferred.resolve(account);
-		}
-	});
-	return deferred.promise;
+	return account.save();
 }
 
-function findAccountByUsername(username) {
-	var deferred = Q.defer();
-	Account.find({
-		username: username
-	}, function(err, foundUsername) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(foundUsername);
-		}
-	});
-	return deferred.promise;
+function findAccountByQuery(query) {
+    return Account.findOne(query);
 }
-
 function findAccountByUsernamePassword(username,password) {
     var deferred = Q.defer();
     Account.findOne({
@@ -142,55 +121,26 @@ function findAccountByUsernamePassword(username,password) {
 
 
 function updateAccount(account) {
-	var deferred = Q.defer();
 	var query = {
 		username: account.username
 	};
 	var options = {
 		'new': true
 	};
-	Account.findOneAndUpdate(query,
+	return Account.findOneAndUpdate(query,
 		{
 			firstName: account.firstName,
 			lastName: account.lastName,
 			email: account.email
 		},
-		options,
-		function(err, account) {
-			if (err) {
-				deferred.reject(new Error(err));
-			}
-			else {
-				deferred.resolve(account);
-			}
-		}
-	);
-	return deferred.promise;
+		options);
 }
 
 function updateLastLoginDate(account, lastLogin) {
-	var deferred = Q.defer();
 	var query = {
 		username: account.username
 	};
-	var options = {
-		'new': true
-	};
-	Account.findOneAndUpdate(query,
-		{
-			lastLogin: lastLogin
-		},
-		options,
-		function(err, account) {
-			if (err) {
-				deferred.reject(new Error(err));
-			}
-			else {
-				deferred.resolve(account);
-			}
-		}
-	);
-	return deferred.promise;
+	return Account.findOneAndUpdate(query, {lastLogin: lastLogin}, {'new': true});
 }
 
 function disableAccount(userId) {
@@ -221,25 +171,16 @@ function disableAccount(userId) {
 
 // Attempt to find an existing account by username, and if it cannot find it, it creates it
 // userProfile is of type UserProfile from Passport.js. See http://passportjs.org/guide/profile/
-function findOrCreateAccount(email, facebookUserId, email, firstName, lastName) {
-	var deferred = Q.defer();
-	this.findAccountByUsername(username)
-		.then(function(account) {
-			if (account && account.username && account.username !== '') {
-				deferred.resolve(account); // Found!
-			}
-			else {
-				// Let's create the account
-				createAccount(username, ' ', firstName, lastName, email, facebookUserId)
-					.then(function(account) {
-						deferred.resolve(account);
-					});
-			}
-		})
-		.fail(function(err) {
-			deferred.reject(err);
-		});
-	return deferred.promise;
+function findOrCreateAccount(username, facebookUserId, email, firstName, lastName) {
+	return this.findAccountByQuery({email})
+	.then(function(account) {
+		if (account && account.username && account.username !== '') {
+			return Promise.resolve(account); // Found!
+		}
+		else {
+			return createAccount(username, ' ', firstName, lastName, email, facebookUserId);
+		}
+	});
 }
 
 module.exports = AccountRepository;

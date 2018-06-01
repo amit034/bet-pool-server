@@ -1,37 +1,30 @@
-/**
- * Created with JetBrains WebStorm.
- * User: valerio
- * Date: 22/08/13
- * Time: 13.19
- * To change this template use File | Settings | File Templates.
- */
+const mongoose = require('mongoose');
+const Q = require('q');
+const _ = require('lodash');
 
-var mongoose = require('mongoose');
-var Q = require('q');
-
-var securityTokenSchema = mongoose.Schema({
+const securityTokenSchema = mongoose.Schema({
 	apiAccessToken: {type: String, required: true, index: {unique: true}},
 	issueDate: {type: Date, required: true},
 	expirationDate: {type: Date, required: true},
 	userId: {type: [mongoose.Schema.ObjectId], required: true},
-	facebookAccessToken: {type: String, required: false}
+	providerAccessToken: {type: String, required: false}
 });
 
 securityTokenSchema.methods.isExpired = function() {
 	return Date.now() > this.expirationDate;
 };
 
-securityTokenSchema.statics.createFromApiAndFacebookToken = function(apiToken, fbToken) {
-	if (!apiToken || apiToken.accessToken < 32 || !fbToken || fbToken.length === 0) {
+securityTokenSchema.statics.createFromApiAndProviderToken = function(apiToken, providerToken) {
+	if (!apiToken || apiToken.accessToken < 32 || !providerToken || providerToken.length === 0) {
 		throw new Error('The Api access token and the Facebook user access token are required');
 	}
-	var obj = new SecurityToken();
+    const obj = new SecurityToken();
 	obj.apiAccessToken = apiToken.accessToken;
 	obj.issueDate = apiToken.issueDate;
 	obj.expirationDate = apiToken.expirationDate;
 	obj.application = apiToken.application;
 	obj.userId = apiToken.userId;
-	obj.facebookAccessToken = fbToken;
+	obj.providerAccessToken = _.toString(providerToken);
 	return obj;
 };
 
