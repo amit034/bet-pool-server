@@ -22,13 +22,14 @@ function handleUserPasswordRegister(req, res, next){
         const username = req.body.username;
         const firstName = req.body.firstName;
         const lastName = req.body.lastName;
+        const email = req.body.email;
         if (password && username) {
-            return accountRepository.findAccountByQuery(username, password)
+            return accountRepository.findAccountByQuery({email})
             .then((account) => {
                 if (account) {
-                    return Promise.reject("username already exist");
+                    return Promise.reject("email already exist");
                 } else{
-                    return accountRepository.createAccount({username, password, firstName, lastName, email: username})
+                    return accountRepository.createAccount({username, password, firstName, lastName, email})
                         .then((account) => {
                             req.user = account;
                             next();
@@ -126,7 +127,7 @@ function handleLoginRequest(req, res, next) {
     var password = req.body.password;
     var username = req.body.username;
     if (password && username) {
-        accountRepository.findAccountByUsernamePassword(username, password)
+        accountRepository.findAccountByQuery({username, password, googleProvider: {$exists: false}, facebookProvider: {$exists: false}})
         .then((account) => {
             if (account) {
                 req.user = account;

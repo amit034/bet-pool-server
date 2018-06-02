@@ -19,11 +19,14 @@ class App extends React.Component {
                     <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={this.props.auth.isAuthenticated}/>
                     <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={this.props.auth.isAuthenticated}/>
-                    <Route path="/register" component={RegistrationPage}/>
+                    <Route path="/register" render={(props)=>{
+                       return  this.props.auth.isAuthenticated ?
+                        <Redirect to= "/pools"/> :
+                        <RegistrationPage {...props}/>
+                    }} />
                     <Route path="/" render={(props)=>{
                        return  this.props.auth.isAuthenticated ?
                         <Redirect to= "/pools"/> :
-
                         <LoginPage {...props}/>
                     }} />
                 </Switch>

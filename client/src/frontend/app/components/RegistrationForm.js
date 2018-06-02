@@ -20,7 +20,7 @@ const RegistrationForm = ({
 
       <div className="field-line">
         <TextField
-          floatingLabelText="Email"
+          floatingLabelText="User name"
           name="username"
           errorText={errors.email}
           onChange={onChange}
@@ -48,6 +48,16 @@ const RegistrationForm = ({
           value={user.password2}
         />
       </div>
+
+        <div className="field-line">
+          <TextField
+            floatingLabelText="Email"
+            name="email"
+            errorText={errors.email}
+            onChange={onChange}
+            value={user.email}
+          />
+        </div>
         <div className="field-line">
          <TextField
            floatingLabelText="First Name"
