@@ -13,7 +13,6 @@ function AccountRepository() {
 	this.updateAccount = updateAccount;
 	this.updateLastLoginDate = updateLastLoginDate;
 	this.disableAccount = disableAccount;
-	this.findOrCreateAccount = findOrCreateAccount;
 }
 
 function findAccountById(id) {
@@ -87,15 +86,8 @@ function findActiveAccountsByIds(ids) {
 // 	return deferred.promise;
 // }
 
-function createAccount(username, password, firstName, lastName, email, facebookUserId) {
-	var account = new Account({
-		username: username,
-		password: password,
-		firstName: firstName,
-		lastName: lastName,
-		facebookUserId: facebookUserId || null,
-		email: email
-	});
+function createAccount(details) {
+	var account = new Account(details);
 	return account.save();
 }
 
@@ -167,20 +159,6 @@ function disableAccount(userId) {
 		}
 	);
 	return deferred.promise;
-}
-
-// Attempt to find an existing account by username, and if it cannot find it, it creates it
-// userProfile is of type UserProfile from Passport.js. See http://passportjs.org/guide/profile/
-function findOrCreateAccount(username, facebookUserId, email, firstName, lastName) {
-	return this.findAccountByQuery({email})
-	.then(function(account) {
-		if (account && account.username && account.username !== '') {
-			return Promise.resolve(account); // Found!
-		}
-		else {
-			return createAccount(username, ' ', firstName, lastName, email, facebookUserId);
-		}
-	});
 }
 
 module.exports = AccountRepository;

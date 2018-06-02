@@ -75,7 +75,26 @@ export function loginUser(creds) {
       });
   }
 }
+export function registerUser(creds) {
 
+  return dispatch => {
+    if(creds.password != creds.password2){
+        dispatch(loginError( "password not match"));
+    }
+    dispatch(requestLogin(creds));
+
+    return axios.post('http://localhost:3000/api/auth/register', creds)
+      .then((response) => {
+          const user = response.data;
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('apiAccessToken', user.apiAccessToken);
+          // Dispatch the success action
+          dispatch(receiveLogin(user))
+      }).catch((err) => {
+          dispatch(loginError(err.message));
+      });
+  }
+}
 export function verifyFacebookToken(response) {
     return dispatch => {
         const tokenBlob = new Blob([JSON.stringify({accessToken: response.accessToken}, null, 2)], {type: 'application/json'});
@@ -123,4 +142,39 @@ export function verifyGoogleToken(response) {
           dispatch(loginError(err.message));
         });
     }
+}
+
+export function registerWithFacebookToken(response){
+    return dispatch => {
+           axios.post('http://localhost:3000/api/auth/register/facebook',{access_token: response.accessToken, appName:'betPool'},{
+                   headers: {
+                       'Content-Type': 'application/json',
+                   }
+               }).then(r => {
+               const user = r.data;
+               localStorage.setItem('user', JSON.stringify(user));
+               localStorage.setItem('apiAccessToken', user.apiAccessToken);
+               dispatch(receiveLogin(user))
+           }).catch((err) => {
+             dispatch(loginError(err.message));
+           });
+       }
+}
+
+
+export function registerWithGoogleToken(response){
+    return dispatch => {
+           axios.post('http://localhost:3000/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
+                   headers: {
+                       'Content-Type': 'application/json',
+                   }
+               }).then(r => {
+               const user = r.data;
+               localStorage.setItem('user', JSON.stringify(user));
+               localStorage.setItem('apiAccessToken', user.apiAccessToken);
+               dispatch(receiveLogin(user))
+           }).catch((err) => {
+             dispatch(loginError(err.message));
+           });
+       }
 }

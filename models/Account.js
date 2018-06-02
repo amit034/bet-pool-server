@@ -48,51 +48,64 @@ accountSchema.methods.toJSON = function () {
 
 accountSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
     var that = this;
-    return this.findOne({
-        'email': profile.emails[0].value
-    }, function (err, user) {
-        // no user was found, lets create a new one
-        if (!user) {
-            var newAccount = new that({
-                username: profile.displayName,
-                password: 'none',
-                lastName: profile._json.last_name,
-                firstName: profile._json.first_name,
-                email: profile.emails[0].value,
-                picture: profile._json.picture,
-                facebookProvider: {
-                    id: profile.id,
-                    token: accessToken
-                }
-            });
-
-            newAccount.save(function (error, savedUser) {
-                if (error) {
-                    console.log(error);
-                }
-                return cb(error, savedUser);
-            });
-        } else if (_.get(user, 'facebookProvider.id') != profile.id) {
-            const err = "email already exist with different auth provider";
-            return cb(err, user);
+        const email = profile.emails[0].value;
+        let searchByEmail;
+        if (email) {
+            searchByEmail = Account.findOne({email})
         } else {
-            return cb(err, user);
+            searchByEmail = null;
         }
-    });
+        return Promise.all([searchByEmail, Account.findOne({'facebookProvider.id': profile.id})]).then(([userBySearch, userByProfile]) => {
+            if (userBySearch && userBySearch.id != userByProfile.id) {
+                return cb(new Error('user already exist with that email'), null, profile);
+            }
+            if (!userByProfile) {
+                const newUser = new Account({
+                    username: profile.displayName,
+                    password: 'none',
+                    lastName: profile._json.family_name,
+                    firstName: profile._json.given_name,
+                    email: profile.emails[0].value,
+                    picture: profile._json.picture,
+                    facebookProvider: {
+                        id: profile.id,
+                        token: accessToken
+                    }
+                });
+
+                newUser.save(function (error, savedUser) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    return cb(error, savedUser);
+                });
+            } else {
+                return cb(null, userByProfile);
+            }
+        }).catch((err) => {
+            return cb(err, null, profile);
+        });
 };
 
 accountSchema.statics.upsertGoogleUser = function (accessToken, refreshToken, profile, cb) {
     var that = this;
-    return this.findOne({
-        'email': profile.emails[0].value
-    }, function (err, user) {
-        // no user was found, lets create a new one
-        if (!user) {
-            var newAccount = new that({
+    const email = profile.emails[0].value;
+    let searchByEmail;
+    if (email) {
+        searchByEmail = Account.findOne({email})
+    } else {
+        searchByEmail = null;
+    }
+    return Promise.all([searchByEmail, Account.findOne({'googleProvider.id': profile.id})]).then(([userBySearch, userByProfile]) => {
+        if (userBySearch && userBySearch.id != userByProfile.id) {
+            return cb(new Error('user already exist with that email'), null, profile);
+        }
+        if (!userByProfile) {
+            const newUser = new Account({
                 username: profile.displayName,
+                password: 'none',
                 lastName: profile._json.family_name,
                 firstName: profile._json.given_name,
-                password: 'none',
                 email: profile.emails[0].value,
                 picture: profile._json.picture,
                 googleProvider: {
@@ -101,18 +114,17 @@ accountSchema.statics.upsertGoogleUser = function (accessToken, refreshToken, pr
                 }
             });
 
-            newAccount.save(function (error, savedUser) {
+            newUser.save(function (error, savedUser) {
                 if (error) {
                     console.log(error);
                 }
                 return cb(error, savedUser);
             });
-        } else if (_.get(user, 'googleProvider.id') != profile.id) {
-            const err = "email already exist with different auth provider";
-            return cb(err, user);
         } else {
-            return cb(err, user);
+            return cb(null, userByProfile);
         }
+    }).catch((err) => {
+        return cb(err, null, profile);
     });
 };
 var Account = mongoose.model('Account', accountSchema);

@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 import FacebookLogin from 'react-facebook-login';
 import {GoogleLogin} from 'react-google-login';
-import {loginUser, verifyFacebookToken, verifyGoogleToken} from '../actions/auth';
-import LoginForm from './LoginForm';
+import {registerUser, registerWithFacebookToken, registerWithGoogleToken} from '../actions/auth';
+import RegistrationForm from './RegistrationForm';
 
-class LoginPage extends React.Component {
+class RegistrationPage extends React.Component {
 
     /**
      * Class constructor.
@@ -27,7 +27,10 @@ class LoginPage extends React.Component {
             successMessage,
             user: {
                 username: 'amit',
-                password: 'am053450'
+                password: 'am053450',
+                password2: 'am053450',
+                firstName: 'Amit',
+                lastName: 'Rotbard'
             }
         };
 
@@ -38,11 +41,11 @@ class LoginPage extends React.Component {
     }
 
     facebookResponse(response) {
-        this.props.dispatch(verifyFacebookToken(response));
+        this.props.dispatch(registerWithFacebookToken(response));
     }
 
     googleResponse(response) {
-        this.props.dispatch(verifyGoogleToken(response));
+        this.props.dispatch(registerWithGoogleToken(response));
     }
 
     /**
@@ -57,22 +60,12 @@ class LoginPage extends React.Component {
         // create a string for an HTTP body message
         const username = encodeURIComponent(this.state.user.username);
         const password = encodeURIComponent(this.state.user.password);
+        const password2 = encodeURIComponent(this.state.user.password2);
+        const firstName = encodeURIComponent(this.state.user.firstName);
+        const lastName = encodeURIComponent(this.state.user.lastName);
 
-        this.props.dispatch(loginUser({username, password}));
-        // axios.post(this.apiUrl, {username, password})
-        // .then((res) => {
-        //     this.setState({
-        //       errors: {}
-        //     });
-        //     Auth.authenticateUser(res.data);
-        //     this.context.router.replace('/');
-        // }).catch((err) => {
-        //     const errors = err ? err : {};
-        //     errors.summary = err.message;
-        //    this.setState({
-        //      errors
-        //    });
-        // });
+        this.props.dispatch(registerUser({username, password, password2, firstName, lastName}));
+
     }
 
     /**
@@ -98,10 +91,11 @@ class LoginPage extends React.Component {
 
             <div>
                 <div class="at-title">
-                    <h3>Sign In</h3>
+                    <h3>Create An Account</h3>
                 </div>
                 <div>
                     <FacebookLogin
+                        textButton={"Register with Facebook"}
                         appId="476316572540105"
                         autoLoad={false}
                         fields="name,email,picture,app_name"
@@ -111,13 +105,14 @@ class LoginPage extends React.Component {
                     <GoogleLogin
                         clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
                         onSuccess={this.googleResponse}
+                        buttonText={"Register with Google"}
                     />
                 </div>
                 <div class="at-sep">
                     <strong>OR</strong>
                 </div>
                 <div>
-                    <LoginForm
+                    <RegistrationForm
                         onSubmit={this.processForm}
                         onChange={this.changeUser}
                         errors={this.state.errors}
@@ -125,20 +120,14 @@ class LoginPage extends React.Component {
                         user={this.state.user}
                     />
                 </div>
-                <div>
-                    <p>
-                      Don't have an account?
-                      <a href='#' onClick={() => this.props.history.push(`/register`)}>Register</a>
-                    </p>
-                </div>
             </div>
         );
     }
 
 }
 
-LoginPage.contextTypes = {
+RegistrationPage.contextTypes = {
     router: PropTypes.object.isRequired
 };
 
-export default connect(({auth}) => ({auth}))(LoginPage);
+export default connect(({auth}) => ({auth}))(RegistrationPage);

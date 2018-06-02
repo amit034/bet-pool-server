@@ -33,10 +33,15 @@ function setup(app, handlers, authorisationPolicy) {
     //app.delete('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.deleteShoppingItem);
     //app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', authorisationPolicy, handlers.list.crossoutShoppingItem);
     //app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
-    app.post('/api/auth/login', handlers.auth.handleLoginRequest, handlers.auth.performLogin);
+    app.post('/api/auth/login', handlers.auth.handleLoginRequest, handlers.auth.postLogin);
     //app.post('/api/auth/facebook', handlers.auth.verifyFacebookToken);
-    app.post('/api/auth/FACEBOOK', passport.authenticate('facebook-token', {session: false}), handlers.auth.performLogin);
-    app.post('/api/auth/google', passport.authenticate('google-token', {session: false}), handlers.auth.performLogin);
+    app.post('/api/auth/facebook', passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
+    app.post('/api/auth/google', passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
+
+    app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
+    app.post('/api/auth/register/facebook', passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
+    app.post('/api/auth/register/google', passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
+
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
 
     // 404
@@ -49,6 +54,8 @@ function setup(app, handlers, authorisationPolicy) {
     app.use((err, req, res, next) => {
         debug(err);
         switch(err.code) {
+            case 401:
+                return res.status(err.code).send({ msg: err.msg});
             default:
                 return res.status(500).send({ msg: 'oh no! we issue some problems' })
         }
