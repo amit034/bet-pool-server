@@ -394,7 +394,7 @@ function addParticipatesToPool(pool,usersIds,req){
                 'users ids ' + usersIds + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
             deferred.reject(err);
-        })
+        });
     return deferred.promise;
 }
 

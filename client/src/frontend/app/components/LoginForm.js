@@ -20,11 +20,11 @@ const LoginForm = ({
 
       <div className="field-line">
         <TextField
-          floatingLabelText="username"
-          name="username"
+          floatingLabelText="email"
+          name="email"
           errorText={errors.email}
           onChange={onChange}
-          value={user.username}
+          value={user.email}
         />
       </div>
 

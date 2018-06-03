@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
@@ -6,7 +7,6 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const debug = require('debug')('dev:server');
 const fs = require('fs');
-const routes = require('./Routes');
 const securityPolicy = require('./securityPolicy');
 
 // Handlers
@@ -38,12 +38,13 @@ app.use(cors());
 // });
 
 app.use(morgan('combined', { stream: expressLogFile }));
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride());
+app.use(passport.initialize());
 app.use(express.static(__dirname + '/public'));
-
+const routes = require('./Routes');
 if (process.env.NODE_ENV === 'development') {
     app.use(errorHandler({ dumpExceptions: true, showStack: true }));
 }

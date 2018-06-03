@@ -1,5 +1,6 @@
 const Q = require('q');
 const _ = require('lodash');
+const passport = require('passport');
 const moment = require('moment');
 const AccountRepository = require('../repositories/accountRepository');
 const ApiAccessToken = require('../infrastructure/apiAccessToken');
@@ -122,31 +123,54 @@ function handleGoggleRegister(req, res, next){
 //         return res.status(401).send({error: 'Reason:  user name required'});
 //     }
 // }
+
 function handleLoginRequest(req, res, next) {
-    var deferred = Q.defer();
-    var password = req.body.password;
-    var username = req.body.username;
-    if (password && username) {
-        accountRepository.findAccountByQuery({username, password, googleProvider: {$exists: false}, facebookProvider: {$exists: false}})
-        .then((account) => {
-            if (account) {
-                req.user = account;
-                next();
-            }
-        })
-        .catch(function (err) {
-               logger.log('error', 'Bad login request from ' +
-                   req.connection.remoteAddress + err);
-               res.status(401).send({error: err.message});
-        });
-    }
-    else {
-        // 400 BAD REQUEST
-        logger.log('error', 'Bad login request from ' +
-            req.connection.remoteAddress + '. Reason:  username and password are required.');
-        return res.status(401).send({error: 'Reason:  user name required'});
-    }
+    return passport.authenticate('local', {session: false}, function (err, user) {
+        if (err) {
+            logger.log('error', 'An error has occurred while processing a request ' +
+                ' from ' +
+                req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+            return res.status(500).send({
+                error: err.message
+            });
+        }
+        if (user) {
+            req.curentUser = user;
+            return next();
+        }
+        else {
+            logger.log('info', 'User  is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+            return res.status(401).send({
+                error: "User is not authorised"
+            });
+        }
+    })(req, res);
 }
+// function handleLoginRequest(req, res, next) {
+//     var deferred = Q.defer();
+//     var password = req.body.password;
+//     var username = req.body.username;
+//     if (password && username) {
+//         accountRepository.findAccountByQuery({username, password, googleProvider: {$exists: false}, facebookProvider: {$exists: false}})
+//         .then((account) => {
+//             if (account) {
+//                 req.user = account;
+//                 next();
+//             }
+//         })
+//         .catch(function (err) {
+//                logger.log('error', 'Bad login request from ' +
+//                    req.connection.remoteAddress + err);
+//                res.status(401).send({error: err.message});
+//         });
+//     }
+//     else {
+//         // 400 BAD REQUEST
+//         logger.log('error', 'Bad login request from ' +
+//             req.connection.remoteAddress + '. Reason:  username and password are required.');
+//         return res.status(401).send({error: 'Reason:  user name required'});
+//     }
+// }
 // function handlePostLogin(loginViewModel, req, res){
 //         if (loginViewModel) {
 //             logger.log('info', 'User ' + loginViewModel.username + ' successfully logged in using application' +
@@ -201,7 +225,7 @@ function handleLogoutRequest(req, res) {
 
 function postLogin(req, res) {
     var deferred = Q.defer();
-    const account = req.user;
+    const account = req.curentUser;
     const appName = req.body.appName;
     SecurityToken.findSecurityTokenFromUserId(account._id)
     .then(function (securityToken) {

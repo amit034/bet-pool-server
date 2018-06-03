@@ -26,7 +26,7 @@ class LoginPage extends React.Component {
             errors: {},
             successMessage,
             user: {
-                username: 'amit',
+                email: 'amit.rotbard@gmail.com',
                 password: 'am053450'
             }
         };
@@ -55,10 +55,10 @@ class LoginPage extends React.Component {
         event.preventDefault();
 
         // create a string for an HTTP body message
-        const username = encodeURIComponent(this.state.user.username);
-        const password = encodeURIComponent(this.state.user.password);
+        // const email = encodeURIComponent(this.state.user.email);
+        // const password = encodeURIComponent(this.state.user.password);
 
-        this.props.dispatch(loginUser({username, password}));
+        this.props.dispatch(loginUser(this.state.user));
         // axios.post(this.apiUrl, {username, password})
         // .then((res) => {
         //     this.setState({

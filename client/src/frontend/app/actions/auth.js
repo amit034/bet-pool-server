@@ -63,7 +63,7 @@ export function loginUser(creds) {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/login', creds)
+    return axios.post('http://localhost:3000/api/auth/login', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));
@@ -83,7 +83,7 @@ export function registerUser(creds) {
     }
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/register', creds)
+    return axios.post('http://localhost:3000/api/auth/register', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));

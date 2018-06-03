@@ -18,16 +18,24 @@ const RegistrationForm = ({
       {successMessage && <p className="success-message">{successMessage}</p>}
       {errors.summary && <p className="error-message">{errors.summary}</p>}
 
-      <div className="field-line">
-        <TextField
-          floatingLabelText="User name"
-          name="username"
-          errorText={errors.email}
-          onChange={onChange}
-          value={user.username}
-        />
-      </div>
-
+      {/*<div className="field-line">*/}
+        {/*<TextField*/}
+          {/*floatingLabelText="User name"*/}
+          {/*name="username"*/}
+          {/*errorText={errors.email}*/}
+          {/*onChange={onChange}*/}
+          {/*value={user.username}*/}
+        {/*/>*/}
+      {/*</div>*/}
+    <div className="field-line">
+       <TextField
+         floatingLabelText="Email"
+         name="email"
+         errorText={errors.email}
+         onChange={onChange}
+         value={user.email}
+       />
+     </div>
       <div className="field-line">
         <TextField
           floatingLabelText="Password"
@@ -48,16 +56,6 @@ const RegistrationForm = ({
           value={user.password2}
         />
       </div>
-
-        <div className="field-line">
-          <TextField
-            floatingLabelText="Email"
-            name="email"
-            errorText={errors.email}
-            onChange={onChange}
-            value={user.email}
-          />
-        </div>
         <div className="field-line">
          <TextField
            floatingLabelText="First Name"

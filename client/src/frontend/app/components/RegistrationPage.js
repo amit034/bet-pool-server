@@ -26,7 +26,6 @@ class RegistrationPage extends React.Component {
             errors: {},
             successMessage,
             user: {
-                username: 'amit',
                 password: 'am053450',
                 password2: 'am053450',
                 email: 'amit.rotbard@gmail.com',
@@ -57,9 +56,12 @@ class RegistrationPage extends React.Component {
     processForm(event) {
         // prevent default action. in this case, action is the form submission event
         event.preventDefault();
-
+        // const email = encodeURIComponent(this.state.user.email);
+        // const password = encodeURIComponent(this.state.user.password);
+        // const password2 = encodeURIComponent(this.state.user.password2);
+        // const firstName = encodeURIComponent(this.state.user.firstName);
+        // const lastName = encodeURIComponent(this.state.user.lastName);
         this.props.dispatch(registerUser(this.state.user));
-
     }
 
     /**

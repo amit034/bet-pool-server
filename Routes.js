@@ -11,7 +11,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
     app.post('/api/admin/events/:eventId/games', handlers.game.createGame);
     app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
-    app.get('/api/:userId/pools', authorisationPolicy, handlers.pools.getPools);
+    app.get('/api/:userId/pools',  authorisationPolicy , handlers.pools.getPools);
     app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
     app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.pools.getUserBets);
     app.post('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.bets.updateUserBets);
@@ -33,14 +33,15 @@ function setup(app, handlers, authorisationPolicy) {
     //app.delete('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.deleteShoppingItem);
     //app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', authorisationPolicy, handlers.list.crossoutShoppingItem);
     //app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
-    app.post('/api/auth/login', handlers.auth.handleLoginRequest, handlers.auth.postLogin);
+    app.post('/api/auth/login', (req, res, next) => {  req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     //app.post('/api/auth/facebook', handlers.auth.verifyFacebookToken);
-    app.post('/api/auth/facebook', passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
-    app.post('/api/auth/google', passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
+    app.post('/api/auth/facebook', (req, res, next) => { req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
+    app.post('/api/auth/google',(req, res, next) => { req.authStrategy = 'google-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
 
-    app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
-    app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; return next();}, passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
-    app.post('/api/auth/register/google', (req, res, next) => { req.register = true; return next();}, passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
+    //app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
+    app.post('/api/auth/register', (req, res, next) => { req.register = true; req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
+    app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
+    app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
 
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
 
@@ -52,6 +53,7 @@ function setup(app, handlers, authorisationPolicy) {
 
     // Error handler
     app.use((err, req, res, next) => {
+        console.log(err);
         debug(err);
         switch(err.code) {
             case 401:
