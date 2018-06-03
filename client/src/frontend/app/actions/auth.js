@@ -97,13 +97,6 @@ export function registerUser(creds) {
 }
 export function verifyFacebookToken(response) {
     return dispatch => {
-        const tokenBlob = new Blob([JSON.stringify({accessToken: response.accessToken}, null, 2)], {type: 'application/json'});
-        // const options = {
-        //     method: 'POST',
-        //     body: tokenBlob,
-        //     mode: 'cors',
-        //     cache: 'default'
-        // };
         axios.post('http://localhost:3000/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
                         headers: {
                             'Content-Type': 'application/json',

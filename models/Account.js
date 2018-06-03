@@ -63,8 +63,8 @@ accountSchema.statics.upsertFbUser = function (accessToken, refreshToken, profil
                 const newUser = new Account({
                     username: profile.displayName,
                     password: 'none',
-                    lastName: profile._json.family_name,
-                    firstName: profile._json.given_name,
+                    lastName: profile._json.first_name,
+                    firstName: profile._json.last_name,
                     email: profile.emails[0].value,
                     picture: profile._json.picture,
                     facebookProvider: {

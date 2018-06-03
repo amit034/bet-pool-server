@@ -39,8 +39,8 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/google', passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
 
     app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
-    app.post('/api/auth/register/facebook', passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
-    app.post('/api/auth/register/google', passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
+    app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; return next();}, passport.authenticate('facebook-token', {session: false}), handlers.auth.postLogin);
+    app.post('/api/auth/register/google', (req, res, next) => { req.register = true; return next();}, passport.authenticate('google-token', {session: false}), handlers.auth.postLogin);
 
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
 
@@ -48,7 +48,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.use((req, res, next) => {
         debug(req.url);
         return res.status(404).send({ msg: 'oh no! your page not found' });
-    })
+    });
 
     // Error handler
     app.use((err, req, res, next) => {

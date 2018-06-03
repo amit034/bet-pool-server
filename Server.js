@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const methodOverride = require('method-override');
@@ -27,13 +28,14 @@ const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' }
 
 //app.set('views', __dirname + '/views');
 //app.set('view engine', viewEngine);
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return 'OPTIONS' == req.method ? res.sendStatus(200) : next();
-});
+app.use(cors());
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//     res.header('Access-Control-Allow-Credentials', 'true');
+//     return 'OPTIONS' == req.method ? res.sendStatus(200) : next();
+// });
 
 app.use(morgan('combined', { stream: expressLogFile }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -60,7 +62,7 @@ const handlers = {
 
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
-    const server = app.listen(port)
+    const server = app.listen(port);
     
     server.on('error', onError);
     server.on('listening', onListening);
@@ -70,6 +72,7 @@ exports.start = () => {
     }
 
     function onError(error) {
+        console.error(error);
         debug(error);
         if (error.syscall !== 'listen') { throw error; }
         switch (error.code) {
