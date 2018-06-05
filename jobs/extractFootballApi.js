@@ -49,6 +49,7 @@ function extractGame(event, game) {
                     team1: team1Model._id,
                     team2: team2Model._id,
                     status: game.status,
+                    round: game.matchday,
                     '3pt': _.assign({
                         '3ptName': 'apiFootball',
                         status: game.status,
@@ -56,19 +57,19 @@ function extractGame(event, game) {
                     })
                 });
             });
+        }else {
+            const score1 = _.get(game, 'result.goalsHomeTeam') || 0;
+            const score2 = _.get(game, 'result.goalsAwayTeam') || 0;
+            const  status = game.status;
+            return gameRepository.updateGame({id: gameModel.id, score1, score2, status});
         }
-        return Promise.resolve(gameModel);
-    }).then((gameModel) => {
-        gameModel.score1 = _.get(game, 'result.goalsHomeTeam', 0);
-        gameModel.score2 = _.get(game, 'result.goalsAwayTeam', 0);
-        return gameRepository.updateGame(gameModel);
     });
 }
 
 module.exports = {
 
     start() {
-        schedule.scheduleJob('1 * * * *', () => {
+        schedule.scheduleJob('*/1 * * * *', () => {
             return apiFootballSdk().getCompetitions(moment().year())
                 .then((competitions) => {
                     competitions = _.filter(competitions, {id: 467}); // WORLD CUP only
@@ -78,18 +79,27 @@ module.exports = {
                                 if (_.isNil(event)) {
                                     return eventRepository.createEvent({
                                         name: competition.caption,
-                                        '3pt': _.assign({'3ptName': 'apiFootball'}, _.pick(competition, ['id', 'caption', 'league', 'year']))
+                                        lastUpdated: competition.lastUpdated,
+                                        '3pt': _.assign({'3ptName': 'apiFootball'}, _.pick(competition, ['id', 'caption', 'league', 'year', 'lastUpdated']))
                                     });
                                 }
-                                return Promise.resolve(event);
+                                if (_.isNil(event.lastUpdated) || (event.lastUpdated < competition.lastUpdated)){
+                                    event.lastUpdated = competition.lastUpdated;
+                                    return event.save().then(() => event);
+                                }else {
+                                    return null;
+                                }
+
                             })
                             .then((event) => {
+                                if (!event) return Promise.resolve(null);
                                 return apiFootballSdk().getTeams(competition.id)
                                     .then((teams) => {
                                         return Promise.all(_.map(teams, extractTeam)).then((data) => Promise.resolve(event));
                                     });
                             })
                             .then((event) => {
+                                if (!event) return Promise.resolve(null);
                                 return apiFootballSdk().getFixtures(competition.id)
                                     .then((games) => {
                                         return Promise.all(_.map(games, _.curry(extractGame)(event))).then((data) => Promise.resolve(event));

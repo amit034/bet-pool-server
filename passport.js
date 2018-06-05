@@ -52,7 +52,9 @@ module.exports = function () {
                       });
                   }
                 })
-            .catch(done);
+            .catch((err) => {
+                return done(null, false, { message: err.message });
+            });
 
             AccessTokenModel.findOne({ token: accessToken }, function(err, token) {
                 if (err) { return done(err); }
@@ -82,7 +84,8 @@ module.exports = function () {
         function (req, accessToken, refreshToken, profile, done) {
             if (req.register) {
                 Account.upsertGoogleUser(accessToken, refreshToken, profile, function (err, user) {
-                    return done(err, user);
+                    if (err) return done(null, false, { message: err.message });
+                    return done(null, user, profile);
                 });
             } else {
                 Account.findOne({'googleProvider.id': profile.id})
@@ -102,7 +105,8 @@ module.exports = function () {
         function (req, accessToken, refreshToken, profile, done) {
             if (req.register) {
                 Account.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
-                    return done(err, user);
+                    if (err) return done(null, false, { message: err.message });
+                    return done(null, user, profile);
                 });
             } else {
                 Account.findOne({'facebookProvider.id': profile.id})
@@ -111,7 +115,6 @@ module.exports = function () {
                 }).catch((err) => {
                     return done(err);
                 });
-
             }
         }));
 

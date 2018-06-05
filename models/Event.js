@@ -7,6 +7,7 @@ var eventSchema = new Schema({
     isActive : {type:Boolean, 'default' : true},
     games: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Game'},
     teams: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Team'},
+    lastUpdated: { type: Date },
     '3pt': {type: mongoose.Schema.Types.Mixed}
 });
 

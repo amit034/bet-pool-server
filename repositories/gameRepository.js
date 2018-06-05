@@ -1,8 +1,9 @@
 const _ = require('lodash');
-var Game = require('../models/Game');
-var logger = require('../utils/logger');
-var moment = require('moment');
-var Q = require('q');
+const mongoose = require('mongoose');
+const Game = require('../models/Game');
+const logger = require('../utils/logger');
+const moment = require('moment');
+const Q = require('q');
 
 function GameRepository() {
 	this.findById = findGameById;
@@ -72,8 +73,10 @@ function createGame(data) {
 function updateGame(game) {
 
     var query = {
-        _id: game._id,
-        status: {$ne: 'FINISHED'}
+        status: {$ne: 'FINISHED'},
+        _id: mongoose.Types.ObjectId(game.id),
+        score1: {$lte: game.score1},
+        score2: {$lte: game.score2}
     };
     var options = {
         'new': false
@@ -81,7 +84,8 @@ function updateGame(game) {
     return Game.findOneAndUpdate(query,
         {
             score1: game.score1,
-            score2: game.score2
+            score2: game.score2,
+            status: game.status
         },
         options
     ).exec();

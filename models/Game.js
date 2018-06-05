@@ -4,8 +4,9 @@ var Schema = mongoose.Schema;
 
 var gameSchema = new Schema({
     event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
-    team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: true},
-    team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: true},
+    matchday: { type: Number, default: 0},
+    team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
+    team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
     playAt: { type: Date ,required: true},
     score1 : { type: Number},
     score2 : { type: Number},

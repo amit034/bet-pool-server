@@ -34,16 +34,7 @@ function findById(id) {
 }
 
 function findByUserId(userId) {
-    var deferred = Q.defer();
-    Pool.find({'participates.user': userId}, function (err, pools) {
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve(pools);
-        }
-    });
-    return deferred.promise;
+    return Pool.find({'participates.user': userId}).exec();
 }
 
 function findParticipateByUserId(poolId, userId) {

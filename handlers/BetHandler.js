@@ -53,7 +53,7 @@ function handleCreateOrUpdateRequest(req, res) {
     .then(function([game, participate]) {
         if (game && participate){
             if (game.playAt < moment()){
-                res.send(400).status({
+                return res.status(403).send({
                     error: "too late to change bet for this game"
                 });
             }
@@ -62,12 +62,12 @@ function handleCreateOrUpdateRequest(req, res) {
                 function (bet) {
                     logger.log('info', 'bet for' + poolId + ' has been submitted.' +
                         'Request from address ' + req.connection.remoteAddress + '.');
-                    res.json(201, bet);
+                    return res.status(201).send(bet);
                 }).catch(
                 function (err) {
                     logger.log('error', 'An error has occurred while processing a request to create a ' +
                         'Bet from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                    res.json(400, {
+                    return res.status(400).send({
                         error: err.message
                     });
                 }
@@ -76,7 +76,7 @@ function handleCreateOrUpdateRequest(req, res) {
             var massage = "No game or participate found for pool id " + poolId;
             logger.log('error', 'An error has occurred while processing a request to create a ' +
                 'Pool ' + massage + req.connection.remoteAddress );
-            res.json(400, {
+            return res.status(400).send({
                 error: massage
             });
         }
@@ -84,7 +84,7 @@ function handleCreateOrUpdateRequest(req, res) {
     }).catch(function(err){
         logger.log('error', 'An error has occurred while processing a request to create a ' +
             'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-        res.json(400, {
+        res.status(400).send({
             error: err.message
         });
     });

@@ -233,26 +233,24 @@ function handleAddParticipates(req, res) {
     const poolId = req.params.poolId || null;
     const userId = req.params.userId;
     repository.findById(poolId).then(function(pool) {
-        if (userId === pool.owner.id){
+        if (userId === _.toString(pool.owner._id)){
             return addParticipatesToPool(pool, inviteesIds, req);
         }else{
-            res.json(403, {error: "you are not the owner of the pool"});
+            res.status(403).send({error: "you are not the owner of the pool"});
             return Q.reject({error: "you are not the owner of the pool" , code :403})
 
         }
 
     }).then(function(docs){
-            res.json(201, {"addedParticipates" :docs});
-
-            return null;
+            return res.status(201).send({"addedParticipates" :docs});
     }).catch(function(err){
         if (err && err.code  != 403) {
             logger.log('error', 'An error has occurred while processing a request to add participates ' +
                 'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
-            res.json(500, {error: err.message});
+            return res.status(500).send({error: err.message});
         }
-    }).done();
+    });
 }
 function handleGetUserPools(req, res) {
     const userId = req.params.userId;
@@ -273,129 +271,117 @@ function handleUpdatePoolRequest(req, res) {
     const poolId = req.params.poolId || null;
 
     return repository.findById(poolId).then(function(pool){
-        Q.all([addGamesToPool(pool,gameIds,req), addEventsToPool(pool,eventsIds,req) , addParticipatesToPool(pool,inviteesIds,req)]).then(function(promises){
-            res.json(201, {"addedGames":promises[0] , "addedEvents": promises[1]});
+        return Promise.all([addGamesToPool(pool,gameIds,req), addEventsToPool(pool,eventsIds,req) , addParticipatesToPool(pool,inviteesIds,req)]).then(function(promises){
+            return res.status(201).send({"addedGames":promises[0] , "addedEvents": promises[1]});
         }).catch(function(err){
-            res.json(500, {
+            res.status(500).send({
                 error: err.message
             });
         })
     })
-   .done();
 }
 
 function addGamesToPool(pool,gamesIds,req){
-    const deferred = Q.defer();
-    gameRepository.findActiveGameByIds(gamesIds)
+    return gameRepository.findActiveGameByIds(gamesIds)
         .then(function (games) {
-
             if (games && games.length > 0) {
                 logger.log('info', 'Pool' + pool._id + ' has' + games.length + " to be added " +
                 'Request from address ' + req.connection.remoteAddress + '.');
-                repository.addGames(pool._id, games)
+                return repository.addGames(pool._id, games)
                     .then(
                     function (doc) {
                         logger.log('info', 'games added to Pool' + pool._id  +
                             'Request from address ' + req.connection.remoteAddress + '.');
-                        deferred.resolve(doc);
+                        return Promise.resolve(doc);
                     }).catch(
                     function (err) {
                         logger.log('error', 'An error has occurred while processing a request to create an ' +
                             'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                        deferred.reject(err);
+                        return Promise.reject(err);
                     }
                 );
             } else {
 
                 logger.log('info', 'no games found to be added ' + gamesIds + ', no ' +
                     'such id exists. Request from address ' + req.connection.remoteAddress + '.');
-                deferred.resolve([]);
+                return Promise.resolve([]);
             }
         }).catch(
         function (err) {
             logger.log('error', 'An error has occurred while processing a request to retrieve ' +
                 'game id ' + gamesIds + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
-            deferred.reject(err);
-        })
-
-    return deferred.promise;
+            return Promise.reject(err);
+        });
 }
 function addEventsToPool(pool,eventsIds,req) {
-    const deferred = Q.defer();
 
-    eventRepository.findActiveEventsByIds(eventsIds)
+    return eventRepository.findActiveEventsByIds(eventsIds)
         .then(function (events) {
             if (events && events.length > 0 ) {
-                repository.addEvents(pool._id, events)
+                return repository.addEvents(pool._id, events)
                     .then(
                     function (doc) {
                         logger.log('info', 'add game to Pool' + pool._id + ' has been created.' +
                             'Request from address ' + req.connection.remoteAddress + '.');
-                        deferred.resolve(doc);
+                        return Promise.resolve(doc);
                     }).catch(
                     function (err) {
                         logger.log('error', 'An error has occurred while processing a request to create an ' +
                             'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                        deferred.reject(err);
+                        return Promise.reject(err);
                     }
                 )
             } else {
-                console.log('game not found or not open');
                 logger.log('info', 'event not found or not active ' + eventsIds + ', no ' +
                     'such id exists. Request from address ' + req.connection.remoteAddress + '.');
-                deferred.resolve([]);
+                return Promise.resolve([]);
             }
         }).catch(
         function (err) {
             logger.log('error', 'An error has occurred while processing a request to retrieve ' +
                 'game id ' + eventsIds + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
-            deferred.reject(err);
-        })
-
-    return deferred.promise;
+            return Promise.reject(err);
+        });
 }
 
 
 function addParticipatesToPool(pool,usersIds,req){
-    const deferred = Q.defer();
-    accountRepository.findActiveAccountsByIds(usersIds)
-        .then(function (users) {
-
+    return accountRepository.findActiveAccountsByIds(usersIds)
+    .then(function (users) {
             if (users && users.length > 0) {
                 const participatesToAdd = [];
                 users.forEach(function(user){
                     participatesToAdd.push({'user': user._id , 'joined' : user.equals(pool.owner)});
                 });
 
-                repository.addParticipates(pool._id, participatesToAdd)
-                    .then(
-                    function (doc) {
-                        logger.log('info', 'add users to Pool' + pool._id + ' has been created.' +
-                            'Request from address ' + req.connection.remoteAddress + '.');
-                        deferred.resolve(doc);
-                    }).catch(
-                    function (err) {
-                        logger.log('error', 'An error has occurred while processing a request to add users to ' +
-                            'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                        deferred.reject(err);
-                    }
+                return repository.addParticipates(pool._id, participatesToAdd)
+                .then(
+                function (doc) {
+                    logger.log('info', 'add users to Pool' + pool._id + ' has been created.' +
+                        'Request from address ' + req.connection.remoteAddress + '.');
+                    return Promise.resolve(doc);
+                }).catch(
+                function (err) {
+                    logger.log('error', 'An error has occurred while processing a request to add users to ' +
+                        'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+                    return Promise.reject(err);
+                }
                 )
             } else {
-                console.log('users not found or not open');
+                console.log('users not found');
                 logger.log('info', 'users not found or not active ' + usersIds + ', no ' +
                     'such id exists. Request from address ' + req.connection.remoteAddress + '.');
-                deferred.resolve([]);
+                return Promise.resolve([]);
             }
         }).catch(
         function (err) {
             logger.log('error', 'An error has occurred while processing a request to add ' +
                 'users ids ' + usersIds + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
-            deferred.reject(err);
+            Promise.reject(err);
         });
-    return deferred.promise;
 }
 
 module.exports = PoolHandler;
