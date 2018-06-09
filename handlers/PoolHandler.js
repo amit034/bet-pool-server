@@ -3,6 +3,7 @@ const moment = require('moment');
 const Q = require('q');
 const Pool = require('../models/Pool');
 const Bet = require('../models/Bet');
+const securityPolicy = require('../securityPolicy');
 const Repository = require('../repositories/poolRepository');
 const AccountRepository = require('../repositories/accountRepository');
 const GameRepository = require('../repositories/gameRepository');
@@ -149,12 +150,12 @@ function handleGetUserBets(req, res) {
                 return _.concat(total, games);
             });
         }, pool.games).then((games)=> {
-            const bets = _.map(games, (game) => {
+            let bets = _.map(games, (game) => {
                 let bet = _.find(userBets, (bet) => {
                     return bet.game.id === game.id;
                 });
                 if (bet) {
-                    bet.game = game; // populate teams;
+                    bet.game = game;
                 } else {
                     bet = new Bet({
                        participate: account._id,
@@ -166,6 +167,11 @@ function handleGetUserBets(req, res) {
                 }
                 return bet;
             });
+            if (!req.requestForMe){
+                bets = bets.reject(bets, (bet) => {
+                    return moment(_.get(bet.game.playAt)) > moment();
+                });
+            }
             return res.send(bets);
         });
     }).catch(function(err){

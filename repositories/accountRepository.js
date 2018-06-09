@@ -92,7 +92,7 @@ function createAccount(details) {
 }
 
 function findAccountByQuery(query) {
-    return Account.findOne(query);
+	return Account.findOne(query).exec();
 }
 function findAccountByUsernamePassword(username,password) {
     var deferred = Q.defer();

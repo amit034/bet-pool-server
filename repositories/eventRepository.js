@@ -15,19 +15,7 @@ function findAll(query) {
     return Event.find(query).exec();
 }
 function findById(id) {
-	var deferred = Q.defer();
-	var query = {
-		_id: id
-	};
-    Event.findOne(query, function(err, event) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(event);
-		}
-	});
-	return deferred.promise;
+    return Event.findOne({_id: id}).populate({path: 'teams', model: 'Team'}).exec();
 }
 
 function findActiveEventsByIds(ids) {

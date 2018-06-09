@@ -13,7 +13,6 @@ const securityPolicy = require('./securityPolicy');
 const AccountHandler = require('./handlers/AccountHandler');
 const EventHandler = require('./handlers/EventHandler');
 const GameHandler = require('./handlers/GameHandler');
-const TeamHandler = require('./handlers/TeamHandler');
 const PoolHandler = require('./handlers/PoolHandler');
 const BetHandler = require('./handlers/BetHandler');
 const ShoppingListHandler = require('./handlers/ShoppingListHandler');
@@ -37,7 +36,7 @@ app.use(cors());
 //     return 'OPTIONS' == req.method ? res.sendStatus(200) : next();
 // });
 
-app.use(morgan('combined', { stream: expressLogFile }));
+//app.use(morgan('combined', { stream: expressLogFile }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -53,7 +52,6 @@ const handlers = {
     account: new AccountHandler(),
     event : new EventHandler(),
     game : new GameHandler(),
-    team : new TeamHandler(),
     list: new ShoppingListHandler(),
     auth: new AuthenticationHandler(),
     pools: new PoolHandler(),

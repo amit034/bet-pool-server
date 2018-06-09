@@ -1,10 +1,11 @@
 const _ = require('lodash');
 var Team = require('../models/Team');
-var logger = require('../utils/logger');
+const mongoose = require('mongoose');;
 var Q = require('q');
 
 function TeamRepository() {
 	this.findById = findById;
+    this.findByEventId = findByEventId;
     this.findByCode = findByCode;
 	this.createTeam = createTeam;
     this.findBy3ptData = findBy3ptData;
@@ -14,6 +15,9 @@ function findById(id) {
     return Team.findOne({_id: id}).exec();
 }
 
+function findByEventId(eventId) {
+    return Team.find({event : {_id: mongoose.Types.ObjectId(eventId)}}).exec();
+}
 
 function findByCode(code,eventId) {
     var deferred = Q.defer();
@@ -21,7 +25,7 @@ function findByCode(code,eventId) {
         code: code,
         event : eventId
     };
-    console.log("searching team:" +code)
+    console.log("searching team:" +code);
     Team.findOne(query, function(err, team) {
 
         if (err) {

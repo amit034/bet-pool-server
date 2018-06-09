@@ -11,26 +11,44 @@ const eventRepository = new EventRepository();
 const teamRepository = new TeamRepository();
 const gameRepository = new GameRepository();
 
+
+function extractId(refUrl){
+    return refUrl.match(/([^\/]*)\/*$/)[1];
+}
 function extractTeam(team) {
     if (_.isEmpty(_.get(team, 'name'))) return Promise.resolve(null);
-    return teamRepository.findBy3ptData({
-        '3ptName': 'apiFootball',
-        id: _.get(team, '_links.self.href')
-    }).then((teamModel) => {
-        if (_.isNil(teamModel)) {
-            return teamRepository.createTeam({
-                name: team.name,
-                code: team.code,
-                flag: team.crestUrl,
-                '3pt': _.assign({
-                    '3ptName': 'apiFootball',
-                    id: _.get(team, '_links.self.href')
-                }, _.pick(team, ['name', 'code']))
-            });
-        }
-        return Promise.resolve(teamModel);
+    const teamId = extractId(_.get(team, '_links.self.href'));
+    return extractPlayers(teamId)
+    .then((players) => {
+        return teamRepository.findBy3ptData({
+            '3ptName': 'apiFootball',
+            id: _.get(team, '_links.self.href')
+        }).then((teamModel) => {
+            if (_.isNil(teamModel)) {
+                return teamRepository.createTeam({
+                    name: team.name,
+                    code: team.code,
+                    flag: team.crestUrl,
+                    players,
+                    '3pt': _.assign({
+                        '3ptName': 'apiFootball',
+                        id: _.get(team, '_links.self.href')
+                    }, _.pick(team, ['name', 'code']))
+                });
+            }else {
+                return teamModel;
+            }
+        });
     });
+
 }
+
+function extractPlayers(teamId){
+    return apiFootballSdk().getPlayers(teamId)
+    .then((players) => {
+        return _.map(players, 'name');
+    });
+};
 
 function extractGame(event, game) {
     if (_.isEmpty(_.get(game, 'homeTeamName')) || _.isEmpty(_.get(game, 'awayTeamName'))) return Promise.resolve(null);
@@ -89,13 +107,20 @@ module.exports = {
                                 }else {
                                     return null;
                                 }
-
                             })
                             .then((event) => {
                                 if (!event) return Promise.resolve(null);
                                 return apiFootballSdk().getTeams(competition.id)
                                     .then((teams) => {
-                                        return Promise.all(_.map(teams, extractTeam)).then((data) => Promise.resolve(event));
+                                        return Promise.all(_.map(teams, extractTeam));
+                                    })
+                                    .then((teams) => {
+                                        if (_.isEmpty(event.teams)){
+                                            event.teams = _.map(teams, '_id');
+                                            return event.save();
+                                        } else {
+                                            return Promise.resolve(event);
+                                        }
                                     });
                             })
                             .then((event) => {

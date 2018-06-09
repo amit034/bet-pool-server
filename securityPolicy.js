@@ -1,5 +1,5 @@
 const passport = require('passport');
-const SecurityToken = require('./infrastructure/securityToken');
+const _  = require('lodash');
 const logger = require('./utils/logger');
 var Q = require('q');
 
@@ -30,6 +30,10 @@ function userCanUpdateOrDeleteShoppingList(account, shoppingList) {
     return userHasRight;
 }
 
+function requestForMe(req){
+    return (_.get(req, 'params.userId') === _.get(req, 'currentUser.id'))
+}
+
 function authorise(req, res, next) {
     const strategy = req.authStrategy || 'bearer';
     return passport.authenticate(strategy, {session: false}, function (err, user) {
@@ -42,7 +46,8 @@ function authorise(req, res, next) {
             });
         }
         if (user) {
-            req.curentUser = user;
+            req.currentUser = user;
+            req.requestForMe = requestForMe(req);
             return next();
         }
         else {
@@ -57,3 +62,4 @@ function authorise(req, res, next) {
 exports.authorise = authorise;
 exports.userCanFetchShoppingList = userCanFetchShoppingList;
 exports.userCanUpdateOrDeleteShoppingList = userCanUpdateOrDeleteShoppingList;
+exports.reqestForMe = requestForMe;

@@ -135,7 +135,7 @@ function handleLoginRequest(req, res, next) {
             });
         }
         if (user) {
-            req.curentUser = user;
+            req.currentUser = user;
             return next();
         }
         else {
@@ -225,7 +225,7 @@ function handleLogoutRequest(req, res) {
 
 function postLogin(req, res) {
     var deferred = Q.defer();
-    const account = req.curentUser;
+    const account = req.currentUser;
     const appName = req.body.appName;
     SecurityToken.findSecurityTokenFromUserId(account._id)
     .then(function (securityToken) {

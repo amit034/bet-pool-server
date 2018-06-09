@@ -13,6 +13,7 @@ function GameRepository() {
 	this.createGame = createGame;
 	this.updateGame = updateGame;
 	this.findBy3ptData = findBy3ptData;
+	this.findGameByQuery = findGameByQuery;
 }
 
 function findGameById(gameId) {
@@ -69,7 +70,9 @@ function createGame(data) {
     return game.save();
 }
 
-
+function findGameByQuery(guery) {
+    return Game.find(guery).exec();
+}
 function updateGame(game) {
 
     var query = {

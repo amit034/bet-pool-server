@@ -31,7 +31,7 @@ module.exports = function () {
                 if (!user.checkPassword(password) || !user.isLocal()) {
                     return done(null, false);
                 }
-                done(null, user, info);
+                done(null, user.toJSON(), info);
             }).catch((done));
     }));
     passport.use(new BearerStrategy(function(accessToken, done) {
@@ -48,7 +48,7 @@ module.exports = function () {
                       return Account.findById(securityToken.userId).then((user) => {
                           if (!user) { return done(null, false, { message: 'Unknown user' }); }
                           const info = { scope: '*' };
-                          done(null, user, info);
+                          done(null, user.toJSON(), info);
                       });
                   }
                 })
@@ -72,7 +72,7 @@ module.exports = function () {
                     if (!user) { return done(null, false, { message: 'Unknown user' }); }
 
                     var info = { scope: '*' }
-                    done(null, user, info);
+                    done(null, user.toJSON(), info);
                 });
             });
         }
@@ -85,12 +85,12 @@ module.exports = function () {
             if (req.register) {
                 Account.upsertGoogleUser(accessToken, refreshToken, profile, function (err, user) {
                     if (err) return done(null, false, { message: err.message });
-                    return done(null, user, profile);
+                    return done(null, user.toJSON(), profile);
                 });
             } else {
                 Account.findOne({'googleProvider.id': profile.id})
                     .then((user) => {
-                        return done(null, user, profile);
+                        return done(null, user.toJSON(), profile);
                     }).catch((err) => {
                     return done(err);
                 });
@@ -100,18 +100,19 @@ module.exports = function () {
     passport.use(new FacebookTokenStrategy({
             clientID: "7cf326dc85717d95fdeaef22768ce1b2",
             clientSecret: "42adfd009346f4d33775c5c50b5d7d2a",
-            passReqToCallback: true
+            passReqToCallback: true,
+            profileFields: ['id', 'displayName', 'picture', 'first_name', 'last_name', 'email']
         },
         function (req, accessToken, refreshToken, profile, done) {
             if (req.register) {
                 Account.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
                     if (err) return done(null, false, { message: err.message });
-                    return done(null, user, profile);
+                    return done(null, user.toJSON(), profile);
                 });
             } else {
                 Account.findOne({'facebookProvider.id': profile.id})
                 .then((user) => {
-                    return done(null, user, profile);
+                    return done(null, user.toJSON(), profile);
                 }).catch((err) => {
                     return done(err);
                 });

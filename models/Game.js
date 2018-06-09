@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var gameSchema = new Schema({
+const gameSchema = new Schema({
     event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
     matchday: { type: Number, default: 0},
     team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},

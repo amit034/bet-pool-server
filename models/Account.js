@@ -65,9 +65,11 @@ accountSchema.methods.getFullName = function () {
 accountSchema.set('toJSON', {getters: true, virtuals: true});
 accountSchema.methods.toJSON = function () {
     var obj = this.toObject();
-    delete obj.password;
+    delete obj.hashedPassword;
+    delete obj.salt;
     delete obj.facebookProvider;
     delete obj.googleProvider;
+    obj.id = this.id;
     return obj;
 };
 
@@ -86,12 +88,12 @@ accountSchema.statics.upsertFbUser = function (accessToken, refreshToken, profil
             }
             if (!userByProfile) {
                 const newUser = new Account({
-                    username: profile.displayName,
+                    username: profile.emails[0].value,
                     password: 'none',
                     lastName: profile._json.first_name,
                     firstName: profile._json.last_name,
                     email: profile.emails[0].value,
-                    picture: profile._json.picture,
+                    picture: profile.photos[0].value,
                     facebookProvider: {
                         id: profile.id,
                         token: accessToken
