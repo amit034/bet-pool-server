@@ -4,6 +4,6 @@ const botsBet = require('./botsBet');
 module.exports = {
     start() {
         footballApi.start();
-        //botsBet.start()
+        botsBet.start()
     }
 };

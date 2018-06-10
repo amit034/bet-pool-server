@@ -172,7 +172,7 @@ function handleGetUserBets(req, res) {
                     return moment(_.get(bet.game.playAt)) > moment();
                 });
             }
-            return res.send(bets);
+            return res.send(_.orderBy(bets, ['playAt'], ['asc']));
         });
     }).catch(function(err){
        return res.status(500).send({

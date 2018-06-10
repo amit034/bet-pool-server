@@ -39,11 +39,11 @@ function handleUpdateUserBets(req, res){
     });
 }
 function handleCreateOrUpdateRequest(req, res) {
-	var poolId = req.params.poolId || null;
-	var userId =req.params.userId || null;
-	var gameId = req.params.gameId || null;
-    var score1 = req.body.score1 || null;
-    var score2 = req.body.score2 || null;
+	const poolId = req.params.poolId || null;
+    const userId =req.currentUser.id;
+    const gameId = req.params.gameId || null;
+    const score1 = req.body.score1 || null;
+    const score2 = req.body.score2 || null;
 
 
 
@@ -57,7 +57,7 @@ function handleCreateOrUpdateRequest(req, res) {
                     error: "too late to change bet for this game"
                 });
             }
-            return repository.createOrUpdate(poolId, participate.user._id, game._id, score1, score2)
+            return repository.createOrUpdate({pool: poolId, participate: participate.user._id, game: game._id, score1, score2})
                 .then(
                 function (bet) {
                     logger.log('info', 'bet for' + poolId + ' has been submitted.' +

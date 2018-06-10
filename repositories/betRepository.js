@@ -14,23 +14,15 @@ function findUserBetsByPoolId(userId , poolId) {
 	return Bet.find(query).populate('game').exec();
 }
 
-function createOrUpdate(poolId,participateId, gameId,score1,score2) {
-	const deferred = Q.defer();
-	const query  = {participate :participateId , game: gameId, pool: poolId};
-    Bet.findOneAndUpdate(query, {'score1': score1 , 'score2':score2},{'upsert':true},function(err, bet) {
-		if (err) {
-			deferred.reject(new Error(err));
-		}
-		else {
-			deferred.resolve(bet);
-		}
-	});
-	return deferred.promise;
+function createOrUpdate(bet) {
+	const {participate, game, pool, score1, score2 } = bet;
+	const query  = {participate, game, pool};
+    return Bet.findOneAndUpdate(query, {score1 , score2},{'upsert':true});
 }
 
 function findByGameId(gameId){
 	const query  = {game : gameId};
-	return Bet.find(query).populate('game').exec();
+	return Bet.find(query).populate('game').sort({ playAt: -1 }).exec();
 }
 
 module.exports = BetRepository;

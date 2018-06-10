@@ -19,7 +19,7 @@ Bot.prototype.init = function() {
         if (user) return user;
         return accountRepository.createAccount(botDetails);
     }).then((account) => {
-        this.userId =  account.id;
+        this.userId =  account._id;
         return Promise.resolve(this)
     }).catch((err) => {
         logger.log('warning', `unable to start ${this.name}`);
