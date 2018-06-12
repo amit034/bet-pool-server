@@ -43,11 +43,11 @@ class PoolContainer extends React.Component{
     const Game = ({bet}) => {
     return (
             <li>
-                <img width={"25px"} height={"18px"} src={bet.game.team1.flag} alt={bet.game.team1.name} title={bet.game.team1.name}/>
+                <img width={"25px"} height={"18px"} src={bet.challenge.game.team1.flag} alt={bet.challenge.game.team1.name} title={bet.challenge.game.team1.name}/>
                 <input onChange={(e) => this.onBetChange(bet._id, "score1", e.target.value)} value={bet.score1}></input>
-                <span>{bet.game.playAt}</span>
+                <span>{bet.challenge.game.playAt}</span>
                 <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={bet.score2} ></input>
-                <img width={"25px"} height={"18px"} src={bet.game.team2.flag} alt={bet.game.team2.name} title={bet.game.team2.name}/>
+                <img width={"25px"} height={"18px"} src={bet.challenge.game.team2.flag} alt={bet.challenge.game.team2.name} title={bet.challenge.game.team2.name}/>
             </li>);
     }
     return (

@@ -208,8 +208,8 @@ export function updateUserBets(poolId, bets, userId){
 export function updateUserBet(poolId, bet, userId){
     return dispatch => {
        userId = userId || getUserFromLocalStorage().userId;
-       const gameId = _.get(bet , 'game._id');
-       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/games/${gameId}`, bet, {headers: authHeader()})
+       const challengeId = _.get(bet , 'challenge._id');
+       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
          .then((response) => {
              const bets = response.data;
 

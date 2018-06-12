@@ -9,7 +9,7 @@ var participateSchema = new Schema({
 var poolSchema = new Schema({
     owner: {type: mongoose.Schema.ObjectId,required: true , ref: 'Account'},
     participates : {type: [participateSchema], 'default': []},
-    games: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Game'},
+    challenges: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Challenge'},
     events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'},
     name : {type : String  ,required: true},
     factors: {

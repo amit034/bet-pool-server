@@ -3,14 +3,16 @@ const schedule = require('node-schedule');
 const logger = require('../utils/logger');
 const _ = require('lodash');
 const moment = require('moment');
+const Challenge = require('../models/Challenge');
 const apiFootballSdk = require('../lib/apiFootballSDK');
 const EventRepository = require('../repositories/eventRepository');
 const TeamRepository = require('../repositories/teamRepository');
 const GameRepository = require('../repositories/gameRepository');
+const ChallengeRepository = require('../repositories/challengeRepository');
 const eventRepository = new EventRepository();
 const teamRepository = new TeamRepository();
 const gameRepository = new GameRepository();
-
+const challengeRepository = new ChallengeRepository();
 
 function extractId(refUrl){
     return refUrl.match(/([^\/]*)\/*$/)[1];
@@ -73,13 +75,34 @@ function extractGame(event, game) {
                         status: game.status,
                         id: _.get(game, '_links.self.href')
                     })
+                }).then((game) => {
+                    return challengeRepository.createChallenge({
+                        type: Challenge.TYPES.FULL_TIME,
+                        event: event._id,
+                        refName: 'Game',
+                        refId: game._id,
+                        status: game.status,
+                        playAt: game.date,
+                        name:  `${team1Model.name} - ${team2Model.name} ${Challenge.TYPES.FULL_TIME}`,
+                        result: {
+                            score1: null,
+                            score2: null
+                        }
+                    })
                 });
             });
-        }else {
-            const score1 = _.get(game, 'result.goalsHomeTeam') || 0;
-            const score2 = _.get(game, 'result.goalsAwayTeam') || 0;
-            const  status = game.status;
-            return gameRepository.updateGame({id: gameModel.id, score1, score2, status});
+        } else {
+            const {score1, score2, status} = game;
+            return gameRepository.updateGame({id: gameModel.id, score1, score2, status})
+            .then((game) => {
+                return challengeRepository.updateChallenge({
+                    status: game.status,
+                    result: {
+                        score1: score1,
+                        score2: score2
+                    }
+                })
+            });
         }
     });
 }

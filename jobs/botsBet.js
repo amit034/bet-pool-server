@@ -4,8 +4,8 @@ const logger = require('../utils/logger');
 const bots = require('../bots');
 const _ = require('lodash');
 const moment = require('moment');
-const GameRepository = require('../repositories/gameRepository');
-const gameRepository = new GameRepository();
+const ChallengeRepository = require('../repositories/challengeRepository');
+const challengeRepository = new ChallengeRepository();
 let activeBots = [];
 module.exports = {
 
@@ -15,11 +15,11 @@ module.exports = {
         })).then((bots) => {
             activeBots = _.reject(bots, _.isNull);
             schedule.scheduleJob('*/1 * * * *', () => {
-                return gameRepository.findGameByQuery({playAt: {$lte: moment().add(6, 'days')}, status: {$ne: 'FINISHED'}})
-                .then((games)=> {
-                    return Promise.all(_.map(games, (game) => {
+                return challengeRepository.findByQuery({playAt: {$lte: moment().add(5, 'min')}, status: {$ne: 'FINISHED'}})
+                .then((challenges)=> {
+                    return Promise.all(_.map(challenges, (challenge) => {
                         return Promise.all(_.map(activeBots , (bot) => {
-                            return bot.bet(game);
+                            return bot.bet(challenge);
                         }));
                     }));
                 }).catch((err) => {

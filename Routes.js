@@ -21,7 +21,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
     app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
-    app.post('/api/:userId/pools/:poolId/games/:gameId', authorisationPolicy, handlers.bets.createOrUpdate);
+    app.post('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.createOrUpdate);
 
     //app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
     //app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);

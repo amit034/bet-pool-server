@@ -7,6 +7,7 @@ const gameSchema = new Schema({
     matchday: { type: Number, default: 0},
     team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
     team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
+    challenges: {type: [mongoose.Schema.ObjectId], ref: 'Challenge'},
     playAt: { type: Date ,required: true},
     score1 : { type: Number},
     score2 : { type: Number},

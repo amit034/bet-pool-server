@@ -3,10 +3,11 @@ const moment = require('moment');
 const Q = require('q');
 const Pool = require('../models/Pool');
 const Bet = require('../models/Bet');
-const securityPolicy = require('../securityPolicy');
 const Repository = require('../repositories/poolRepository');
 const AccountRepository = require('../repositories/accountRepository');
+const Challenge = require('../models/Challenge');
 const GameRepository = require('../repositories/gameRepository');
+const ChallengeRepository = require('../repositories/challengeRepository');
 const BetRepository = require('../repositories/betRepository');
 const EventRepository = require('../repositories/eventRepository');
 const logger = require('../utils/logger');
@@ -15,7 +16,7 @@ const eventRepository = new EventRepository();
 const accountRepository = new AccountRepository();
 const gameRepository = new GameRepository();
 const betRepository = new BetRepository();
-
+const challengeRepository = new ChallengeRepository();
 const PoolHandler = function() {
 	this.createPool = handleCreatePoolRequest;
     this.addGames = handleAddGames;
@@ -146,35 +147,55 @@ function handleGetUserBets(req, res) {
             });
         }
         return _.reduce(pool.events, function(total, event) {
-            return gameRepository.findGamesByEventIds([event._id]).then((games) => {
-                return _.concat(total, games);
-            });
-        }, pool.games).then((games)=> {
-            let bets = _.map(games, (game) => {
-                let bet = _.find(userBets, (bet) => {
-                    return bet.game.id === game.id;
+                return gameRepository.findGamesByEventIds([event._id]).then((games) => {
+                    return _.concat(total, games);
                 });
-                if (bet) {
-                    bet.game = game;
-                } else {
+                },
+        []).then((games)=> {
+              const fullTime = _.map(games , (game) => {
+                    return challengeRepository.findByQuery({
+                        refId: game.id,
+                        refName: 'Game',
+                        type: Challenge.TYPES.FULL_TIME
+                    }).then(([challenge]) => {
+                        const item = challenge.toJSON();
+                        item.game = game.toJSON();
+                        return item;
+                    });
+                });
+              const pollChallenges = _.map(pool.challenges,(challenge) => {
+                  return challengeRepository.findById(challenge.id);
+              });
+              return Promise.all(_.union(fullTime, pollChallenges));
+        }).then((challenges) => {
+            let bets = _.map(challenges, (challenge) => {
+                let bet = _.find(userBets, (bet) => {
+                    return bet.challenge.id === challenge.id;
+                });
+                if (!bet) {
                     bet = new Bet({
-                       participate: account._id,
-                       pool: pool._id,
-                       game: game,
-                       score1: null,
-                       score2: null
-                   });
+                        participate: account._id,
+                        pool: pool._id,
+                        challenge,
+                        score1: null,
+                        score2: null
+                    });
                 }
+                bet = bet.toJSON();
+                bet.challenge = challenge;
                 return bet;
             });
             if (!req.requestForMe){
                 bets = bets.reject(bets, (bet) => {
-                    return moment(_.get(bet.game.playAt)) > moment();
+                    return moment(_.get(bet.challenge.playAt)) > moment();
                 });
             }
-            return res.send(_.orderBy(bets, ['playAt'], ['asc']));
+            return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
         });
     }).catch(function(err){
+        logger.log('error', 'An error has occurred while processing a request to handleGetUserBets ' +
+                             'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
+                             '. Stack trace: ' + err.stack);
        return res.status(500).send({
            error: err.message
        });
@@ -229,6 +250,9 @@ function handleAddEvents(req, res) {
                 res.status(201).send({"addedEvents" :docs});
      })
      .catch(function(err){
+      logger.log('error', 'An error has occurred while processing a request to handleAddEvents ' +
+                     'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
+                     '. Stack trace: ' + err.stack);
         res.status(500).send({ error: err.message});
      })
     .done()
