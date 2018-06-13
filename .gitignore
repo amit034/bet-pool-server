@@ -4,10 +4,5 @@
 node_modules/*
 package-lock.json
 client/node_modules/**
-logs/api.log
-logs/exceptions.log
-logs/express.log
 logs/**
 npm-debug.log
-logs/api.log
-logs/express.log
