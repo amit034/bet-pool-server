@@ -1,84 +1,75 @@
 'use strict';
-const requestPromise = require('request-promise-native');
-import _ from 'lodash';
+const axios = require('axios');
+const _ = require('lodash');
 
 module.exports = function (serviceUrl) {
     return {
         createPool(userId, pool, token) {
-            return requestPromise({
-                uri: `${serviceUrl}/api/${userId}/pools`,
+            return axios({
+                url: `${serviceUrl}/api/${userId}/pools`,
                 method: 'POST',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
-                body: pool
+                data: pool
             });
         },
         addGamesToPool(userId, poolId, gamesIds, token) {
-            return requestPromise({
-                uri: `${serviceUrl}/api/${userId}/pools/${poolId}/games`,
+            return axios({
+                url: `${serviceUrl}/api/${userId}/pools/${poolId}/games`,
                 method: 'POST',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
-                body: {gamesIds}
+                data: {gamesIds}
             });
         },
         getUserPools(userId, token) {
-            return requestPromise({
-                uri: `${serviceUrl}/api/${userId}/pools/`,
+            return axios({
+                url: `${serviceUrl}/api/${userId}/pools/`,
                 method: 'GET',
-                json: true,
                 headers: {authorization: `Bearer ${token}`}
             });
         },
         getUserPoolBets(userId, poolId, token) {
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/bets`,
                 method: 'GET',
-                json: true,
                 headers: {authorization: `Bearer ${token}`}
             });
         },
         updateUserPoolBet(userId, poolId, bet, token) {
             const gameId = _.get(bet, 'game._id');
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/games/${gameId}`,
                 method: 'POST',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
-                body: bet
+                data: bet
             });
         },
         getUserPoolGames(userId, poolId, token) {
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/games`,
                 method: 'GET',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
             });
         },
         addEventsToPool(userId, poolId, eventsIds, token) {
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/events`,
                 method: 'POST',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
-                body: {eventsIds}
+                data: {eventsIds}
             });
         },
         addParticipatesToPool(userId, poolId, usersIds, token) {
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/participates`,
                 method: 'POST',
-                json: true,
                 headers: {authorization: `Bearer ${token}`},
-                body: {usersIds}
+                data: {usersIds}
             });
         },
         getUserPoolParticipates(userId, poolId, token) {
-            return requestPromise({
+            return axios({
                 uri: `${serviceUrl}/api/${userId}/pools/${poolId}/participates`,
                 method: 'GET',
-                json: true,
                 headers: {authorization: `Bearer ${token}`}
             });
         }

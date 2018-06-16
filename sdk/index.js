@@ -4,12 +4,15 @@ const Admin = require('./admin');
 const Event = require('./event');
 const User = require('./user');
 const Profile = require('./profile');
-module.exports = function (serviceUrl) {
+
+const SERVICE_URL = 'http://localhost:3000';
+
+module.exports = function () {
     return {
-        Auth: Auth(serviceUrl),
-        Admin: Admin(serviceUrl),
-        Event: Event(serviceUrl),
-        Profile: Profile(serviceUrl),
-        User: User(serviceUrl)
+        Auth: Auth(SERVICE_URL),
+        Admin: Admin(SERVICE_URL),
+        Event: Event(SERVICE_URL),
+        Profile: Profile(SERVICE_URL),
+        User: User(SERVICE_URL)
     };
 };
