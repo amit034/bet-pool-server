@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const moment = require('moment');
 const Schema = mongoose.Schema;
 
 const gameSchema = new Schema({
@@ -21,4 +21,8 @@ gameSchema.index( { team1: 1, team2: 1 , playAt :1 }, { unique: true } );
 gameSchema.methods.isOpen = function() {
     return (this.playAt !== new Date());
 };
+gameSchema.virtual('closed')
+.get(function () {
+    return this.playAt && moment(this.playAt) < moment();
+});
 module.exports =  mongoose.model('Game', gameSchema);
