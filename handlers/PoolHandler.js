@@ -169,6 +169,8 @@ function handleGetUserBets(req, res) {
               return Promise.all(_.union(fullTime, pollChallenges));
         }).then((challenges) => {
             let bets = _.map(challenges, (challenge) => {
+                const closed = moment(_.get(bet.challenge.playAt)) < moment();
+                challenge.closed = closed;
                 let bet = _.find(userBets, (bet) => {
                     return bet.challenge.id === challenge.id;
                 });
@@ -183,12 +185,11 @@ function handleGetUserBets(req, res) {
                 }
                 bet = bet.toJSON();
                 bet.challenge = challenge;
+                bet.closed = closed;
                 return bet;
             });
             if (!req.requestForMe){
-                bets = bets.reject(bets, (bet) => {
-                    return moment(_.get(bet.challenge.playAt)) > moment();
-                });
+                bets = bets.reject(bets, (bet) ({closed: false}));
             }
             return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
         });
