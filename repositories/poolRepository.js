@@ -26,10 +26,10 @@ function findById(id) {
     .exec()
     .then((pool) => {
         return Game.populate(pool.events, {path: 'games'})
-        .then(() => {
-            return Account.populate(pool.participates, {path: 'user'});
-        })
-        .then(() => pool);
+    .then(() => {
+        return Account.populate(pool.participates, {path: 'user'});
+    })
+    .then(() => pool);
     });
 }
 

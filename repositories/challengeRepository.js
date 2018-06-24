@@ -7,7 +7,8 @@ const Q = require('q');
 function ChallengeRepository() {
 	this.findById = findById;
 	this.createChallenge = createChallenge;
-	this.updateChallenge = updateChallenge;
+	this.updateChallengeById = updateChallengeById;
+	this.updateChallengeByQuery = updateChallengeByQuery;
 	this.findByQuery = findByQuery;
 }
 
@@ -25,25 +26,25 @@ function createChallenge(data) {
     return challenge.save();
 }
 
-function updateChallenge(challenge) {
-
+function updateChallengeById(id, challenge) {
     var query = {
-        status: {$ne: 'FINISHED'},
-        _id: mongoose.Types.ObjectId(challenge.id),
-        score1: {$lte: challenge.score1},
-        score2: {$lte: challenge.score2}
+        _id: mongoose.Types.ObjectId(id),
     };
+    return updateChallengeByQuery(query, challenge)
+}
+
+function updateChallengeByQuery(query, challenge) {
+
     var options = {
         'new': false
     };
-    return Challenge.findOneAndUpdate(query,
+    const searchQuery = _.assign({status: {$ne: 'FINISHED'}, result: {$ne: null}}, query);
+    return Challenge.findOneAndUpdate(searchQuery,
         {
-            score1: challenge.score1,
-            score2: challenge.score2,
+            result: challenge.result,
             status: challenge.status
         },
         options
     ).exec();
 }
-
 module.exports = ChallengeRepository;

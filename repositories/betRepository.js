@@ -11,7 +11,7 @@ function BetRepository() {
 
 function findUserBetsByPoolId(userId , poolId) {
 	const query  = {participate :userId , pool: poolId};
-	return Bet.find(query).populate('challenge').exec();
+	return Bet.find(query).populate('challenge').populate('challenge.on').exec();
 }
 
 function createOrUpdate(bet) {
@@ -22,7 +22,7 @@ function createOrUpdate(bet) {
 
 function findByChallengeId(challengeId){
 	const query  = {challenge : challengeId};
-	return Bet.find(query).populate('challenge').exec();
+	return Bet.find(query).populate('challenge').populate('challenge.on').exec();
 }
 
 module.exports = BetRepository;

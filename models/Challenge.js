@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const moment = require('moment');
 const Schema = mongoose.Schema;
 
 const TYPES = {
@@ -24,6 +24,10 @@ Challenge.virtual('on', {
   localField: 'refId', // Find people or organizations where `localField`
   foreignField: '_id', // is equal to `foreignField`
   justOne: true // and return only one
+});
+Challenge.virtual('closed')
+.get(function () {
+    return this.playAt && moment(this.playAt) < moment();
 });
 Challenge.statics.TYPES = TYPES;
 Challenge.index( { type: 1, refId: 1 , refName :1 }, { unique: true } );

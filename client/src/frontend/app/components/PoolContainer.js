@@ -48,6 +48,8 @@ class PoolContainer extends React.Component{
                 <span>{bet.challenge.game.playAt}</span>
                 <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={bet.score2} ></input>
                 <img width={"25px"} height={"18px"} src={bet.challenge.game.team2.flag} alt={bet.challenge.game.team2.name} title={bet.challenge.game.team2.name}/>
+                <span>{bet.challenge.game.score1}</span>
+                <span>{bet.challenge.game.score2}</span>
             </li>);
     }
     return (

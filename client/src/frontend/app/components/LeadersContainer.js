@@ -14,7 +14,7 @@ class LeadersContainer extends React.Component{
 
   render(){
     const LeaderList = ({participates}) => {
-        const leaders = _.orderBy(participates, 'score');
+        const leaders = _.orderBy(participates, 'score', 'desc');
         const LeaderNode = _.map(leaders, (participate) => {
             return (<Leader participate={participate} key={participate._id}/>)
         });

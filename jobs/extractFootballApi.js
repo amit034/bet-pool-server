@@ -69,6 +69,10 @@ function extractGame(event, game) {
                     team1: team1Model._id,
                     team2: team2Model._id,
                     status: game.status,
+                    result: {
+                        score1: _.get(game, 'result.goalsHomeTeam', null),
+                        score2: _.get(game, 'result.goalsAwayTeam', null),
+                    },
                     round: game.matchday,
                     '3pt': _.assign({
                         '3ptName': 'apiFootball',
@@ -85,17 +89,19 @@ function extractGame(event, game) {
                         playAt: game.date,
                         name:  `${team1Model.name} - ${team2Model.name} ${Challenge.TYPES.FULL_TIME}`,
                         result: {
-                            score1: null,
-                            score2: null
+                            score1: _.get(game, 'result.goalsHomeTeam', null),
+                            score2: _.get(game, 'result.goalsAwayTeam', null),
                         }
                     })
                 });
             });
         } else {
-            const {score1, score2, status} = game;
+            const status = _.get(game, 'status', 'TIMED');
+            const score1 = _.get(game, 'result.goalsHomeTeam', null);
+            const score2 = _.get(game, 'result.goalsAwayTeam', null);
             return gameRepository.updateGame({id: gameModel.id, score1, score2, status})
-            .then((game) => {
-                return challengeRepository.updateChallenge({
+            .then(() => {
+                return challengeRepository.updateChallengeByQuery({refId: gameModel.id, refName: 'Game'}, {
                     status: game.status,
                     result: {
                         score1: score1,
@@ -124,7 +130,7 @@ module.exports = {
                                         '3pt': _.assign({'3ptName': 'apiFootball'}, _.pick(competition, ['id', 'caption', 'league', 'year', 'lastUpdated']))
                                     });
                                 }
-                                if (_.isNil(event.lastUpdated) || (event.lastUpdated < competition.lastUpdated)){
+                                if (_.isNil(event.lastUpdated) || (event.lastUpdated < moment(competition.lastUpdated))){
                                     event.lastUpdated = competition.lastUpdated;
                                     return event.save().then(() => event);
                                 }else {
