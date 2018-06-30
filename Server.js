@@ -8,7 +8,7 @@ const morgan = require('morgan');
 const debug = require('debug')('dev:server');
 const fs = require('fs');
 const securityPolicy = require('./securityPolicy');
-const tester = require('./test/sdk');
+//const tester = require('./test/sdk');
 
 // Handlers
 const AccountHandler = require('./handlers/AccountHandler');
@@ -69,9 +69,9 @@ exports.start = () => {
     
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);
-        tester.runTests().then((response) => {
-            console.log(response)
-        });
+        // tester.runTests().then((response) => {
+        //     console.log(response)
+        // });
     }
 
     function onError(error) {
