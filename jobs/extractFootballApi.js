@@ -58,58 +58,62 @@ function extractGame(event, game) {
         '3ptName': 'apiFootball',
         'id': _.get(game, '_links.self.href')
     }).then((gameModel) => {
-        if (_.isNil(gameModel)) {
-            return Promise.all([
-                teamRepository.findBy3ptData({'3ptName': 'apiFootball', id: _.get(game, '_links.homeTeam.href')}),
-                teamRepository.findBy3ptData({'3ptName': 'apiFootball', id: _.get(game, '_links.awayTeam.href')})
-            ]).then(([team1Model, team2Model]) => {
-                return gameRepository.createGame({
-                    event: event._id,
-                    playAt: game.date,
-                    team1: team1Model._id,
-                    team2: team2Model._id,
+        if (gameModel) return gameModel;
+        return Promise.all([
+            teamRepository.findBy3ptData({'3ptName': 'apiFootball', id: _.get(game, '_links.homeTeam.href')}),
+            teamRepository.findBy3ptData({'3ptName': 'apiFootball', id: _.get(game, '_links.awayTeam.href')})
+        ]).then(([team1Model, team2Model]) => {
+            return gameRepository.createGame({
+                event: event._id,
+                playAt: game.date,
+                team1: team1Model._id,
+                team2: team2Model._id,
+                status: game.status,
+                result: {
+                    score1: _.get(game, 'result.goalsHomeTeam', null),
+                    score2: _.get(game, 'result.goalsAwayTeam', null),
+                },
+                round: game.matchday,
+                '3pt': _.assign({
+                    '3ptName': 'apiFootball',
                     status: game.status,
-                    result: {
-                        score1: _.get(game, 'result.goalsHomeTeam', null),
-                        score2: _.get(game, 'result.goalsAwayTeam', null),
-                    },
-                    round: game.matchday,
-                    '3pt': _.assign({
-                        '3ptName': 'apiFootball',
-                        status: game.status,
-                        id: _.get(game, '_links.self.href')
-                    })
-                }).then((game) => {
-                    return challengeRepository.createChallenge({
-                        type: Challenge.TYPES.FULL_TIME,
-                        event: event._id,
-                        refName: 'Game',
-                        refId: game._id,
-                        status: game.status,
-                        playAt: game.date,
-                        name:  `${team1Model.name} - ${team2Model.name} ${Challenge.TYPES.FULL_TIME}`,
-                        result: {
-                            score1: _.get(game, 'result.goalsHomeTeam', null),
-                            score2: _.get(game, 'result.goalsAwayTeam', null),
-                        }
-                    })
-                });
+                    id: _.get(game, '_links.self.href')
+                })
             });
-        } else {
+        });
+    }).then((gameModel) =>{
+        return challengeRepository.findByQuery({refId: gameModel.id, refName: 'Game'})
+        .then(([challenge]) => {
+            if (challenge) return challenge;
+            return challengeRepository.createChallenge({
+                type: Challenge.TYPES.FULL_TIME,
+                event: event._id,
+                refName: 'Game',
+                refId: gameModel.id,
+                status: game.status,
+                playAt: game.date,
+                name: `${game.homeTeamName} - ${game.awayTeamName} ${Challenge.TYPES.FULL_TIME}`,
+                result: {
+                    score1: _.get(game, 'result.goalsHomeTeam', null),
+                    score2: _.get(game, 'result.goalsAwayTeam', null),
+                }
+            })
+        })
+        .then(() => {
             const status = _.get(game, 'status', 'TIMED');
             const score1 = _.get(game, 'result.goalsHomeTeam', null);
             const score2 = _.get(game, 'result.goalsAwayTeam', null);
             return gameRepository.updateGame({id: gameModel.id, score1, score2, status})
-            .then(() => {
-                return challengeRepository.updateChallengeByQuery({refId: gameModel.id, refName: 'Game'}, {
-                    status: game.status,
-                    result: {
-                        score1: score1,
-                        score2: score2
-                    }
-                })
-            });
-        }
+                .then(() => {
+                    return challengeRepository.updateChallengeByQuery({refId: gameModel.id, refName: 'Game'}, {
+                        status: game.status,
+                        result: {
+                            score1: score1,
+                            score2: score2
+                        }
+                    })
+                });
+        });
     });
 }
 

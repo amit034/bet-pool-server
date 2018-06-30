@@ -32,16 +32,16 @@ module.exports = function (serviceUrl) {
         },
         getUserPoolBets(userId, poolId, token) {
             return axios({
-                url: `${serviceUrl}/api/${userId}/pools/${poolId}/bets`,
+                url: `${serviceUrl}/api/${userId}/pools/${poolId}/challenges`,
                 method: 'GET',
                 json: true,
                 headers: {authorization: `Bearer ${token}`}
             }).then((r => r.data));
         },
         updateUserPoolBet(userId, poolId, bet, token) {
-            const gameId = _.get(bet, 'game._id');
+            const challengeId = _.get(bet, 'challenge._id');
             return axios({
-                url: `${serviceUrl}/api/${userId}/pools/${poolId}/games/${gameId}`,
+                url: `${serviceUrl}/api/${userId}/pools/${poolId}/challenges/${challengeId}`,
                 method: 'POST',
                 json: true,
                 headers: {authorization: `Bearer ${token}`},

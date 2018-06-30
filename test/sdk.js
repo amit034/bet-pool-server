@@ -13,7 +13,11 @@ module.exports = {
             .then((pools) => {
                 const pool = _.head(pools);
                 return User.getUserPoolBets(userId, pool._id, apiAccessToken);
-            }).then(console);
+            }).then((challenges) => {
+                const firstOpen = _.find(challenges, {closed: false});
+                const poolId = _.get(firstOpen, 'pool');
+                return User.updateUserPoolBet(userId, poolId, _.assign({} , firstOpen, {score1: 5, score2: 0}), apiAccessToken)
+            });
         });
     }
 };
