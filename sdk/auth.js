@@ -1,63 +1,63 @@
 'use strict';
-const requestPromise = require('request-promise-native');
+const axios = require('axios');
 
 module.exports = function (serviceUrl) {
     return {
         login(creds) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/auth/login`,
+            return axios({
+                url: `${serviceUrl}/api/auth/login`,
                 method: 'POST',
                 json: true,
-                body: creds
-            });
+                data: creds
+            }).then((r => r.data));
         },
         register(creds) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/auth/register`,
+            return axios({
+                url: `${serviceUrl}/api/auth/register`,
                 method: 'POST',
                 json: true,
-                body: creds
-            });
+                data: creds
+            }).then((r => r.data));
         },
         facebookLogin(token) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/auth/facebook`,
+            return axios({
+                url: `${serviceUrl}/api/auth/facebook`,
                 method: 'POST',
                 json: true,
-                body: {access_token: token, appName: 'betPool'}
-            });
+                data: {access_token: token, appName: 'betPool'}
+            }).then((r => r.data));
         },
         googleLogin(token) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/auth/google`,
+            return axios({
+                url: `${serviceUrl}/api/auth/google`,
                 method: 'POST',
                 json: true,
-                body: {access_token: token, appName: 'betPool'}
-            });
+                data: {access_token: token, appName: 'betPool'}
+            }).then((r => r.data));
         },
         registerWithFacebookToken(token) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/register/facebook`,
+            return axios({
+                url: `${serviceUrl}/api/register/facebook`,
                 method: 'POST',
                 json: true,
-                body: {access_token: token, appName: 'betPool'}
-            });
+                data: {access_token: token, appName: 'betPool'}
+            }).then((r => r.data));
         },
         registerWithGoogleToken(token) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/register/google`,
+            return axios({
+                url: `${serviceUrl}/api/register/google`,
                 method: 'POST',
                 json: true,
-                body: {access_token: token, appName: 'betPool'}
-            });
+                data: {access_token: token, appName: 'betPool'}
+            }).then((r => r.data));
         },
         logout(token) {
-            return requestPromise({
-                uri: `${serviceUrl}/ api/auth/logout`,
+            return axios({
+                url: `${serviceUrl}/api/auth/logout`,
                 method: 'POST',
                 headers: {authorization: token},
                 json: true,
-            });
+            }).then((r => r.data));
         }
     }
 };

@@ -440,6 +440,7 @@ function getPopulatePoolChallenges(pool) {
                 refName: 'Game',
                 type: Challenge.TYPES.FULL_TIME
             }).then(([challenge]) => {
+                if (_.isNil(challenge)) return challenge;
                 const item = challenge.toJSON();
                 item.game = game.toJSON();
                 return item;
@@ -448,7 +449,7 @@ function getPopulatePoolChallenges(pool) {
         const pollChallenges = _.map(pool.challenges, (challenge) => {
             return challengeRepository.findById(challenge.id);
         });
-        return Promise.all(_.union(fullTime, pollChallenges));
+        return Promise.all(_.union(fullTime, pollChallenges)).then((challenges) => _.reject(challenges, _.isNil));
     });
 }
 module.exports = PoolHandler;

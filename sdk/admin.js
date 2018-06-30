@@ -1,25 +1,25 @@
 'use strict';
-const requestPromise = require('request-promise-native');
+const axios = require('axios');
 
 module.exports = function (serviceUrl) {
     return {
         createEvent(event, token) {
-            return requestPromise({
-                uri: `${serviceUrl}/api/admin/events`,
+            return axios({
+                url: `${serviceUrl}/api/admin/events`,
                 method: 'POST',
                 json: true,
                 headers: {authorization: token},
-                body: event
-            });
+                data: event
+            }).then((r => r.data));
         },
         createTeam(team, token) {
-            return requestPromise({
-                uri: `${serviceUrl}/api/admin/teams`,
+            return axios({
+                url: `${serviceUrl}/api/admin/teams`,
                 method: 'POST',
                 json: true,
                 headers: {authorization: token},
-                body: team
-            });
+                data: team
+            }).then((r => r.data));
         }
     }
 };
