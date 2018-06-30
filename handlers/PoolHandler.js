@@ -196,7 +196,7 @@ function handleGetUserBets(req, res) {
                 return bet;
             });
             if (!req.requestForMe) {
-                bets = bets.reject(bets, (bet)({closed: false}));
+                bets = bets.reject(bets, (bet) => ({closed: false}));
             }
             return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
         });
