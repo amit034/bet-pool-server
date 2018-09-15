@@ -18,18 +18,25 @@ class LeadersContainer extends React.Component{
         const LeaderNode = _.map(leaders, (participate) => {
             return (<Leader participate={participate} key={participate._id}/>)
         });
-        return (<div><ul className="list-group" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
+        return (<div><ul className="leader-list" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
     };
     const Leader = ({participate}) => {
     return (
-            <li>
-                <img width={"25px"} height={"18px"} src={participate.img} alt={participate.username} title={participate.username}/>
-                <span>{participate.username}</span>
-                <span>{participate.score}</span>
+            <li className="leader-row">
+                <div className="leader-body">
+                    <div className="leader-side">
+                        <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
+                    </div>
+                    <div className="leader-center">
+                        <div className="leader-name">{participate.firstName} {participate.lastName}</div>
+                        <div className="leader-score">{participate.score}</div>
+                    </div>
+                </div>
             </li>);
     };
     return (
       <div>
+        <a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}`)}>Back to Bets</a>
         <LeaderList
             participates={this.props.pools.participates}
         />

@@ -43,10 +43,8 @@ function handleCreateOrUpdateRequest(req, res) {
 	const poolId = req.params.poolId || null;
     const userId =req.currentUser.id;
     const challengeId = req.params.challengeId || null;
-    const score1 = req.body.score1 || null;
-    const score2 = req.body.score2 || null;
-
-
+    const score1 = _.get(req, 'body.score1', null);
+    const score2 = _.get(req, 'body.score2', null);
 
     return Promise.all([
         challengeRepository.findById(challengeId),

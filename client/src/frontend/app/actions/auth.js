@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -71,7 +72,7 @@ export function loginUser(creds) {
           // Dispatch the success action
           dispatch(receiveLogin(user))
       }).catch((err) => {
-          dispatch(loginError(err.message));
+          dispatch(loginError(_.get(err, 'response.data.error', err)));
       });
   }
 }
@@ -108,7 +109,7 @@ export function verifyFacebookToken(response) {
             // Dispatch the success action
             dispatch(receiveLogin(user))
         }).catch((err) => {
-          dispatch(loginError(err.message));
+            dispatch(loginError(err.message));
         });
     }
 }

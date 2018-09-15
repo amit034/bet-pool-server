@@ -12,6 +12,10 @@ var poolSchema = new Schema({
     challenges: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Challenge'},
     events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'},
     name : {type : String  ,required: true},
+    lastCheckIn:{type : Date},
+    image: {type : String},
+    public: {type : Boolean, default: true},
+    buyIn: {type : Number ,default: 0},
     factors: {
         0: {type : Number, required: true, default: 0},
         1: {type : Number  ,required: true, default: 10},

@@ -1,0 +1,68 @@
+.pool-list{
+  text-align: center;
+  padding:0;
+  .pool {
+    list-style: none;
+    border: 1px solid;
+    margin-bottom: 10px;
+    .pool-body {
+      display: flex;
+      .pool-side {
+        padding: 5px;
+        flex: 1;
+        .pool-image{
+          width: 64px;
+          height: 64px;
+        }
+      }
+      .pool-center {
+        text-align: left;
+        padding-left:5px;
+        padding-top:5px;
+        flex: 7;
+        flex-wrap: wrap;
+        display: flex;
+        > div{
+          display: flex;
+          width: 100%;
+        }
+        .pool-title {
+          font-weight: 600;
+          text-align: left;
+          font-size: 16px;
+          margin-right: 5px;
+          flex:6;
+        }
+        .pool-buy-in{
+          font-weight: 600;
+          font-size: 16px;
+          margin-right: 5px;
+          color: indianred;
+          text-align: center;
+        }
+        .pool-players{
+          flex: 2;
+        }
+        .pool-pot{
+          flex:3;
+        }
+        .pool-first-price{
+          flex: 3;
+        }
+        .pool-last-check-in{
+          font-size: 8px;
+          width: 72px;
+          line-height: 1;
+          color: cadetblue;
+        }
+      }
+
+    }
+    .pool-footer{
+      background-color: #ddd;
+      text-align: right;
+      padding: 5px;
+    }
+  }
+  }
+

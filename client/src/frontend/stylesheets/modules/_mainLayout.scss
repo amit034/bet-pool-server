@@ -1,0 +1,84 @@
+.bet-pad{
+  position: absolute;
+  border: 1px solid;
+  display: flex;
+  width: 95%;
+  font-size: 24px;
+  background-color: lightgreen;
+  .bet-pad-score{
+    flex: 1;
+    border: 1px solid;
+  }
+  .bet-pad-score.bet-pad-score-selected{
+    background-color: lime;
+  }
+}
+.game-list{
+  text-align: center;
+  padding:0;
+  .round-title{
+    text-align: left;
+    display: block;
+  }
+  .round-games{
+    padding:0;
+    .game-row {
+      list-style: none;
+      border: 1px solid;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      .game-title{
+        display: flex;
+        text-align: left;
+        font-size: 12px;
+        display: flex;
+        .game-day{
+          flex: 6;
+        }
+        .game-hour{
+          flex:7;
+        }
+      }
+      .game-body {
+        display: flex;
+        .team-score {
+          flex: 4;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &.team-reverse {
+            flex-direction: row-reverse;
+          }
+          .team-details {
+            flex: 6;
+            .team-flag {
+              display: block;
+              margin-left: auto;
+              margin-right: auto;
+              width: 50px;
+              height: 36px;
+            }
+            .team-name {
+              font-size: 12px;
+            }
+          }
+          .team-bet {
+            input {
+              width: 25px;
+              font-size: 24px;
+              text-align: center;
+            }
+            flex: 1
+          }
+        }
+        .game-result{
+          display: flex;
+          flex:1;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import _ from 'lodash';
-import {authHeader, authError, getUserFromLocalStorage} from './auth'
+import {authError, authHeader, getUserFromLocalStorage} from './auth'
+
 export const GET_USER_POOLS_REQUEST = 'GET_USER_POOLS_REQUEST';
 export const GET_USER_POOLS_SUCCESS = 'GET_USER_POOLS_SUCCESS';
 export const GET_USER_POOLS_FAILURE = 'GET_USER_POOLS_FAILURE';
@@ -9,6 +10,12 @@ export const GET_POOL_GAMES_SUCCESS = 'GET_POOL_GAMES_SUCCESS';
 export const GET_POOL_GAMES_FAILURE = 'GET_POOL_GAMES_FAILURE';
 export const GET_USER_BETS_REQUEST = 'GET_POOL_GAMES_REQUEST';
 export const GET_USER_BETS_SUCCESS = 'GET_POOL_GAMES_SUCCESS';
+export const UPDATE_USER_BET_REQUEST = 'UPDATE_USER_BET_REQUEST';
+export const UPDATE_USER_BET_SUCCESS = 'UPDATE_USER_BET_SUCCESS';
+export const UPDATE_USER_BET_FAILURE = 'UPDATE_USER_BET_FAILURE';
+export const UPDATE_USER_BETS_REQUEST = 'UPDATE_USER_BET_REQUEST';
+export const UPDATE_USER_BETS_SUCCESS = 'UPDATE_USER_BET_SUCCESS';
+export const UPDATE_USER_BETS_FAILURE = 'UPDATE_USER_BET_FAILURE';
 export const GET_USER_BETS_FAILURE = 'GET_POOL_GAMES_FAILURE';
 export const GET_POOL_PARTICIPATES_SUCCESS = 'GET_POOL_PARTICIPATES_SUCCESS';
 
@@ -100,35 +107,56 @@ function getUserBetsFail(userId, poolId, message) {
 
 function postUserBets(userId, poolId) {
   return {
-    type: GET_POOL_GAMES_REQUEST,
+    type: UPDATE_USER_BETS_REQUEST,
     isFetching: true,
     poolId,
-    userId,
-    bets: []
+    userId
+  }
+}
+function postUserBet(userId, poolId) {
+  return {
+    type: UPDATE_USER_BET_REQUEST,
+    isFetching: true,
+    poolId,
+    userId
   }
 }
 
 function userBetsUpdated(userId, poolId, bets) {
   return {
-    type: GET_POOL_GAMES_SUCCESS,
+    type: UPDATE_USER_BETS_SUCCESS,
     isFetching: false,
   poolId,
-  userId,
-  bets: bets
+  userId
   }
 }
-
+function userBetUpdated(userId, poolId, bet) {
+    return {
+        type: UPDATE_USER_BET_SUCCESS,
+        isFetching: false,
+        poolId,
+        userId,
+        bet
+      };
+}
 function postUserBetsFail(userId, poolId, message) {
   return {
-    type: GET_POOL_GAMES_FAILURE,
+    type: UPDATE_USER_BETS_FAILURE,
     isFetching: false,
       poolId,
       userId,
-      bets: [],
     message
   }
 }
-
+function postUserBetFail(userId, poolId, message){
+    return {
+        type: UPDATE_USER_BET_FAILURE,
+        isFetching: false,
+        poolId,
+        userId,
+        message
+      }
+}
 function receiveParticipates(userId, poolId, participates) {
     return {
         type: GET_POOL_PARTICIPATES_SUCCESS,
@@ -209,17 +237,32 @@ export function updateUserBet(poolId, bet, userId){
     return dispatch => {
        userId = userId || getUserFromLocalStorage().userId;
        const challengeId = _.get(bet , 'challenge._id');
+       dispatch(postUserBet(userId, poolId));
        return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
          .then((response) => {
-             const bets = response.data;
-
+             const bet = response.data;
+             dispatch(userBetUpdated(userId, poolId, bet))
          }).catch((err) => {
              const authErr = authError(err);
              if (authErr) dispatch(authErr);
+             dispatch(postUserBetFail(err.message));
          });
      }
 }
 
+export function joinPool(poolId) {
+    return dispatch => {
+           const userId = getUserFromLocalStorage().userId;
+           return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/join`,null, {headers: authHeader()})
+             .then((response) => {
+                 const participate = response.data;
+                 dispatch(receiveParticipates(userId, poolId, participate))
+             }).catch((err) => {
+                 const authErr = authError(err);
+                 if (authErr) dispatch(authErr);
+             });
+         }
+}
 
 export function getPoolParticipates(poolId, userId) {
     return dispatch => {

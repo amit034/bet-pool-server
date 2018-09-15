@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
-import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+//import FacebookLogin from 'react-facebook-login';
 import {GoogleLogin} from 'react-google-login';
 import {loginUser, verifyFacebookToken, verifyGoogleToken} from '../actions/auth';
 import LoginForm from './LoginForm';
+import {Button, Grid, Icon, Header ,Form} from 'semantic-ui-react'
 
 class LoginPage extends React.Component {
 
@@ -35,6 +37,7 @@ class LoginPage extends React.Component {
         this.changeUser = this.changeUser.bind(this);
         this.facebookResponse = this.facebookResponse.bind(this);
         this.googleResponse = this.googleResponse.bind(this);
+        this.goToRegister = this.goToRegister.bind(this);
     }
 
     facebookResponse(response) {
@@ -90,47 +93,58 @@ class LoginPage extends React.Component {
         });
     }
 
+    goToRegister(){
+        this.props.history.push(`/register`)
+    }
     /**
      * Render the component.
      */
     render() {
-        return (
-
-            <div>
-                <div class="at-title">
-                    <h3>Sign In</h3>
-                </div>
-                <div>
-                    <FacebookLogin
-                        appId="476316572540105"
-                        autoLoad={false}
-                        fields="name,email,picture,app_name"
-                        callback={this.facebookResponse} />
-                </div>
-                <div>
-                    <GoogleLogin
-                        clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
-                        onSuccess={this.googleResponse}
-                    />
-                </div>
-                <div class="at-sep">
-                    <strong>OR</strong>
-                </div>
-                <div>
-                    <LoginForm
-                        onSubmit={this.processForm}
-                        onChange={this.changeUser}
-                        errors={this.state.errors}
-                        successMessage={this.state.successMessage}
-                        user={this.state.user}
-                    />
-                </div>
-                <div>
-                    <p>
-                      Don't have an account?
-                      <a href='#' onClick={() => this.props.history.push(`/register`)}>Register</a>
-                    </p>
-                </div>
+        return (<div style={{ height: '100%' }}>
+            <Header as='h2' color='teal' textAlign='center'>
+              Log-in to your account
+            </Header>
+            <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
+                <Grid.Row stretched>
+                    <Grid.Column style={{ maxWidth: 450 }}>
+                        <Form size='large'>
+                            <FacebookLogin
+                                appId="476316572540105"
+                                autoLoad={false}
+                                fields="name,email,picture,app_name"
+                                render={renderProps => (
+                                    <div className="field">
+                                        <Button fluid size='large' color='facebook' onClick={renderProps.onClick}>
+                                            <Icon name='facebook' /> Facebook
+                                        </Button>
+                                    </div>
+                                )}
+                                callback={this.facebookResponse} />
+                            <GoogleLogin
+                                clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                                onSuccess={this.googleResponse}
+                                render={renderProps => (
+                                    <div className="field">
+                                        <Button fluid size='large' color='google plus' onClick={renderProps.onClick}>
+                                            <Icon name='google' /> Google
+                                        </Button>
+                                    </div>
+                                )}
+                            />
+                        </Form>
+                    </Grid.Column>
+                    <Grid.Column style={{ maxWidth: 450 }}>
+                        <LoginForm
+                            onSubmit={this.processForm}
+                            onChange={this.changeUser}
+                            errors={{summary: this.props.auth.errorMessage}}
+                            successMessage={this.state.successMessage}
+                            user={this.state.user}
+                            goToRegister={this.goToRegister}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
             </div>
         );
     }

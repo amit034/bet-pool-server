@@ -13,7 +13,7 @@ function ChallengeRepository() {
 }
 
 function findByQuery(query){
-    return Challenge.find(query).populate('on').exec();
+    return Challenge.find(query).exec();
 }
 function findById(challengeId) {
 	return Challenge.findOne({

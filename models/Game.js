@@ -4,13 +4,15 @@ const Schema = mongoose.Schema;
 
 const gameSchema = new Schema({
     event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
-    matchday: { type: Number, default: 0},
+    round: { type: Number, default: 0},
     team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
     team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
     challenges: {type: [mongoose.Schema.ObjectId], ref: 'Challenge'},
     playAt: { type: Date ,required: true},
-    score1 : { type: Number},
-    score2 : { type: Number},
+    result: {
+        score1: {type: String},
+        score2: {type: String}
+    },
     status: {type: String},
     factor: {type: Number, default: 1},
     '3pt': {type: mongoose.Schema.Types.Mixed}

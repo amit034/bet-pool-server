@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var betSchema = new Schema({
     pool :{type: mongoose.Schema.ObjectId, ref: 'Pool',required: true},
-    participate :{type: mongoose.Schema.ObjectId,  required: true},
+    participate :{type: mongoose.Schema.ObjectId, ref: 'Account', required: true},
     challenge : {type: mongoose.Schema.ObjectId, ref: 'Challenge',required: true},
     score1 : {type : Number},
     score2 : {type : Number}

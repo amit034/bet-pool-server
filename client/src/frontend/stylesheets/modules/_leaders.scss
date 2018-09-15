@@ -1,0 +1,36 @@
+.leader-list{
+  text-align: center;
+  padding:0;
+  .leader-row {
+    list-style: none;
+    border: 1px solid;
+    margin-bottom: 10px;
+    .leader-body {
+      display: flex;
+      .leader-side {
+        padding: 5px;
+        flex: 1;
+        .leader-image {
+          width: 32px;
+          height: 32px;
+        }
+      }
+      .leader-center {
+        text-align: left;
+        padding-left: 5px;
+        padding-top: 5px;
+        flex: 7;
+        display: flex;
+        .leader-name{
+          flex: 2;
+        }
+        .leader-score{
+          flex: 2;
+          text-align: right;
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+}
+

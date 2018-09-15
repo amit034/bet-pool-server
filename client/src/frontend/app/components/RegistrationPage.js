@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
-import FacebookLogin from 'react-facebook-login';
+//import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import {GoogleLogin} from 'react-google-login';
 import {registerUser, registerWithFacebookToken, registerWithGoogleToken} from '../actions/auth';
+import {Button, Form, Grid, Header, Icon} from 'semantic-ui-react'
 import RegistrationForm from './RegistrationForm';
 
 class RegistrationPage extends React.Component {
@@ -83,39 +85,51 @@ class RegistrationPage extends React.Component {
      * Render the component.
      */
     render() {
-        return (
-
-            <div>
-                <div class="at-title">
-                    <h3>Create An Account</h3>
-                </div>
-                <div>
-                    <FacebookLogin
-                        textButton={"Register with Facebook"}
-                        appId="476316572540105"
-                        autoLoad={false}
-                        fields="name,email,picture,app_name"
-                        callback={this.facebookResponse} />
-                </div>
-                <div>
-                    <GoogleLogin
-                        clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
-                        onSuccess={this.googleResponse}
-                        buttonText={"Register with Google"}
-                    />
-                </div>
-                <div class="at-sep">
-                    <strong>OR</strong>
-                </div>
-                <div>
-                    <RegistrationForm
-                        onSubmit={this.processForm}
-                        onChange={this.changeUser}
-                        errors={this.state.errors}
-                        successMessage={this.state.successMessage}
-                        user={this.state.user}
-                    />
-                </div>
+        return (<div style={{height: '100%'}}>
+                <Header as='h2' color='teal' textAlign='center'>
+                    Create An Account
+                </Header>
+                <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
+                    <Grid.Row stretched>
+                        <Grid.Column style={{maxWidth: 450}}>
+                            <Form size='large'>
+                                <FacebookLogin
+                                    appId="476316572540105"
+                                    autoLoad={false}
+                                    fields="name,email,picture,app_name"
+                                    render={renderProps => (
+                                        <div className="field">
+                                            <Button fluid size='large' color='facebook' onClick={renderProps.onClick}>
+                                                <Icon name='facebook' /> Register with Facebook
+                                            </Button>
+                                        </div>
+                                    )}
+                                    callback={this.facebookResponse} />
+                                <GoogleLogin
+                                    clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                                    onSuccess={this.googleResponse}
+                                    render={renderProps => (
+                                        <div className="field">
+                                            <Button fluid size='large' color='google plus' onClick={renderProps.onClick}>
+                                                <Icon name='google' /> Register with Google
+                                            </Button>
+                                        </div>
+                                    )}
+                                />
+                            </Form>
+                        </Grid.Column>
+                        <Grid.Column style={{maxWidth: 450}}>
+                            <RegistrationForm
+                                onSubmit={this.processForm}
+                                onChange={this.changeUser}
+                                errors={{summary: this.props.auth.errorMessage}}
+                                successMessage={this.state.successMessage}
+                                user={this.state.user}
+                                goToRegister={this.goToRegister}
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
             </div>
         );
     }
