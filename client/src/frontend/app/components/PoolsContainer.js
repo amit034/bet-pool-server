@@ -63,7 +63,10 @@ class PoolsContainer extends React.Component{
     const Pool = ({pool, leave, join, enter}) => {
         const userId = _.get(getUserFromLocalStorage(), 'userId');
         const joined = _.find(pool.participates, (participate) => participate.user === userId && participate.joined);
-        const actionObj = {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'};
+        const actionObj = {action: () => {}, name: 'Closed'};
+        if (moment(pool.lastCheckIn).isAfter(moment())){
+            _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
+        }
         return (<li className="pool">
             <div className="pool-header">
             </div>
