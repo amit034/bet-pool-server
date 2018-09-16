@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var path = require('path');
 var BUILD_DIR = path.resolve(__dirname, 'src/frontend/public');
 var APP_DIR = path.resolve(__dirname, 'src/frontend/app');
+const srcPath = path.join(__dirname, 'src', 'frontend', 'app', 'index.jsx');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const isProductionEnvironment = process.env.NODE_ENV !== 'development';
@@ -13,7 +14,9 @@ const fileNameFormat =
     };
 
 var config = {
-    entry: APP_DIR + '/index.jsx',
+    entry: {
+        app: srcPath
+    },
     output: {
         path: BUILD_DIR,
         filename: 'js/bundle.js',
