@@ -90,6 +90,7 @@ module.exports = function () {
             } else {
                 Account.findOne({'googleProvider.id': profile.id})
                     .then((user) => {
+                        if (!user) { return done(null, false, { message: 'Unknown user' }); }
                         return done(null, user.toJSON(), profile);
                     }).catch((err) => {
                     return done(err);
@@ -112,7 +113,10 @@ module.exports = function () {
             } else {
                 Account.findOne({'facebookProvider.id': profile.id})
                 .then((user) => {
+                    if (!user) { return done(null, false, { message: 'Unknown user' }); }
                     return done(null, user.toJSON(), profile);
+                    return done(null, null, profile);
+
                 }).catch((err) => {
                     return done(err);
                 });

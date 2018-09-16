@@ -171,7 +171,7 @@ export function getPoolGames(poolId, userId){
         userId = userId || getUserFromLocalStorage().userId;
         dispatch(requestPoolGames(poolId));
 
-        return axios.get(`http://localhost:3000/api/${userId}/pools/${poolId}/games`, {headers: authHeader()})
+        return axios.get(`/api/${userId}/pools/${poolId}/games`, {headers: authHeader()})
           .then((response) => {
               const games = response.data;
               dispatch(receivePoolGames(poolId, games))
@@ -187,7 +187,7 @@ export function getUserPools(userId) {
   return dispatch => {
     userId = userId || getUserFromLocalStorage().userId;
     dispatch(requestUserPools(userId));
-    return axios.get(`http://localhost:3000/api/${userId}/pools`, {headers: authHeader()})
+    return axios.get(`/api/${userId}/pools`, {headers: authHeader()})
       .then((response) => {
           const pools = response.data;
           dispatch(receiveUserPools(userId, pools))
@@ -204,7 +204,7 @@ export function getUserBets(poolId, userId) {
   return dispatch => {
     userId = userId || getUserFromLocalStorage().userId;
     dispatch(requestUserBets(userId, poolId));
-    return axios.get(`http://localhost:3000/api/${userId}/pools/${poolId}/bets`, {headers: authHeader()})
+    return axios.get(`/api/${userId}/pools/${poolId}/bets`, {headers: authHeader()})
       .then((response) => {
           const bets = response.data;
           dispatch(receiveUserBets(userId, poolId, bets))
@@ -220,7 +220,7 @@ export function updateUserBets(poolId, bets, userId){
     return dispatch => {
        userId = userId || getUserFromLocalStorage().userId;
        dispatch(postUserBets(userId, poolId));
-       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/bets`, bets, {headers: authHeader()})
+       return axios.post(`/api/${userId}/pools/${poolId}/bets`, bets, {headers: authHeader()})
          .then((response) => {
              const bets = response.data;
              dispatch(userBetsUpdated(userId, poolId, bets))
@@ -238,7 +238,7 @@ export function updateUserBet(poolId, bet, userId){
        userId = userId || getUserFromLocalStorage().userId;
        const challengeId = _.get(bet , 'challenge._id');
        dispatch(postUserBet(userId, poolId));
-       return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
+       return axios.post(`/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
          .then((response) => {
              const bet = response.data;
              dispatch(userBetUpdated(userId, poolId, bet))
@@ -253,7 +253,7 @@ export function updateUserBet(poolId, bet, userId){
 export function joinPool(poolId) {
     return dispatch => {
            const userId = getUserFromLocalStorage().userId;
-           return axios.post(`http://localhost:3000/api/${userId}/pools/${poolId}/join`,null, {headers: authHeader()})
+           return axios.post(`/api/${userId}/pools/${poolId}/join`,null, {headers: authHeader()})
              .then((response) => {
                  const participate = response.data;
                  dispatch(receiveParticipates(userId, poolId, participate))
@@ -267,7 +267,7 @@ export function joinPool(poolId) {
 export function getPoolParticipates(poolId, userId) {
     return dispatch => {
            userId = userId || getUserFromLocalStorage().userId;
-           return axios.get(`http://localhost:3000/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
+           return axios.get(`/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
              .then((response) => {
                  const participate = response.data;
                  dispatch(receiveParticipates(userId, poolId, participate))

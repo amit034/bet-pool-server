@@ -64,7 +64,7 @@ export function loginUser(creds) {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/login', creds, {headers: {'Content-Type': 'application/json'}})
+    return axios.post('/api/auth/login', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));
@@ -84,7 +84,7 @@ export function registerUser(creds) {
     }
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/register', creds, {headers: {'Content-Type': 'application/json'}})
+    return axios.post('/api/auth/register', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));
@@ -98,7 +98,7 @@ export function registerUser(creds) {
 }
 export function verifyFacebookToken(response) {
     return dispatch => {
-        axios.post('http://localhost:3000/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
+        axios.post('/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -123,7 +123,7 @@ export function verifyGoogleToken(response) {
        //     mode: 'cors',
        //     cache: 'default'
        // };
-        axios.post('http://localhost:3000/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
+        axios.post('/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
                 headers: {
                     'Content-Type': 'application/json',
                 }
@@ -140,7 +140,7 @@ export function verifyGoogleToken(response) {
 
 export function registerWithFacebookToken(response){
     return dispatch => {
-           axios.post('http://localhost:3000/api/auth/register/facebook',{access_token: response.accessToken, appName:'betPool'},{
+           axios.post('/api/auth/register/facebook',{access_token: response.accessToken, appName:'betPool'},{
                    headers: {
                        'Content-Type': 'application/json',
                    }
@@ -158,7 +158,7 @@ export function registerWithFacebookToken(response){
 
 export function registerWithGoogleToken(response){
     return dispatch => {
-           axios.post('http://localhost:3000/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
+           axios.post('/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
                    headers: {
                        'Content-Type': 'application/json',
                    }
