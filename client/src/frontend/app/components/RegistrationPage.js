@@ -26,7 +26,8 @@ class RegistrationPage extends React.Component {
         // set the initial component state
         this.state = {
             errors: {},
-            successMessage
+            successMessage,
+            user: {}
         };
 
         this.processForm = this.processForm.bind(this);

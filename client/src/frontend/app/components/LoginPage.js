@@ -28,8 +28,6 @@ class LoginPage extends React.Component {
             errors: {},
             successMessage,
             user: {
-                email: 'amit.rotbard@gmail.com',
-                password: 'am053450'
             }
         };
 
