@@ -1,10 +1,10 @@
-
+const _ = require('lodash');
 const Pool = require('../models/Pool');
 const Game = require('../models/Game');
 const Account = require('../models/Account');
 var logger = require('../utils/logger');
 var Q = require('q');
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 function PoolRepository() {
     this.findById = findById;
@@ -42,22 +42,16 @@ function findByUserId(userId) {
 }
 
 function findParticipateByUserId(poolId, userId) {
-    var deferred = Q.defer();
 
-    Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true}, function (err, pool) {
-
-        if (err) {
-            deferred.reject(err);
+    return Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true})
+    .then((pool) => {
+        if (pool && pool.participates) {
+            return _.find(pool.participates, (participate) => {
+                return _.toString(participate.user) === userId;
+            })
         }
-        else {
-            if (pool && pool.participates) {
-                deferred.resolve(pool.participates[0]);
-            } else {
-                deferred.resolve(null);
-            }
-        }
+        return null;
     });
-    return deferred.promise;
 }
 
 function findGameById(poolId, gameId) {

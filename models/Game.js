@@ -5,8 +5,16 @@ const Schema = mongoose.Schema;
 const gameSchema = new Schema({
     event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
     round: { type: Number, default: 0},
-    team1 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
-    team2 : { type: mongoose.Schema.ObjectId, ref: 'Team' ,required: false},
+    team1 : {
+        code: {type : String},
+        flag : {type : String},
+        name : {type : String, required: true}
+    },
+    team2 : {
+        code: {type : String},
+        flag : {type : String},
+        name : {type : String, required: true}
+    },
     challenges: {type: [mongoose.Schema.ObjectId], ref: 'Challenge'},
     playAt: { type: Date ,required: true},
     result: {

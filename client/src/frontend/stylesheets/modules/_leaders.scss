@@ -25,9 +25,27 @@
           flex: 2;
         }
         .leader-score{
-          flex: 2;
           text-align: right;
           margin-right: 5px;
+        }
+        .leader-medals{
+          display: flex;
+          width: 100px;
+          margin-right: 5px;
+          text-align: center;
+          .leader-medal{
+            flex:1;
+            flex-direction: column;
+            .gold-medal{
+              color: #D9A441;
+            }
+            .sliver-medal{
+              color: #CCC2C2;
+            }
+            .bronze-medal{
+              color: #965A38;
+            }
+          }
         }
       }
     }

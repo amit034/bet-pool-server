@@ -1,96 +1,56 @@
 import * as poolActions from '../actions/pools'
 import _ from 'lodash';
+import update from 'immutability-helper';
 
 function pools(state = {
     isFetching: false,
-    pools: [],
-    games: [],
-    bets: [],
-    participates: []
+    pools: {},
+    games: {},
+    bets: {},
+    participates: {}
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: true,
-                pools: [],
-                userId: action.userId
-            });
+            return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.GET_USER_POOLS_SUCCESS:
-            return Object.assign({}, state, {
-                isFetching: false,
-                pools: action.pools
-            });
+            return update(state, {isFetching: {$set: false},  pools: {$set: _.keyBy(action.pools, '_id')}, errorMessage: {$set: null}});
         case poolActions.GET_USER_POOLS_FAILURE:
-            return Object.assign({}, state, {
-                isFetching: false,
-                pools: [],
-                errorMessage: action.message
-            });
+            return update(state, {isFetching: {$set: false}, pools: {$set: []}, errorMessage: {$set: action.message}});
         case poolActions.GET_POOL_GAMES_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: false,
-                games: [],
-                errorMessage: action.message
-            });
-        case poolActions.GET_USER_POOLS_SUCCESS:
-            return Object.assign({}, state, {
-                isFetching: false,
-                games: action.games
-            });
+            return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
+        case poolActions.GET_POOL_GAMES_SUCCESS:
+            return update(state, {isFetching: {$set: false}, games: {$set:_.keyBy(action.games, '_id')}, errorMessage: {$set: null}});
         case poolActions.GET_USER_BETS_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: false,
-                bets: [],
-                errorMessage: action.message
-            });
+            return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.GET_USER_BETS_SUCCESS:
-            return Object.assign({}, state, {
-                isFetching: false,
-                bets: action.bets
-            });
+            return update(state, {isFetching: {$set: false}, bets: {$set: _.keyBy(action.bets, 'challenge._id')}, errorMessage: {$set: null}});
         case poolActions.GET_POOL_PARTICIPATES_SUCCESS:
-            const poolId = action.poolId;
-            const pool = _.find(state.pools, {_id: poolId});
-            if (pool) {
-                pool.participates = action.participates;
-            }
-            return Object.assign({}, state, {
-                isFetching: false,
-                pools: state.pools,
-                participates: action.participates
-            });
+            // return update(state, {isFetching: {$set: false}, pools: {$apply: (pools) => pools.map((pool) => {
+            //     if (pool._id === action.poolId) {
+            //         pool.participates = action.participates
+            //     }
+            //     return pool;
+            // })}, participates: {$set: action.participates}, errorMessage: {$set: null}});
+            return update(state, {isFetching: {$set: false}, pools: {$merge: {[action.poolId]: action.pool}},participates: {$set: action.participates}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BET_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: true,
-            });
+            return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BET_SUCCESS:
-            const updated = action.bet;
-            const userBets = state.bets;
-            const bet = _.find(userBets, (storeBet) => storeBet._id === updated._id);
-            if (bet){
-                bet.score1 = updated.score1;
-                bet.score2 = updated.score2;
-            }
-            return Object.assign({}, state, {
-                isFetching: false,
-                bets: userBets
-            });
+            return update(state, {isFetching: {$set: false}, bets: {$merge: {[action.challengeId]: action.bet}}, errorMessage: {$set: null}});
+            // return update(state, {isFetching: {$set: false}, bets: {$apply: (bets) => bets.map((bet) => {
+            //     if (bet._id === action.bet._id) {
+            //         bet.score1 = action.score1;
+            //         bet.score2 = action.score2;
+            //     }
+            //     return bet;
+            // })}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BET_FAILURE:
-            return Object.assign({}, state, {
-                isFetching: false,
-            });
+            return update(state, {isFetching: {$set: false}, errorMessage: {$set: action.message}});
         case poolActions.UPDATE_USER_BETS_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: true,
-            });
+            return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BETS_SUCCESS:
-            return Object.assign({}, state, {
-                isFetching: false,
-            });
+            return update(state, {isFetching: {$set: false,  bets: {$set: action.bets}, errorMessage: {$set: null}}});
         case poolActions.UPDATE_USER_BETS_FAILURE:
-            return Object.assign({}, state, {
-                isFetching: false,
-            });
+            return update(state, {isFetching: {$set: false}, errorMessage: {$set: action.message}});
         default:
             return state;
     }

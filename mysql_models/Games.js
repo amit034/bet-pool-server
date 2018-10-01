@@ -43,8 +43,8 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     Game.associate = function (models) {
-        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode', scope: {eventId: '7'}});
-        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode', scope: {eventId: '7'}});
+        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode', scope: {eventId: '8'}});
+        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode', scope: {eventId: '8'}});
     };
     return Game;
 };

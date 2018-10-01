@@ -111,7 +111,9 @@ function handleAddGames(req, res) {
 
 function handleGetParticipates(req, res) {
     const poolId = req.params.poolId || null;
-    return Promise.all([repository.findById(poolId), betRepository.findUsersBetsByPoolId(poolId)])
+    const challengeId = req.query.challengeId || null;
+    const betsPromise = challengeId ? betRepository.findByChallengeId(challengeId) : betRepository.findUsersBetsByPoolId(poolId);
+    return Promise.all([repository.findById(poolId), betsPromise])
         .then(([poolModel, usersBets]) => {
             return getPopulatePoolChallenges(poolModel, false)
                 .then((challenges) => {
@@ -122,7 +124,7 @@ function handleGetParticipates(req, res) {
         }).then(([pool, usersBets]) => {
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
-                _.assign(participate, _.pick(participateModel.user, ['id', 'userName', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
+                _.assign(participate, _.pick(participateModel.user, ['id', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
                 const userBets = _.filter(usersBets, (bet) => _.get(bet, 'participate.id') === participate.id);
                 const bets = _.map(userBets, (bet) => {
                     const challenge = _.find(pool.challenges, {id: _.toString(_.get(bet, 'challenge', -1))});
@@ -130,17 +132,22 @@ function handleGetParticipates(req, res) {
                     const challengeFactor = _.get(challenge, 'factor', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
                     const betModel = new Bet(bet);
-                    const score = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
-                    bet.score = _.get(poolFactors, score, 0) * challengeFactor;
+                    const medal = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
+                    bet.medal = medal;
+                    bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                     bet.closed = challenge.closed;
                     return bet;
                 });
                 const closeBets = _.filter(bets, 'closed');
-                const totalScore = _.reduce(closeBets, (total, bet) => {
-                    total += bet.score;
+                const totals= _.reduce(closeBets, (total, bet) => {
+                    total.score += bet.score;
+                    if(bet.medal > 0){
+                        _.set(total.medals, bet.medal, _.get(total.medals, bet.medal, 0) + 1);
+                    }
                     return total;
-                }, 0);
-                participate.score = totalScore;
+                }, {score: 0, medals:{1: 0, 2: 0, 3: 0}});
+                participate.score = totals.score;
+                participate.medals = totals.medals;
                 participate.bets = closeBets;
 
                 return participate;
@@ -460,29 +467,23 @@ function addParticipatesToPool(pool, usersIds, join, req) {
             });
 }
 
-function getPopulatePoolChallenges(pool, active) {
-    // const query = {
-    //     refId: {$in: _.map(games, '_id')},
-    //         refName: 'Game',
-    //         type: Challenge.TYPES.FULL_TIME
-    //     };
-    // const query2 = {
-    //     _id: {$in: _.map(pool.challenges, '_id')},
-    // };
-    // if(active) {
-    //     query.playAt = {$qt: moment()};
-    //     query2.playAt = {$qt: moment()};
-    // } else if(active == false) {
-    //     query.playAt = {$lt: moment()};
-    //     query2.playAt = {$qt: moment()};
-    // }
+function getPopulatePoolChallenges(pool, active , challangeId) {
     return gameRepository.findGamesByEventIds(pool.events, active)
     .then((games) => {
-        const fullTime = challengeRepository.findByQuery({
-                refId: {$in: _.map(games, '_id')},
-                    refName: 'Game',
-                    type: Challenge.TYPES.FULL_TIME
-                }).then((challenges) => {
+        const challengesQuery = {
+                        refId: {$in: _.map(games, '_id')},
+                            refName: 'Game',
+                            type: Challenge.TYPES.FULL_TIME
+                        };
+        const poolChallengesQuery = {
+            _id: {$in: _.map(pool.challenges, '_id')},
+        };
+
+        if (challangeId){
+            challengesQuery._id = challangeId;
+            poolChallengesQuery._id = {$in: _.map(_.filter(pool.challenges,{_id: challangeId}, '_id'))};
+        }
+        const fullTime = challengeRepository.findByQuery(challengesQuery).then((challenges) => {
             const items = _.map(challenges, (challenge) => {
                 const item = challenge.toJSON();
                 item.game = _.find(games, {_id: challenge.refId});
@@ -490,9 +491,7 @@ function getPopulatePoolChallenges(pool, active) {
             });
             return items;
         });
-        const pollChallenges = !_.isEmpty(pool.challenges) ? challengeRepository.findByQuery({
-                _id: {$in: _.map(pool.challenges, '_id')},
-            }) : Promise.resolve([]);
+        const pollChallenges = !_.isEmpty(pool.challenges) ? challengeRepository.findByQuery() : Promise.resolve([]);
         return Promise.all([fullTime, pollChallenges]).then(([fullTime, pollChallenges]) => {
             const challenges = _.union(fullTime, pollChallenges);
             return _.reject(challenges, _.isNil)

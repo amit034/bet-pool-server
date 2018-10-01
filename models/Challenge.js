@@ -19,7 +19,7 @@ const Challenge = new Schema({
         score2: {type: String}
     }
 }, {toObject: { virtuals: true }});
-Challenge.virtual('on', {
+Challenge.virtual('game', {
   ref: doc => doc.refName, // The model to use, conditional on the doc
   localField: 'refId', // Find people or organizations where `localField`
   foreignField: '_id', // is equal to `foreignField`

@@ -3,13 +3,14 @@
  * Date: 13/03/2013
  * Account model
  */
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var teamSchema = new Schema({
+const teamSchema = new Schema({
     code: {type : String},
     name : {type : String, required: true},
+    shortName: {type : String, required: true},
     flag : {type : String},
     players: {type: [String]},
     '3pt': {type: mongoose.Schema.Types.Mixed}

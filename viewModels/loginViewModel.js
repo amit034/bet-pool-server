@@ -6,8 +6,9 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var LoginViewModel = function(id, username, firstName, lastName, apiAccessToken) {
+const LoginViewModel = function(id, username, firstName, lastName, picture, apiAccessToken) {
 	this.userId = id;
+	this.picture = picture;
 	this.username = username;
 	this.firstName = firstName;
 	this.lastName = lastName;

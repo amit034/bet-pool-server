@@ -1,3 +1,12 @@
+.bottom-menu{
+  display: flex;
+  .item{
+    flex: 1
+  }
+  .item.disabled {
+    color: rgba(225,225,225,.3) !important;
+  }
+}
 .bet-pad{
   position: absolute;
   border: 1px solid;
@@ -33,10 +42,14 @@
         font-size: 12px;
         display: flex;
         .game-day{
-          flex: 6;
+          flex: 4;
         }
         .game-hour{
-          flex:7;
+          flex:1;
+          text-align: center;
+        }
+        .game-more{
+          flex:4;
         }
       }
       .game-body {
@@ -72,13 +85,18 @@
           }
         }
         .game-result{
-          display: flex;
           flex:1;
           align-items: center;
           justify-content: center;
+          .match-tip{
+            i {
+              padding-left: 3px;
+            }
+          }
         }
       }
     }
   }
 }
+
 

@@ -18,7 +18,7 @@ function findByQuery(query){
 function findById(challengeId) {
 	return Challenge.findOne({
         _id: challengeId
-    }).populate('on').exec();
+    }).populate('game').exec();
 }
 
 function createChallenge(data) {

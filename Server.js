@@ -21,7 +21,7 @@ const ShoppingListHandler = require('./handlers/ShoppingListHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 
 const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' }); 
 //var viewEngine = 'jade'; // modify for your view engine

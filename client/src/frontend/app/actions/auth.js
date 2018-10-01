@@ -76,6 +76,12 @@ export function loginUser(creds) {
       });
   }
 }
+export function logoutUser() {
+    return dispatch => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('apiAccessToken');
+    };
+}
 export function registerUser(creds) {
 
   return dispatch => {

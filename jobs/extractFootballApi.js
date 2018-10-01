@@ -29,14 +29,14 @@ function extractTeam(team) {
             return apiFootballSdk().getTeam(teamId)
                 .then((teamDetails) => {
                     return teamRepository.createTeam({
-                        name: teamDetails.shortName || teamId,
+                        name: teamDetails.shortName || teamDetails.name || teamId,
                         code: teamDetails.code,
                         flag: teamDetails.crestUrl,
                         players: _.map(_.get(teamDetails, 'squad'), 'name'),
                         '3pt': _.assign({
                             '3ptName': 'apiFootball',
                             id: teamId
-                        }, _.pick(teamDetails, ['shortName', 'tla']))
+                        }, _.pick(teamDetails, ['shortName', 'name', 'tla']))
                     });
                 });
         } else {
@@ -66,8 +66,8 @@ function extractGame(event, game) {
             return gameRepository.createGame({
                 event: event._id,
                 playAt: game.utcDate,
-                team1: team1Model._id,
-                team2: team2Model._id,
+                team1: _.pick(team1Model, ['name', 'shortName', 'code', 'flag']),
+                team2: _.pick(team2Model, ['name', 'shortName', 'code', 'flag']),
                 status: game.status,
                 result: {
                     score1: _.get(game, 'score.fullTime.homeTeam', null),

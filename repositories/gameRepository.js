@@ -43,7 +43,7 @@ function findGamesByEventIds(eventIds, active) {
     }else if(active == false) {
         query.playAt = {$lt: new Date()};
     }
-    return Game.find(query).populate('team1').populate('team2');
+    return Game.find(query).exec();
 }
 function findActiveGameByIds(gameIds) {
     var deferred = Q.defer();
@@ -70,7 +70,8 @@ function findActive() {
     });
 }
 function createGame(data) {
-	var game = new Game(data);
+    data.name = _.get(data, 'shortName' , data.name);
+	const game = new Game(data);
     return game.save();
 }
 

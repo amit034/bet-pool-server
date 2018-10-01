@@ -14,7 +14,6 @@ const AuthenticationHandler = function () {
     this.handleGoggleRegister = handleGoggleRegister;
     //this.handleRegisterRequest = handleRegisterRequest;
     this.postLogin = postLogin;
-
     this.logout = handleLogoutRequest;
 };
 
@@ -231,7 +230,7 @@ function postLogin(req, res) {
     .then(function (securityToken) {
         if (securityToken) {
             const loginViewModel = new LoginViewModel(account._id, account.username, account.firstName, account.lastName,
-                securityToken.apiAccessToken);
+                account.picture, securityToken.apiAccessToken);
             accountRepository.updateLastLoginDate(account, Date.now());
             securityToken.expirationDate = moment().add('h', 24).toString();
             return securityToken.save().then(() => loginViewModel);
@@ -249,7 +248,7 @@ function postLogin(req, res) {
             return SecurityToken.saveSecurityToken(securityToken)
             .then(function (savedSecurityToken) {
                 var loginViewModel = new LoginViewModel(account._id, account.username, account.firstName, account.lastName,
-                    apiAccessToken.accessToken);
+                    account.picture, apiAccessToken.accessToken);
                 accountRepository.updateLastLoginDate(account, Date.now());
                 return loginViewModel;
             });
