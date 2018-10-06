@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const cors = require('cors');
+const path = require('path');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const methodOverride = require('method-override');
@@ -18,7 +19,7 @@ const PoolHandler = require('./handlers/PoolHandler');
 const BetHandler = require('./handlers/BetHandler');
 const ShoppingListHandler = require('./handlers/ShoppingListHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
-
+const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -38,12 +39,14 @@ app.use(cors());
 // });
 
 //app.use(morgan('combined', { stream: expressLogFile }));
+
+app.use(express.static(publicPath));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride());
 app.use(passport.initialize());
-app.use(express.static(__dirname + '/public'));
+
 const routes = require('./Routes');
 if (process.env.NODE_ENV === 'development') {
     app.use(errorHandler({ dumpExceptions: true, showStack: true }));

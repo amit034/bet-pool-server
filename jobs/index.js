@@ -4,8 +4,8 @@ const botsBet = require('./botsBet');
 const migrateDb = require('./migrateDb');
 module.exports = {
     start() {
-        footballApi.start();
+        //footballApi.start();
         //botsBet.start(),
-        //migrateDb.start();
+       // migrateDb.start();
     }
 };

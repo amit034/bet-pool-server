@@ -32,7 +32,7 @@ function getEventsFail(message) {
 export function getEvents() {
   return dispatch => {
     dispatch(requestEvents());
-    return axios.get(`http://localhost:3000/api/admin/events`, {headers: authHeader()})
+    return axios.get(`/api/admin/events`, {headers: authHeader()})
       .then((response) => {
           const events = response.data;
           dispatch(receiveEvents(events))

@@ -2,7 +2,7 @@ const config = require('./Config-debug');
 const winston = require('winston');
 const mongoose = require('mongoose');
 const server = require('./Server');
-const jobs = require('./Jobs');
+const jobs = require('./jobs');
 const debug = require('debug')('dev:starter');
 
 // We will log normal api operations into api.log

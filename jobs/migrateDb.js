@@ -20,7 +20,7 @@ const betRepository = new BetRepository();
 module.exports = {
 
     start() {
-        return User.findAll({include: [{model:EventUser, where : {eventId: 7}}]}).then((users) => {
+        return User.findAll({include: [{model:EventUser, where : {eventId: 8}}]}).then((users) => {
             return Promise.all(_.map(users , (user) => {
                 return accountRepository.findAccountByQuery({email: user.email})
                 .then((account) => {
@@ -28,12 +28,12 @@ module.exports = {
                     return accountRepository.createAccount({username: user.username, password: user.password, email: user.email, firstName: 'test', lastName: 'test'})
                 })
             })).then((users) => {
-                return poolRepository.addParticipates('55cdcdc780d1afee6c4d5fdb', _.map(users, (user) => {return {user, joined: true}})).then(() => users);
+                return poolRepository.addParticipates('5b9d8724fb6fc00e4d7677fa', _.map(users, (user) => {return {user, joined: true}})).then(() => users);
             }).then((users) => {
                 return Challenge.find().populate({
-                path: 'on',
-                match: { event: '5b030a4f1f27a11ee0a2f62f'},
-                populate: {path: 'team1 team2', model: Team}
+                path: 'game',
+                match: { event: '5b9d83747fe2872cdcdf5afb'},
+               // populate: {path: 'team1 team2', model: Team}
              // }).then((challenges) => {
                     // return Promise.all(_.map(challenges, (challenge) => {
                     //         return Bet.find({challenge}).exec().then((usersBet) => {
@@ -43,7 +43,7 @@ module.exports = {
                     // }));
                 }).then((challenges) => {
                         return UserBets.findAll({
-                            where: {eventId: 7},
+                            where: {eventId: 8},
                             include: [
                                 {   model: GameSql,
                                     required: true,
@@ -55,13 +55,13 @@ module.exports = {
                         }).then((bets) =>{
                             return Promise.all(_.map(challenges, (challenge) => {
                                     const challengeObj = challenge.toJSON();
-                                    const team1 = _.get(challengeObj , 'on.team1.name');
-                                    const team2 = _.get(challengeObj , 'on.team2.name');
+                                    const team1 = _.get(challengeObj , 'game.team1.name');
+                                    const team2 = _.get(challengeObj , 'game.team2.name');
                                     const challengeBets = _.filter(bets, {Game: {team1: {name: team1}, team2: {name: team2}}});
                                     return Promise.all(_.map(challengeBets, (challengeBet) => {
                                             const user = _.find(users, {email: challengeBet.userId});
                                             if (user && user.id){
-                                                return betRepository.createOrUpdate({participate: user.id, challenge, pool: '55cdcdc780d1afee6c4d5fdb', score1: challengeBet.score1, score2: challengeBet.score2 })
+                                                return betRepository.createOrUpdate({participate: user.id, challenge, pool: '5b9d8724fb6fc00e4d7677fa', score1: challengeBet.score1, score2: challengeBet.score2 })
                                             }
                                             return null
                                     }));

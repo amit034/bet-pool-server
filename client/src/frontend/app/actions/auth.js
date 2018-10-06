@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -63,7 +64,7 @@ export function loginUser(creds) {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/login', creds, {headers: {'Content-Type': 'application/json'}})
+    return axios.post('/api/auth/login', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));
@@ -71,9 +72,15 @@ export function loginUser(creds) {
           // Dispatch the success action
           dispatch(receiveLogin(user))
       }).catch((err) => {
-          dispatch(loginError(err.message));
+          dispatch(loginError(_.get(err, 'response.data.error', err)));
       });
   }
+}
+export function logoutUser() {
+    return dispatch => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('apiAccessToken');
+    };
 }
 export function registerUser(creds) {
 
@@ -83,7 +90,7 @@ export function registerUser(creds) {
     }
     dispatch(requestLogin(creds));
 
-    return axios.post('http://localhost:3000/api/auth/register', creds, {headers: {'Content-Type': 'application/json'}})
+    return axios.post('/api/auth/register', creds, {headers: {'Content-Type': 'application/json'}})
       .then((response) => {
           const user = response.data;
           localStorage.setItem('user', JSON.stringify(user));
@@ -97,7 +104,7 @@ export function registerUser(creds) {
 }
 export function verifyFacebookToken(response) {
     return dispatch => {
-        axios.post('http://localhost:3000/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
+        axios.post('/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -108,7 +115,7 @@ export function verifyFacebookToken(response) {
             // Dispatch the success action
             dispatch(receiveLogin(user))
         }).catch((err) => {
-          dispatch(loginError(err.message));
+            dispatch(loginError(err.message));
         });
     }
 }
@@ -122,7 +129,7 @@ export function verifyGoogleToken(response) {
        //     mode: 'cors',
        //     cache: 'default'
        // };
-        axios.post('http://localhost:3000/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
+        axios.post('/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
                 headers: {
                     'Content-Type': 'application/json',
                 }
@@ -139,7 +146,7 @@ export function verifyGoogleToken(response) {
 
 export function registerWithFacebookToken(response){
     return dispatch => {
-           axios.post('http://localhost:3000/api/auth/register/facebook',{access_token: response.accessToken, appName:'betPool'},{
+           axios.post('/api/auth/register/facebook',{access_token: response.accessToken, appName:'betPool'},{
                    headers: {
                        'Content-Type': 'application/json',
                    }
@@ -157,7 +164,7 @@ export function registerWithFacebookToken(response){
 
 export function registerWithGoogleToken(response){
     return dispatch => {
-           axios.post('http://localhost:3000/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
+           axios.post('/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
                    headers: {
                        'Content-Type': 'application/json',
                    }

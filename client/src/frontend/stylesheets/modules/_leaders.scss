@@ -1,0 +1,54 @@
+.leader-list{
+  text-align: center;
+  padding:0;
+  .leader-row {
+    list-style: none;
+    border: 1px solid;
+    margin-bottom: 10px;
+    .leader-body {
+      display: flex;
+      .leader-side {
+        padding: 5px;
+        flex: 1;
+        .leader-image {
+          width: 32px;
+          height: 32px;
+        }
+      }
+      .leader-center {
+        text-align: left;
+        padding-left: 5px;
+        padding-top: 5px;
+        flex: 7;
+        display: flex;
+        .leader-name{
+          flex: 2;
+        }
+        .leader-score{
+          text-align: right;
+          margin-right: 5px;
+        }
+        .leader-medals{
+          display: flex;
+          width: 100px;
+          margin-right: 5px;
+          text-align: center;
+          .leader-medal{
+            flex:1;
+            flex-direction: column;
+            .gold-medal{
+              color: #D9A441;
+            }
+            .sliver-medal{
+              color: #CCC2C2;
+            }
+            .bronze-medal{
+              color: #965A38;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

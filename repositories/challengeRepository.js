@@ -13,12 +13,12 @@ function ChallengeRepository() {
 }
 
 function findByQuery(query){
-    return Challenge.find(query).populate('on').exec();
+    return Challenge.find(query).exec();
 }
 function findById(challengeId) {
 	return Challenge.findOne({
         _id: challengeId
-    }).populate('on').exec();
+    }).populate('game').exec();
 }
 
 function createChallenge(data) {

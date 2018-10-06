@@ -38,8 +38,12 @@ function findGamesByEventIds(eventIds, active) {
     var query = {
         event: {$in: eventIds},
     };
-    if (active) query.playAt = {$gte: new Date()};
-    return Game.find(query).populate('team1').populate('team2');
+    if (active) {
+        query.playAt = {$gte: new Date()};
+    }else if(active == false) {
+        query.playAt = {$lt: new Date()};
+    }
+    return Game.find(query).exec();
 }
 function findActiveGameByIds(gameIds) {
     var deferred = Q.defer();
@@ -66,7 +70,8 @@ function findActive() {
     });
 }
 function createGame(data) {
-	var game = new Game(data);
+    data.name = _.get(data, 'shortName' , data.name);
+	const game = new Game(data);
     return game.save();
 }
 
@@ -74,20 +79,16 @@ function findGameByQuery(guery) {
     return Game.find(guery).exec();
 }
 function updateGame(game) {
-
     var query = {
         status: {$ne: 'FINISHED'},
         _id: mongoose.Types.ObjectId(game.id),
-        score1: {$lte: game.score1},
-        score2: {$lte: game.score2}
     };
     var options = {
         'new': false
     };
     return Game.findOneAndUpdate(query,
         {
-            score1: game.score1,
-            score2: game.score2,
+            result: game.result,
             status: game.status
         },
         options

@@ -11,7 +11,34 @@ const gameRepository = new GameRepository();
 const challengeRepository = new ChallengeRepository();
 var BetHandler = function() {
 	this.createOrUpdate = handleCreateOrUpdateRequest;
+	this.getOthersBets = handleGetOthersBets;
 	this.updateUserBets = handleUpdateUserBets;
+};
+
+function handleGetOthersBets(req, res) {
+    const poolId = req.params.poolId ||null;
+    const userId =req.params.userId || null;
+    const challengeId = req.params.challengeId || null;
+    return Promise.all([
+        challengeRepository.findById(challengeId),
+        repository.findByChallengeId(challengeId)
+    ]).then(function ([challenge, usersBets]) {
+            if (challenge && pool) {
+                if (challenge.playAt > moment()) {
+                    return res.status(403).send({
+                        error: 'you cant watch other bets, wait for challenge to start'
+                    });
+                }
+            return usersBets;
+            } else {
+                const massage = `No challenge for challenge id ${challenge}`;
+                logger.log('error', 'An error has occurred while processing a request to get others bets ' +
+                    +massage + req.connection.remoteAddress);
+                return res.status(400).send({
+                    error: massage
+                });
+           }
+       });
 };
 function handleUpdateUserBets(req, res){
     const poolId = req.params.poolId ||null;
@@ -43,10 +70,8 @@ function handleCreateOrUpdateRequest(req, res) {
 	const poolId = req.params.poolId || null;
     const userId =req.currentUser.id;
     const challengeId = req.params.challengeId || null;
-    const score1 = req.body.score1 || null;
-    const score2 = req.body.score2 || null;
-
-
+    const score1 = _.get(req, 'body.score1', null);
+    const score2 = _.get(req, 'body.score2', null);
 
     return Promise.all([
         challengeRepository.findById(challengeId),

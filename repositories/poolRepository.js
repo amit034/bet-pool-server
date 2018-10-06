@@ -1,10 +1,10 @@
-
+const _ = require('lodash');
 const Pool = require('../models/Pool');
 const Game = require('../models/Game');
 const Account = require('../models/Account');
 var logger = require('../utils/logger');
 var Q = require('q');
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 function PoolRepository() {
     this.findById = findById;
@@ -13,6 +13,7 @@ function PoolRepository() {
     this.addEvents = addEvents;
     this.addParticipates = addParticipates;
     this.findGameById = findGameById;
+    this.findByQuery = findByQuery;
     this.findParticipateByUserId = findParticipateByUserId;
     this.findByUserId = findByUserId;
 }
@@ -33,27 +34,24 @@ function findById(id) {
     });
 }
 
+function findByQuery(query) {
+    return Pool.find(query).exec();
+}
 function findByUserId(userId) {
     return Pool.find({'participates.user': userId}).exec();
 }
 
 function findParticipateByUserId(poolId, userId) {
-    var deferred = Q.defer();
 
-    Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true}, function (err, pool) {
-
-        if (err) {
-            deferred.reject(err);
+    return Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true})
+    .then((pool) => {
+        if (pool && pool.participates) {
+            return _.find(pool.participates, (participate) => {
+                return _.toString(participate.user) === userId;
+            })
         }
-        else {
-            if (pool && pool.participates) {
-                deferred.resolve(pool.participates[0]);
-            } else {
-                deferred.resolve(null);
-            }
-        }
+        return null;
     });
-    return deferred.promise;
 }
 
 function findGameById(poolId, gameId) {
@@ -147,21 +145,14 @@ function addInvitees(poolId, accounts) {
 }
 
 function addParticipates(poolId, participates) {
-    var deferred = Q.defer();
     var query = {
         _id: poolId
     };
 
-
-    Pool.update(query, {$addToSet: {'participates': {$each: participates}}}, function (err, doc) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            deferred.resolve(doc);
-        }
+    return Pool.update(query, {$addToSet: {'participates': {$each: participates}}}).exec()
+    .then(()=>{
+        return Pool.findOne(query).exec();
     });
-    return deferred.promise;
 }
 
 module.exports = PoolRepository;
