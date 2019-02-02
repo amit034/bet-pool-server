@@ -37,7 +37,6 @@ const Pool = ({pool, enter, join}) => {
         return actionObj.action(pool._id);
     };
     return (<li className={CLASS_NAMES.CONTAINER}>
-        <Ink />
         <div className={CLASS_NAMES.BODY}>
             <div className={CLASS_NAMES.SIDE}>
                 <img className={CLASS_NAMES.IMAGE}
