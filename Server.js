@@ -19,7 +19,6 @@ const PoolHandler = require('./handlers/PoolHandler');
 const BetHandler = require('./handlers/BetHandler');
 const ShoppingListHandler = require('./handlers/ShoppingListHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
-const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -40,9 +39,6 @@ app.use(cors());
 
 //app.use(morgan('combined', { stream: expressLogFile }));
 
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -67,6 +63,7 @@ const handlers = {
 
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
+
     const server = app.listen(port);
 
     server.on('error', onError);

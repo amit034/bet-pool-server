@@ -1,5 +1,9 @@
+const path = require('path');
 const debug = require('debug')('dev:routes');
 const passport = require('passport');
+
+const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
+
 require('./passport')();
 function setup(app, handlers, authorisationPolicy) {
     app.post('/api/profiles', handlers.account.createAccount);
@@ -51,6 +55,11 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
 
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
+
+    app.get('/*', (req, res) => {
+        res.sendFile(path.join(publicPath, 'index.html'));
+    });
+
 
     // 404
     app.use((req, res, next) => {

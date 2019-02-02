@@ -26,7 +26,7 @@ class App extends Component {
 
     render() {
         const {auth: {isAuthenticated}, match} = this.props;
-        const user = getUserFromLocalStorage();
+        const user = getUserFromLocalStorage() || {};
         const userTrigger = <span><Image role="presentation" avatar src={user.picture} /></span>;
         return (<div className="app-wrapper">
             {isAuthenticated &&
