@@ -99,4 +99,8 @@
   }
 }
 
-
+.app-wrapper {
+  > *:not(:first-child):not(:last-child) {
+    padding-top: 60px;
+  }
+}

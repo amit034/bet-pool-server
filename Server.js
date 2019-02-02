@@ -23,7 +23,7 @@ const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' }); 
+const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' });
 //var viewEngine = 'jade'; // modify for your view engine
 // Configuration
 
@@ -40,7 +40,9 @@ app.use(cors());
 
 //app.use(morgan('combined', { stream: expressLogFile }));
 
-app.use(express.static(publicPath));
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -66,10 +68,10 @@ const handlers = {
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
     const server = app.listen(port);
-    
+
     server.on('error', onError);
     server.on('listening', onListening);
-    
+
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);
         // tester.runTests().then((response) => {

@@ -1,60 +1,78 @@
-.bottom-menu{
+.bottom-menu {
   .disabled {
-    color: rgba(225,225,225,.3) !important;
+    color: rgba(225, 225, 225, .3) !important;
   }
 }
-.pool-list{
+
+.pool-list {
   text-align: center;
-  padding:0;
+  padding: 0 10px;
   .pool {
+    .pool-info {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    position: relative;
     list-style: none;
     border: 1px solid;
     margin-bottom: 10px;
+    box-shadow: 0px 1px 20px 0 rgba(104, 105, 111, 0.5);
     .pool-body {
       display: flex;
+
       .pool-side {
         padding: 5px;
         flex: 1;
-        .pool-image{
+
+        .pool-image {
           width: 64px;
           height: 64px;
         }
       }
+
       .pool-center {
         text-align: left;
-        padding-left:5px;
-        padding-top:5px;
+        padding-left: 5px;
+        padding-top: 5px;
         flex: 7;
         flex-wrap: wrap;
         display: flex;
-        > div{
+
+        > div {
           display: flex;
           width: 100%;
         }
+
         .pool-title {
           font-weight: 600;
           text-align: left;
           font-size: 16px;
           margin-right: 5px;
-          flex:6;
+          flex: 6;
         }
-        .pool-buy-in{
+
+        .pool-buy-in {
           font-weight: 600;
           font-size: 16px;
           margin-right: 5px;
           color: indianred;
           text-align: center;
         }
-        .pool-players{
+
+        .pool-players {
           flex: 2;
         }
-        .pool-pot{
-          flex:3;
-        }
-        .pool-first-price{
+
+        .pool-pot {
           flex: 3;
         }
-        .pool-last-check-in{
+
+        .pool-first-price {
+          flex: 3;
+        }
+
+        .pool-last-check-in {
           font-size: 8px;
           width: 72px;
           line-height: 1;
@@ -63,11 +81,12 @@
       }
 
     }
-    .pool-footer{
-      background-color: #ddd;
+
+    .pool-footer {
+      background-color: #6ee861;
       text-align: right;
       padding: 5px;
     }
   }
-  }
+}
 
