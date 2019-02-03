@@ -1,0 +1,19 @@
+.users-bets-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  .user-bet-row {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    > .user-bet-body {
+      display: flex;
+      > .user-bet-side {
+        .user-bet-image {
+          width: 50px;
+          border-radius: 50%;
+        }
+      }
+    }
+  }
+}

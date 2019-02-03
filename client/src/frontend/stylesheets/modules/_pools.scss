@@ -8,19 +8,24 @@
   text-align: center;
   padding: 0 10px;
   .pool {
+    background: #fff;
+    min-height: 110px;
     .pool-info {
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      > div:first-child {
+        color: #9398a0;
+      }
     }
     position: relative;
     list-style: none;
-    border: 1px solid;
+    border: 1px solid #e2e2e2;
     margin-bottom: 10px;
-    box-shadow: 0px 1px 20px 0 rgba(104, 105, 111, 0.5);
+    box-shadow: 0px 1px 20px 0 rgba(104, 105, 111, 0.4);
     .pool-body {
       display: flex;
-
+      height: 80px;
       .pool-side {
         padding: 5px;
         flex: 1;
@@ -34,7 +39,7 @@
       .pool-center {
         text-align: left;
         padding-left: 5px;
-        padding-top: 5px;
+        padding-top: 10px;
         flex: 7;
         flex-wrap: wrap;
         display: flex;
@@ -47,7 +52,9 @@
         .pool-title {
           font-weight: 600;
           text-align: left;
-          font-size: 16px;
+          text-transform: uppercase;
+          color: #9398a0;
+          font-size: 20px;
           margin-right: 5px;
           flex: 6;
         }
@@ -83,9 +90,12 @@
     }
 
     .pool-footer {
-      background-color: #6ee861;
+      background-color: #00b5ad;
       text-align: right;
       padding: 5px;
+      a {
+        color: #fff;
+      }
     }
   }
 }

@@ -68,25 +68,27 @@ class App extends Component {
                 </Menu.Menu>
             </Menu>
             }
-            <Switch>
-                <ProtectedRoute path="/pools/:id/participates" component={LeadersContainer}
-                                isAuthenticated={isAuthenticated} />
-                <ProtectedRoute path="/pools/:id/challenges/:challengeId/participates" component={ViewOthers}
-                                isAuthenticated={isAuthenticated} />
-                <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated} />
-                <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated} />
-                <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={isAuthenticated} />
-                <Route path="/register" render={(props) => {
-                    return isAuthenticated ?
-                        <Redirect to="/pools" /> :
-                        <RegistrationPage {...props} />
-                }} />
-                <Route path="/" render={(props) => {
-                    return isAuthenticated ?
-                        <Redirect to="/pools" /> :
-                        <LoginPage {...props} />
-                }} />
-            </Switch>
+            <div className="app-inner">
+                <Switch>
+                    <ProtectedRoute path="/pools/:id/participates" component={LeadersContainer}
+                                    isAuthenticated={isAuthenticated} />
+                    <ProtectedRoute path="/pools/:id/challenges/:challengeId/participates" component={ViewOthers}
+                                    isAuthenticated={isAuthenticated} />
+                    <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated} />
+                    <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated} />
+                    <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={isAuthenticated} />
+                    <Route path="/register" render={(props) => {
+                        return isAuthenticated ?
+                            <Redirect to="/pools" /> :
+                            <RegistrationPage {...props} />
+                    }} />
+                    <Route path="/" render={(props) => {
+                        return isAuthenticated ?
+                            <Redirect to="/pools" /> :
+                            <LoginPage {...props} />
+                    }} />
+                </Switch>
+            </div>
         </div>);
     }
 }
