@@ -7,7 +7,8 @@ var betSchema = new Schema({
     participate :{type: mongoose.Schema.ObjectId, ref: 'Account', required: true},
     challenge : {type: mongoose.Schema.ObjectId, ref: 'Challenge',required: true},
     score1 : {type : Number},
-    score2 : {type : Number}
+    score2 : {type : Number},
+    public: {typw: String}
 });
 betSchema.index( { pool: 1, participate: 1, challenge: 1 }, { unique: true } );
 betSchema.methods.score = function(score1, score2) {

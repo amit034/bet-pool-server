@@ -5,6 +5,7 @@ import update from 'immutability-helper';
 function pools(state = {
     isFetching: false,
     pools: {},
+    otherBets:{},
     games: {},
     bets: {},
     participates: {}
@@ -24,6 +25,10 @@ function pools(state = {
             return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.GET_USER_BETS_SUCCESS:
             return update(state, {isFetching: {$set: false}, bets: {$set: _.keyBy(action.bets, 'challenge._id')}, errorMessage: {$set: null}});
+        case poolActions.GET_POOL_PARTICIPATES_REQUEST:
+            return update(state, {isFetching: {$set: true}, otherBets: {$set: {}} , errorMessage: {$set: null}});
+        case poolActions.GET_CHALLENGE_PARTICIPATES_REQUEST:
+                   return update(state, {isFetching: {$set: true}, otherBets: {$set: {}}, errorMessage: {$set: null}});
         case poolActions.GET_POOL_PARTICIPATES_SUCCESS:
             // return update(state, {isFetching: {$set: false}, pools: {$apply: (pools) => pools.map((pool) => {
             //     if (pool._id === action.poolId) {
@@ -32,6 +37,8 @@ function pools(state = {
             //     return pool;
             // })}, participates: {$set: action.participates}, errorMessage: {$set: null}});
             return update(state, {isFetching: {$set: false}, pools: {$merge: {[action.poolId]: action.pool}},participates: {$set: action.participates}, errorMessage: {$set: null}});
+        case poolActions.GET_CHALLENGE_PARTICIPATES_SUCCESS:
+            return update(state, {isFetching: {$set: false}, otherBets: {$merge: {challenge: action.challenge, usersBets: action.usersBets}}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BET_REQUEST:
             return update(state, {isFetching: {$set: true}, errorMessage: {$set: null}});
         case poolActions.UPDATE_USER_BET_SUCCESS:

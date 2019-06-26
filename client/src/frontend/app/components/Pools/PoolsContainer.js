@@ -109,7 +109,7 @@ class PoolsContainer extends React.Component{
         </li>);
         };
     return (
-      <div>
+      <div id="content" class="ui container">
         {/*<TodoForm addTodo={this.addTodo.bind(this)}/>*/}
         {/*<a className="list-group" style={{marginTop: '30px'}} onClick={() =>  this.props.history.push('/newPool')}>AddPool</a>*/}
         <PoolList

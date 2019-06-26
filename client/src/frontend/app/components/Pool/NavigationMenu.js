@@ -14,13 +14,13 @@ class NavigationMenu extends React.Component {
                     <Icon name='calendar alternate' />
                     Bettings
                 </Menu.Item>
-                <Menu.Item name='games' as={NavLink} exact to={`/pools/${this.props.match.params.id}?active=false`}>
-                    <Icon name='futbol' />
-                    Games
-                </Menu.Item>
                 <Menu.Item name='leaders' as={NavLink} exact to={`/pools/${this.props.match.params.id}/participates`}>
                     <Icon name='cubes' />
                     Leaders
+                </Menu.Item>
+                <Menu.Item name='pools' as={NavLink} exact to={`/pools`}>
+                   <Icon name='globe' />
+                   Pools
                 </Menu.Item>
             </Menu>
         )

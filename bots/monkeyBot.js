@@ -24,7 +24,7 @@ MonkeyBot.prototype.bet = function (challengeModel) {
         const score2Avg = _.sumBy(games, 'score2') / _.size(games);
         const score1 = _.isNaN(score1Avg) ? 0 : _.round(score1Avg);
         const score2 = _.isNaN(score1Avg) ? 0 : _.round(score2Avg);
-        return {challenge: challengeModel._id, pool: mongoose.Types.ObjectId('55cdcdc780d1afee6c4d5fdb'), participate: this.userId, score1, score2};
+        return {challenge: challengeModel._id, pool: mongoose.Types.ObjectId('55cdcdc780d1afee6c4d5fdb'), participate: this.userId, score1, score2, public: true};
     }).then((bet) => {
         if (_.isPlainObject(bet)) {
             return repository.createOrUpdate(bet);

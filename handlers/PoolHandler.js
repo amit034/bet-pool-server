@@ -18,7 +18,7 @@ const accountRepository = new AccountRepository();
 const gameRepository = new GameRepository();
 const betRepository = new BetRepository();
 const challengeRepository = new ChallengeRepository();
-const PoolHandler = function () {
+const  PoolHandler = function () {
     this.createPool = handleCreatePoolRequest;
     this.addGames = handleAddGames;
     this.getGames = handleGetGames;
@@ -170,7 +170,7 @@ function handleGetUserBets(req, res) {
     return Promise.all([
         accountRepository.findById(userId),
         repository.findById(poolId),
-        betRepository.findUserBetsByPoolId(userId, poolId)
+        betRepository.findUserBetsByQuery({participate: userId, pool: poolId})
     ]).then(([account, pool, userBets]) => {
         if (_.isNull(account) || _.isNull(pool)) {
             return res.status(400).send({
@@ -181,7 +181,7 @@ function handleGetUserBets(req, res) {
             .then((challenges) => {
                 let bets = _.map(challenges, (challenge) => {
                     let betModel = _.find(userBets, (bet) => {
-                        return _.get(bet, 'challenge.id') === challenge.id;
+                        return _.toString(_.get(bet, 'challenge')) === challenge.id;
                     });
                     if (!betModel) {
                         betModel = new Bet({
@@ -194,10 +194,11 @@ function handleGetUserBets(req, res) {
                         });
                     }
                     const bet = betModel.toJSON();
-                    const score = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
+                    const medal = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
                     const challengeFactor = _.get(challenge, 'factor', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-                    bet.scoore = _.get(poolFactors, score, 0) * challengeFactor;
+                    bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+                    bet.medal = medal;
                     bet.challenge = challenge;
                     bet.closed = challenge.closed;
                     return bet;

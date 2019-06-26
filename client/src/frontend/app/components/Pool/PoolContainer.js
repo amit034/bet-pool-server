@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import {withRouter} from 'react-router-dom';
-import {getUserBets, updateUserBet, updateUserBets} from '../../actions/pools';
+import {getPoolParticipates, getUserBets, updateUserBet, updateUserBets} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {clearFocused, setFocused} from '../../actions/betPad';
 import {connect} from 'react-redux';
@@ -13,6 +13,7 @@ class PoolContainer extends React.Component{
     super(props);
       this.submitBets = this.submitBets.bind(this);
       this.onBetChange = this.onBetChange.bind(this);
+      this.onBetKetChange = this.onBetKetChange.bind(this);
       this.onBetFocused= this.onBetFocused.bind(this);
       this.onShowOthers = this.onShowOthers.bind(this);
       this.state ={
@@ -23,6 +24,7 @@ class PoolContainer extends React.Component{
 
   componentDidMount(){
       this.props.dispatch(getUserBets(this.props.match.params.id));
+      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
   }
   // componentWillReceiveProps(nextProps) {
   //   if (nextProps.bets && (nextProps.bets !== this.props.bets)) {
@@ -36,10 +38,17 @@ class PoolContainer extends React.Component{
    // shouldComponentUpdate(nextProps, nextState){
    //    return !_.isEqual(_.get(nextProps, 'bets'), _.get(this.props, 'bets')) || !_.isEqual(this.state, nextState); // equals() is your implementation
     // }
-  onBetChange(challengeId, key, value){
+  onBetKetChange(challengeId, key, value){
      //this.setState(_.set(this.state.updates, `${challengeId}.${key}`, _.toString(value)), () => {
         const bet = _.get(this.props.bets, challengeId);
         _.set(bet, key, value);
+        this.props.dispatch(updateUserBet(this.props.match.params.id , challengeId, bet))
+    // });
+  }
+   onBetChange(challengeId, updatedBet){
+     //this.setState(_.set(this.state.updates, `${challengeId}.${key}`, _.toString(value)), () => {
+        const bet = _.get(this.props.bets, challengeId);
+        _.assign(bet, _.pick(updatedBet, ['score1', 'score2']));
         this.props.dispatch(updateUserBet(this.props.match.params.id , challengeId, bet))
     // });
   }
@@ -120,10 +129,10 @@ class PoolContainer extends React.Component{
     //         {/*</div>*/}
     //     </div>);
     // };
-    return (<div>
+    return (<div id="content" class="ui container">
         {/*<a onClick={this.submitBets}>Submit</a>*/}
         {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}/participates`)}>See Leaders</a>*/}
-        <GameList bets={bets} onBetChange={this.onBetChange} onShowOthers ={this.onShowOthers} onBetFocused={this.onBetFocused} />
+        <GameList bets={bets} poolId={this.props.match.params.id} onBetChange={this.onBetChange} onBetKetChange={this.onBetKetChange} onShowOthers ={this.onShowOthers} onBetFocused={this.onBetFocused} />
         <BetPad focused={this.props.focused} onBetChange={this.onBetChange}/>
         <NavigationMenu  />
     </div>);

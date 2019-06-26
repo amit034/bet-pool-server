@@ -4,19 +4,18 @@ const Bet = require('../models/Bet');
 
 function BetRepository() {
 	this.createOrUpdate = createOrUpdate;
-	this.findUserBetsByPoolId = findUserBetsByPoolId;
 	this.findByChallengeId = findByChallengeId;
 	this.findUsersBetsByPoolId = findUsersBetsByPoolId;
+	this.findUserBetsByQuery = findUserBetsByQuery;
 }
 
 
-function findUserBetsByPoolId(userId , poolId) {
-	const query  = {participate :userId , pool: poolId};
-	return Bet.find(query).populate('challenge').populate('challenge.game').exec();
+function findUserBetsByQuery(query) {
+	return Bet.find(query).exec();
 }
 function findUsersBetsByPoolId(poolId) {
 	const query  = {pool: poolId};
-	return Bet.find(query).populate('participate').exec();
+	return Bet.find(query).exec();
 }
 
 function createOrUpdate(bet) {
@@ -29,7 +28,6 @@ function createOrUpdate(bet) {
 
 function findByChallengeId(challengeId){
 	const query  = {challenge : challengeId};
-	return Bet.find(query).populate('challenge').populate('challenge.game').exec();
+	return Bet.find(query).exec();
 }
-
 module.exports = BetRepository;

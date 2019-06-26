@@ -13,6 +13,7 @@ var BetHandler = function() {
 	this.createOrUpdate = handleCreateOrUpdateRequest;
 	this.getOthersBets = handleGetOthersBets;
 	this.updateUserBets = handleUpdateUserBets;
+
 };
 
 function handleGetOthersBets(req, res) {
@@ -21,15 +22,11 @@ function handleGetOthersBets(req, res) {
     const challengeId = req.params.challengeId || null;
     return Promise.all([
         challengeRepository.findById(challengeId),
-        repository.findByChallengeId(challengeId)
+        repository.findUserBetsByQuery({pool: poolId, challenge: challengeId})
     ]).then(function ([challenge, usersBets]) {
-            if (challenge && pool) {
-                if (challenge.playAt > moment()) {
-                    return res.status(403).send({
-                        error: 'you cant watch other bets, wait for challenge to start'
-                    });
-                }
-            return usersBets;
+            if (challenge) {
+                const bets = _.map(usersBets, bet => bet.toJSON());
+                return res.status(200).send({challenge, usersBets: challenge.playAt > moment() ? _.filter(bets, 'public') :  bets});
             } else {
                 const massage = `No challenge for challenge id ${challenge}`;
                 logger.log('error', 'An error has occurred while processing a request to get others bets ' +

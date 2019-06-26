@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import {Menu, Icon ,Dropdown, Image} from 'semantic-ui-react'
-import {logout ,getUserFromLocalStorage} from '../actions/auth';
+import {logoutUser ,getUserFromLocalStorage} from '../actions/auth';
 import {Route, Switch, withRouter, Redirect, NavLink} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
@@ -25,7 +25,7 @@ class App extends React.Component {
         const user = getUserFromLocalStorage();
         return (<div className="app-wrapper">
             {isAuthenticated &&
-                <Menu fixed='top' inverted fluid className="top-menu">
+            <Menu fixed='top' inverted fluid className="top-menu">
                     {match.params.id > 0 &&
                         <Menu.Item
                           name='pools'
@@ -92,5 +92,7 @@ const mapStateToProps = (state) => {
     return state;
 };
 
-
-export default withRouter(connect(mapStateToProps,{})(App));
+const mapDispatchToProps = (dispatch) => {
+    return {dispatch};
+};
+export default withRouter(connect(mapStateToProps,mapDispatchToProps)(App));
