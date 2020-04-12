@@ -24,23 +24,22 @@ class App extends React.Component {
         const {auth: {isAuthenticated} , match} = this.props;
         const user = getUserFromLocalStorage();
         return (<div className="app-wrapper">
-            {isAuthenticated &&
-                <Menu fixed='top' inverted fluid className="top-menu">
+            {isAuthenticated && (<div className="top-menu">
                     {match.params.id > 0 &&
-                        <Menu.Item
-                          name='pools'
-                          as={NavLink} exact to={`/pools`}
-                        >
-                            <Icon name='angle left' />
-                            Back to Pools
-                        </Menu.Item>
+                    <Menu.Item
+                        name='pools'
+                        as={NavLink} exact to={`/pools`}
+                    >
+                        <Icon name='angle left' />
+                        Back to Pools
+                    </Menu.Item>
                     }
                     <Menu.Item>
-                        <div>Welcome Back, {user.firstName} {user.lastName}</div>
+                        <Image avatar src={user.picture} />
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Dropdown item trigger={(
-                          <span>
+                            <span>
                             <Image avatar src={user.picture} />
                           </span>
                         )}>
@@ -48,16 +47,16 @@ class App extends React.Component {
                                 <Dropdown.Header icon='tags' content={`Signed In as ${user.firstName} ${user.lastName}`} />
                                 <Dropdown.Divider />
                                 <Dropdown.Item
-                                  name='profile'
-                                  disabled
+                                    name='profile'
+                                    disabled
                                 >
                                     <Icon name='user' />
                                     Your profile
                                 </Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item
-                                  name='logout'
-                                  onClick={this.logout}
+                                    name='logout'
+                                    onClick={this.logout}
                                 >
                                     <Icon name='log out' />
                                     Sign out
@@ -65,8 +64,7 @@ class App extends React.Component {
                             </Dropdown.Menu>
                         </Dropdown>
                     </Menu.Menu>
-                </Menu>
-            }
+            </div>)}
             <Switch>
                 <ProtectedRoute path="/pools/:id/participates" component={LeadersContainer} isAuthenticated={isAuthenticated}/>
                 <ProtectedRoute path="/pools/:id/challenges/:challengeId/participates" component={ViewOthers} isAuthenticated={isAuthenticated}/>
@@ -88,7 +86,7 @@ class App extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {  
+const mapStateToProps = (state) => {
     return state;
 };
 
