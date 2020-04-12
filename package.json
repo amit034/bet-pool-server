@@ -44,6 +44,7 @@
     "grunt-contrib-watch": "~0.1.4",
     "grunt-mocha-cov": "0.0.7",
     "mocha": "1.8.x",
+    "sequelize": "^5.17.0",
     "should": "1.2.x",
     "supertest": "0.5.x"
   },

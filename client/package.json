@@ -47,6 +47,8 @@
     "webpack-dev-server": "^3.1.4"
   },
   "devDependencies": {
-    "expose-loader": "^0.7.5"
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "expose-loader": "^0.7.5",
+    "semantic-ui-react": "^0.88.0"
   }
 }

@@ -1,15 +1,36 @@
+'use strict';
+const _ = require('lodash');
 const EventRepository = require('../repositories/eventRepository');
 const TeamRepository = require('../repositories/teamRepository');
+const apiFootballSdk = require('../lib/apiFootballSDK');
 const logger = require('../utils/logger');
 const EventHandler = function () {
     this.handleActiveEventsRequest = handleActiveEventsRequest;
     this.handleGetEventsRequest = handleGetEventsRequest;
+    this.handleCreateAndGetEventsRequest = handleCreateAndGetEventsRequest;
     this.createEvent = handleCreateEventRequest;
     this.addTeam = handleAddTeamToEventRequest;
     this.createTeam = handleCreateTeamRequest;
     this.getTeams = handleGetTeamsRequest;
 };
 
+function handleCreateAndGetEventsRequest(req, res) {
+    const repository = new EventRepository();
+    return Promise.all([
+        repository.findAll(),
+        apiFootballSdk.getCompetitions({plan: 'TIER_ONE'})
+
+    ]).then(([currentEvents, competitions]) => {
+        const notRegistered = _.reject(competitions, ({id}) => {
+            return _.find(currentEvents, (event => _.get(event.toJSON(), '3pt.id') === id));
+        });
+        return Promise.all(_.map(notRegistered, ({name, id, emblemUrl, currentSeason: {startDate, endDate}}) => {
+            return repository.createEvent({name, startDate, endDate, imageUrl: emblemUrl, '3pt': {id}})
+        })).then(() => {
+            return handleActiveEventsRequest(req, res);
+        })
+    })
+}
 function handleActiveEventsRequest(req, res) {
     const repository = new EventRepository();
     return repository.findAll({isActive: true})
