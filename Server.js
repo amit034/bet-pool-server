@@ -17,13 +17,13 @@ const EventHandler = require('./handlers/EventHandler');
 const GameHandler = require('./handlers/GameHandler');
 const PoolHandler = require('./handlers/PoolHandler');
 const BetHandler = require('./handlers/BetHandler');
-const ShoppingListHandler = require('./handlers/ShoppingListHandler');
+const FootBallApiHandler = require('./handlers/FootBallApiHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' }); 
+const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' });
 //var viewEngine = 'jade'; // modify for your view engine
 // Configuration
 
@@ -56,20 +56,20 @@ const handlers = {
     account: new AccountHandler(),
     event : new EventHandler(),
     game : new GameHandler(),
-    list: new ShoppingListHandler(),
     auth: new AuthenticationHandler(),
     pools: new PoolHandler(),
-    bets  : new BetHandler()
+    bets  : new BetHandler(),
+    footballApi: FootBallApiHandler
 };
 
 
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
     const server = app.listen(port);
-    
+
     server.on('error', onError);
     server.on('listening', onListening);
-    
+
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);
         // tester.runTests().then((response) => {

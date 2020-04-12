@@ -18,7 +18,7 @@ class NavigationMenu extends React.Component {
                     <Icon name='trophy' />
                     Trophies
                 </Menu.Item>
-                <Menu.Item  name='new'>
+                <Menu.Item name='new' as={NavLink} exact to={'/newPool'}>
                     <Icon name="plus circle" />
                     New Pool
                 </Menu.Item>
