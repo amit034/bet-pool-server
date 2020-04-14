@@ -9,7 +9,7 @@ class NavigationMenu extends React.Component {
 
     render() {
         return (
-            <Menu fixed='bottom' inverted fluid className="bottom-menu" widths={3}>
+            <Menu fixed='bottom' fluid className="bottom-menu" widths={3}>
                 <Menu.Item name='pools' >
                     <Icon name='globe' />
                     Pools

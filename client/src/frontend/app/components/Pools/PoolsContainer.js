@@ -102,10 +102,6 @@ class PoolsContainer extends React.Component{
                     </div>
                 </div>
             </div>
-            <div className="pool-footer">
-                <div className="pool-action"><a onClick={() => { return actionObj.action(pool._id)}}>{actionObj.name}</a></div>
-            </div>
-            {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${pool._id}`)}>{pool.name}</a>*/}
         </li>);
         };
     return (

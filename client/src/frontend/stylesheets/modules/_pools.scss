@@ -1,60 +1,84 @@
-.bottom-menu{
+.bottom-menu {
   .disabled {
-    color: rgba(225,225,225,.3) !important;
+    color: rgba(225, 225, 225, .3) !important;
   }
 }
-.pool-list{
-  text-align: center;
-  padding:0;
+
+.pool-list {
+  padding: 0;
+
   .pool {
     list-style: none;
-    border: 1px solid;
-    margin-bottom: 10px;
+    background: #FFFFFF;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
+    height: 182px;
+    margin-bottom: 2px;
+
+    &:first-child {
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+
     .pool-body {
       display: flex;
+
       .pool-side {
         padding: 5px;
         flex: 1;
-        .pool-image{
+
+        .pool-image {
           width: 64px;
           height: 64px;
         }
       }
+
       .pool-center {
         text-align: left;
-        padding-left:5px;
-        padding-top:5px;
+        padding-left: 5px;
+        padding-top: 5px;
         flex: 7;
         flex-wrap: wrap;
         display: flex;
-        > div{
+
+        > div {
           display: flex;
           width: 100%;
         }
+
         .pool-title {
           font-weight: 600;
           text-align: left;
           font-size: 16px;
           margin-right: 5px;
-          flex:6;
+          flex: 6;
         }
-        .pool-buy-in{
+
+        .pool-buy-in {
           font-weight: 600;
           font-size: 16px;
           margin-right: 5px;
           color: indianred;
           text-align: center;
         }
-        .pool-players{
+
+        .pool-players {
           flex: 2;
         }
-        .pool-pot{
-          flex:3;
-        }
-        .pool-first-price{
+
+        .pool-pot {
           flex: 3;
         }
-        .pool-last-check-in{
+
+        .pool-first-price {
+          flex: 3;
+        }
+
+        .pool-last-check-in {
           font-size: 8px;
           width: 72px;
           line-height: 1;
@@ -63,11 +87,12 @@
       }
 
     }
-    .pool-footer{
+
+    .pool-footer {
       background-color: #ddd;
       text-align: right;
       padding: 5px;
     }
   }
-  }
+}
 
