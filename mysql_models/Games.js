@@ -13,9 +13,9 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
         },
-        gameId: {
-            type: DataTypes.STRING,
-            allowNull: false
+        playAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
         },
         score1: {
             type: DataTypes.STRING,
@@ -34,6 +34,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false,
             field: 'team2_code'
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        openFbId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: true,
         }
     }, {
         tableName: 'Scores',

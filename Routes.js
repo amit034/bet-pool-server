@@ -1,30 +1,31 @@
 const debug = require('debug')('dev:routes');
+const path = require("path");
 const passport = require('passport');
 require('./passport')();
 function setup(app, handlers, authorisationPolicy) {
-    app.post('/api/profiles', handlers.account.createAccount);
-    app.get('/api/profiles/:userId', handlers.account.getAccount);
-    app.delete('/api/profiles/:userId', handlers.account.deleteAccount);
-    app.post('/api/admin/events',  handlers.event.createEvent);
-    app.post('/api/admin/teams',  handlers.event.createTeam);
-    app.get('/api/admin/events/:eventId/teams', handlers.event.getTeams);
-    app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
-    app.post('/api/admin/events/:eventId/games', handlers.game.createGame);
-    app.get('/api/events',  handlers.event.handleGetEventsRequest);
-    app.get('/api/events/:eventId/teams', handlers.event.getTeams);
-    app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
-    app.get('/api/:userId/pools',  authorisationPolicy , handlers.pools.getPools);
-    app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
-    app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.pools.getUserBets);
-    app.post('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.bets.updateUserBets);
-    app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
-    app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
-    app.post('/api/:userId/pools/:poolId/join', authorisationPolicy, handlers.pools.joinToPool);
-    app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
-    app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
-    app.get('/api/:userId/pools/:poolId/challenges', authorisationPolicy, handlers.pools.getUserBets);
-    app.post('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.createOrUpdate);
-    app.get('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.getOthersBets);
+    // app.post('/api/profiles', handlers.account.createAccount);
+    // app.get('/api/profiles/:userId', handlers.account.getAccount);
+    // app.delete('/api/profiles/:userId', handlers.account.deleteAccount);
+    // app.post('/api/admin/events',  handlers.event.createEvent);
+    // app.post('/api/admin/teams',  handlers.event.createTeam);
+    // app.get('/api/admin/events/:eventId/teams', handlers.event.getTeams);
+    // app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
+    // app.post('/api/admin/events/:eventId/games', handlers.game.createGame);
+    // app.get('/api/events',  handlers.event.handleGetEventsRequest);
+    // app.get('/api/events/:eventId/teams', handlers.event.getTeams);
+    // app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
+    // app.get('/api/:userId/pools',  authorisationPolicy , handlers.pools.getPools);
+    // app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
+    // app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.pools.getUserBets);
+    // app.post('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.bets.updateUserBets);
+    // app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
+    // app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
+    // app.post('/api/:userId/pools/:poolId/join', authorisationPolicy, handlers.pools.joinToPool);
+    // app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
+    // app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
+    // app.get('/api/:userId/pools/:poolId/challenges', authorisationPolicy, handlers.pools.getUserBets);
+    // app.post('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.createOrUpdate);
+    // app.get('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.getOthersBets);
 
 
 
@@ -51,13 +52,10 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
 
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
-
-    // 404
-    app.use((req, res, next) => {
-        debug(req.url);
-        return res.status(404).send({ msg: 'oh no! your page not found' });
+    app.get('*', (req,res) =>{
+        res.sendFile(path.join(__dirname+'/client/src/frontend/public/index.html'));
     });
-
+    // 404
     // Error handler
     app.use((err, req, res, next) => {
         console.log(err);
@@ -66,7 +64,7 @@ function setup(app, handlers, authorisationPolicy) {
             case 401:
                 return res.status(err.code).send({ msg: err.msg});
             default:
-                return res.status(500).send({ msg: 'oh no! we issue some problems' })
+                return res.status(500).send({ msg: 'oh no, we issue some problems' })
         }
     })
 }

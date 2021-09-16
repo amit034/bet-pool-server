@@ -1,11 +1,10 @@
 'use strict';
 const passport = require('passport');
+const {Account} = require("./models");
 const LocalStrategy           = require('passport-local');
 const BearerStrategy          = require('passport-http-bearer').Strategy;
 const GoogleTokenStrategy = require('passport-google-token').Strategy;
 const FacebookTokenStrategy = require('passport-facebook-token');
-
-const Account = require('./models/Account');
 const SecurityToken = require('./infrastructure/securityToken');
 
 module.exports = function () {
@@ -16,7 +15,7 @@ module.exports = function () {
         passReqToCallback: true,
         session: false
       },function(req, email, password, done) {
-            return Account.findOne({email}).then((user) => {
+            return Account.findOne({where: {email}}).then((user) => {
                 const info = { scope: '*' };
                 if (user && req.register) { return done(null, false, {message: "user already exist with that email" }); }
                 if (!user && !req.register) {return done(null, false, {message: "email or password are wrong" });}
@@ -88,7 +87,7 @@ module.exports = function () {
                     return done(null, user.toJSON(), profile);
                 });
             } else {
-                Account.findOne({'googleProvider.id': profile.id})
+                Account.findOne({where: {googleProviderId: profile.id}})
                     .then((user) => {
                         if (!user) { return done(null, false, { message: 'Unknown user' }); }
                         return done(null, user.toJSON(), profile);
@@ -111,7 +110,7 @@ module.exports = function () {
                     return done(null, user.toJSON(), profile);
                 });
             } else {
-                Account.findOne({'facebookProvider.id': profile.id})
+                Account.findOne({where: {facebookProviderId: profile.id}})
                 .then((user) => {
                     if (!user) { return done(null, false, { message: 'Unknown user' }); }
                     return done(null, user.toJSON(), profile);

@@ -1,134 +1,92 @@
-const mongoose = require('mongoose');
+'use strict';
 const moment = require('moment');
 const crypto = require('crypto');
 const _ = require('lodash');
-var accountSchema = mongoose.Schema({
-        username: {type: String, required: true, index: {unique: true}},
-        picture: {type: String, required: false, default: 'http://s3.amazonaws.com/37assets/svn/765-default-avatar.png'},
-        //password: {type: String, required: true},
-        hashedPassword: {type: String, required: true},
-        salt: {type: String, required: true},
-        email: {type: String, required: true, index: {unique: true}},
-        firstName: {type: String, required: true},
-        lastName: {type: String, required: true},
-        creationDate: {type: Date, 'default': Date.now},
-        lastLogin: {type: Date, 'default': moment()},
-        isActive: {type: Boolean, 'default': true},
-        // If confirmation email system is implemented,
-        // this can be set to false
-        canLogin: {type: Boolean, 'default': true},
-        // Treated as a set
-        //pools: {type: [mongoose.Schema.ObjectId], 'default': []},
-        facebookProvider: {
-            type: {
-                id: String,
-                token: String
+
+module.exports = function (sequelize, DataTypes) {
+    const {STRING, BOOLEAN, DATE, INTEGER, VIRTUAL, NOW} = DataTypes;
+    const Account = sequelize.define('Account', {
+        userId: {type: INTEGER(9), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
+        username: {type: STRING, allowNull: false, unique: true, field: 'user_name'},
+        picture: {
+            type: STRING,
+            allowNull: true,
+            defaultValue: 'http://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
+        },
+        hashedPassword: {type: STRING, allowNull: false, field: 'hashed_password'},
+        password: {
+            type: VIRTUAL,
+            set(password) {
+                this.setDataValue('plainPassword', password);
+                this.setDataValue('salt', crypto.randomBytes(32).toString('hex'));
+                //more secure - this.salt = crypto.randomBytes(128).toString('hex');
+                this.setDataValue('hashedPassword', this.encryptPassword(password));
+            },
+            get() {
+                this._plain_password
             }
         },
-        googleProvider: {
-            type: {
-                id: String,
-                token: String
-            }
-        }
-    })
-;
-
-accountSchema.methods.hasChanged = function (firstName, lastName, email) {
-    return (this.firstName !== firstName || this.lastName !== lastName || this.email !== email);
-};
-accountSchema.methods.encryptPassword = function(password) {
-    return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
-
-};
-
-accountSchema.methods.checkPassword = function(password) {
-    return this.encryptPassword(password) === this.hashedPassword;
-};
-
-accountSchema.methods.isLocal = function() {
-    return !this.facebookProvider && !this.googleProvider;
-};
-
-
-accountSchema.virtual('password').set(function(password) {
-        this._plainPassword = password;
-        this.salt = crypto.randomBytes(32).toString('hex');
-        //more secure - this.salt = crypto.randomBytes(128).toString('hex');
-        this.hashedPassword = this.encryptPassword(password);
-}).get(function() { return this._plainPassword; });
-//accountSchema.virtual('username').get(function() { return this.email; });
-
-accountSchema.methods.getFullName = function () {
-    return (this.firstName + ' ' + this.lastName);
-};
-accountSchema.set('toJSON', {getters: true, virtuals: true});
-accountSchema.methods.toJSON = function () {
-    var obj = this.toObject();
-    delete obj.hashedPassword;
-    delete obj.salt;
-    delete obj.facebookProvider;
-    delete obj.googleProvider;
-    obj.id = this.id;
-    return obj;
-};
-
-accountSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
-    var that = this;
-        const email = profile.emails[0].value;
-        let searchByEmail;
-        if (email) {
-            searchByEmail = Account.findOne({email})
-        } else {
-            searchByEmail = null;
-        }
-        return Promise.all([searchByEmail, Account.findOne({'facebookProvider.id': profile.id})]).then(([userBySearch, userByProfile]) => {
-            if (userBySearch && userBySearch.id != userByProfile.id) {
-                return cb(new Error('user already exist with that email'), null, profile);
-            }
-            if (!userByProfile) {
-                const newUser = new Account({
-                    username: profile.emails[0].value,
-                    password: 'none',
-                    lastName: profile._json.first_name,
-                    firstName: profile._json.last_name,
-                    email: profile.emails[0].value,
-                    picture: profile.photos[0].value,
-                    facebookProvider: {
-                        id: profile.id,
-                        token: accessToken
-                    }
-                });
-
-                newUser.save(function (error, savedUser) {
-                    if (error) {
-                        console.log(error);
-                    }
-                    return cb(error, savedUser);
-                });
-            } else {
-                return cb(null, userByProfile);
-            }
-        }).catch((err) => {
-            return cb(err, null, profile);
+        plainPassword: {type: STRING, allowNull: false, field: '_plain_password'},
+        salt: {type: STRING, allowNull: false},
+        email: {type: STRING, allowNull: false, unique: true},
+        firstName: {type: STRING, allowNull: false, field: 'first_name'},
+        lastName: {type: STRING, allowNull: false, field: 'last_name'},
+        creationDate: {type: DATE, defaultValue: NOW, field: 'created_at'},
+        lastLogin: {type: DATE, defaultValue: NOW, field: 'last_login'},
+        isActive: {type: BOOLEAN, defaultValue: true, field: 'is_active'},
+        // If confirmation email system is implemented,
+        // this can be set to false
+        canLogin: {type: BOOLEAN, defaultValue: true, field: 'can_login'},
+        // Treated as a set
+        //pools: {type: [mongoose.Schema.ObjectId], 'default': []},
+        facebookProviderId: {type: INTEGER(9), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
+        googleProviderId: {type: INTEGER(9), allowNull: true, defaultValue: '0', field: 'google_provider_id'}
+    }, {
+        tableName: 'accounts',
+        timestamps: true,
+        createdAt: 'creationDate',
+        updatedAt: false,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+    Account.associate = function (models) {
+        models.Account.belongsTo(models.TokenProvider, {
+            foreignKey: 'facebookProviderId',
+            targetKey: 'providerId',
+            scope: {
+                provider: 'Facebook'
+            },
+            as: 'facebookProvider'
         });
-};
-
-accountSchema.statics.upsertGoogleUser = function (accessToken, refreshToken, profile, cb) {
-    var that = this;
-    const email = profile.emails[0].value;
-    let searchByEmail;
-    if (email) {
-        searchByEmail = Account.findOne({email})
-    } else {
-        searchByEmail = null;
-    }
-    return Promise.all([searchByEmail, Account.findOne({'googleProvider.id': profile.id})]).then(([userBySearch, userByProfile]) => {
-        if (userBySearch && _.get(userBySearch,'id') != _.get(userByProfile, 'id')) {
-            return cb(new Error('user already exist with that email'), false, profile);
+        models.Account.belongsTo(models.TokenProvider, {
+            foreignKey: 'googleProviderId',
+            targetKey: 'providerId',
+            scope: {
+                provider: 'Google'
+            },
+            as: 'googleProvider'
+        });
+    };
+    Account.upsertFbUser = (accessToken, refreshToken, profile, cb) => {
+        const mapUser = (profile, accessToken) => {
+            return {
+                username: profile.emails[0].value,
+                password: 'none',
+                lastName: profile._json.first_name,
+                firstName: profile._json.last_name,
+                email: profile.emails[0].value,
+                picture: profile.photos[0].value,
+                facebookProvider: {
+                    providerId: profile.id,
+                    token: accessToken
+                }
+            };
         }
-        if (!userByProfile) {
-            const newUser = new Account({
+        return Account.upsertUserFromProvider(profile, accessToken, 'facebookProviderId', mapUser, cb);
+    };
+    Account.upsertGoogleUser = (accessToken, refreshToken, profile, cb) => {
+        const mapUser = (profile, accessToken) => {
+            return {
                 username: profile.displayName,
                 password: 'none',
                 lastName: profile._json.family_name,
@@ -136,24 +94,61 @@ accountSchema.statics.upsertGoogleUser = function (accessToken, refreshToken, pr
                 email: profile.emails[0].value,
                 picture: profile._json.picture,
                 googleProvider: {
-                    id: profile.id,
+                    providerId: profile.id,
+                    provider: 'Google',
                     token: accessToken
                 }
-            });
-
-            newUser.save(function (error, savedUser) {
-                if (error) {
-                    console.log(error);
-                }
-                return cb(error, savedUser);
-            });
+            };
+        };
+        return Account.upsertUserFromProvider(profile, accessToken, 'googleProviderId', mapUser, cb);
+    };
+    Account.upsertUserFromProvider = async (profile, accessToken, providerField, providerMapper, cb) => {
+        const email = profile.emails[0].value;
+        let searchByEmail;
+        if (email) {
+            searchByEmail = Account.findOne({where: {email}})
         } else {
-            return cb(null, userByProfile);
+            searchByEmail = Promise.resolve();
         }
-    }).catch((err) => {
-        return cb(err, null, profile);
-    });
-};
-var Account = mongoose.model('Account', accountSchema);
-
-module.exports = Account;
+        try {
+            const [userBySearch, userByProfile] = await Promise.all([searchByEmail, Account.findOne({where: {[providerField]: profile.id}})])
+            if (userBySearch && _.get(userBySearch, 'userId') != _.get(userByProfile, 'userId')) {
+                cb(new Error('user already exist with that email'), false, profile);
+            }
+            if (!userByProfile) {
+                const newUser = await Account.create(providerMapper(profile, accessToken), {
+                   include: ['googleProvider']
+                    // include:  [{
+                    //     association: sequelize.models.TokenProvider,
+                    //     as: 'googleProvider'
+                    // } ]
+                });
+                cb(null, newUser);
+            } else {
+                cb(null, userByProfile);
+            }
+        } catch (err) {
+            cb(err, null, profile);
+        }
+    };
+    Account.prototype.hasChanged = function (firstName, lastName, email) {
+        return (this.firstName !== firstName || this.lastName !== lastName || this.email !== email);
+    };
+    Account.prototype.encryptPassword = function (password) {
+        return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
+    };
+    Account.prototype.checkPassword = function (password) {
+        return this.encryptPassword(password) === this.hashed_password;
+    };
+    Account.prototype.isLocal = () => {
+        return !this.facebook_provider_id && !this.google_provider_id;
+    };
+    Account.prototype.getFullName = function () {
+        return `${this.first_name} ${this.last_name}`;
+    };
+    Account.prototype.toJSON =  function() {
+        const values = this.constructor.prototype.toJSON.call(this);
+        return _.omit(values, ['hashedPassword', 'salt', 'hashedPassword', 'facebookProvider', 'googleProvider']);
+    };
+    return Account;
+}

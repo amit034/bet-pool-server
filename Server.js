@@ -9,21 +9,26 @@ const morgan = require('morgan');
 const debug = require('debug')('dev:server');
 const fs = require('fs');
 const securityPolicy = require('./securityPolicy');
+const http = require('http');
+const https = require('https');
+const privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+const certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
 //const tester = require('./test/sdk');
 
 // Handlers
-const AccountHandler = require('./handlers/AccountHandler');
-const EventHandler = require('./handlers/EventHandler');
-const GameHandler = require('./handlers/GameHandler');
-const PoolHandler = require('./handlers/PoolHandler');
-const BetHandler = require('./handlers/BetHandler');
-const ShoppingListHandler = require('./handlers/ShoppingListHandler');
+// const AccountHandler = require('./handlers/AccountHandler');
+// const EventHandler = require('./handlers/EventHandler');
+// const GameHandler = require('./handlers/GameHandler');
+// const PoolHandler = require('./handlers/PoolHandler');
+// const BetHandler = require('./handlers/BetHandler');
+// const ShoppingListHandler = require('./handlers/ShoppingListHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' }); 
+const expressLogFile = fs.createWriteStream('./logs/express.log', { flags: 'a' });
 //var viewEngine = 'jade'; // modify for your view engine
 // Configuration
 
@@ -53,23 +58,26 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const handlers = {
-    account: new AccountHandler(),
-    event : new EventHandler(),
-    game : new GameHandler(),
-    list: new ShoppingListHandler(),
+    // account: new AccountHandler(),
+    // event : new EventHandler(),
+    // game : new GameHandler(),
+    // list: new ShoppingListHandler(),
     auth: new AuthenticationHandler(),
-    pools: new PoolHandler(),
-    bets  : new BetHandler()
+    // pools: new PoolHandler(),
+    // bets  : new BetHandler()
 };
 
 
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
-    const server = app.listen(port);
-    
-    server.on('error', onError);
-    server.on('listening', onListening);
-    
+    const httpServer = http.createServer(app);
+    const httpsServer = https.createServer(credentials, app);
+
+    httpServer.listen(8080);
+    httpsServer.listen(8443);
+    httpServer.on('error', onError);
+    httpServer.on('listening', onListening);
+
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);
         // tester.runTests().then((response) => {

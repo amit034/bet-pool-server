@@ -47,6 +47,7 @@
     "webpack-dev-server": "^3.1.4"
   },
   "devDependencies": {
-    "expose-loader": "^0.7.5"
+    "expose-loader": "^0.7.5",
+    "semantic-ui-react": "^2.0.3"
   }
 }

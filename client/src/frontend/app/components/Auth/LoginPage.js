@@ -92,7 +92,7 @@ class LoginPage extends React.Component {
     }
 
     goToRegister(){
-        this.props.history.push(`/#/register`)
+        this.props.history.push(`/register`)
     }
     /**
      * Render the component.
