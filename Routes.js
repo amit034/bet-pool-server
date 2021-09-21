@@ -56,8 +56,12 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
     app.get('*', (req,res) =>{
-        res.sendFile(path.join(__dirname+'/client/src/frontend/public/index.html'));
+        res.sendFile(publicPath);
     });
+    // 404
+    app.use((req, res, next) => {
+        debug(req.url);
+        return res.status(404).send({ msg: 'oh no! your page not found' });
     });
     // 404
     // Error handler

@@ -7,3 +7,6 @@ client/node_modules/**
 logs/**
 npm-debug.log
 /client/src/frontend/public/**
+/client/server.crt
+/client/server.key
+/sslcert/**
