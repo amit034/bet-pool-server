@@ -3,10 +3,8 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const util = require('util');
 const Bot = require('./bot');
-const GameRepository = require('../repositories/gameRepository');
-const BetRepository = require('../repositories/betRepository');
-const gameRepository = new GameRepository();
-const repository = new BetRepository();
+const gameRepository = require('../repositories/gameRepository');
+const repository = require('../repositories/betRepository');
 
 function SmartBot() {
     this.name = 'smartBot';

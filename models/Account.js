@@ -1,12 +1,11 @@
 'use strict';
-const moment = require('moment');
 const crypto = require('crypto');
 const _ = require('lodash');
 
 module.exports = function (sequelize, DataTypes) {
     const {STRING, BOOLEAN, DATE, INTEGER, VIRTUAL, NOW} = DataTypes;
     const Account = sequelize.define('Account', {
-        userId: {type: INTEGER(9), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
+        userId: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
         username: {type: STRING, allowNull: false, unique: true, field: 'user_name'},
         picture: {
             type: STRING,
@@ -23,7 +22,7 @@ module.exports = function (sequelize, DataTypes) {
                 this.setDataValue('hashedPassword', this.encryptPassword(password));
             },
             get() {
-                this._plain_password
+                return this.plainPassword;
             }
         },
         plainPassword: {type: STRING, allowNull: false, field: '_plain_password'},
@@ -39,8 +38,8 @@ module.exports = function (sequelize, DataTypes) {
         canLogin: {type: BOOLEAN, defaultValue: true, field: 'can_login'},
         // Treated as a set
         //pools: {type: [mongoose.Schema.ObjectId], 'default': []},
-        facebookProviderId: {type: INTEGER(9), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
-        googleProviderId: {type: INTEGER(9), allowNull: true, defaultValue: '0', field: 'google_provider_id'}
+        facebookProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
+        googleProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'google_provider_id'}
     }, {
         tableName: 'accounts',
         timestamps: true,
@@ -68,7 +67,7 @@ module.exports = function (sequelize, DataTypes) {
         });
     };
     Account.upsertFbUser = (accessToken, refreshToken, profile, cb) => {
-        const mapUser = (profile, accessToken) => {
+        const mapUser = (profile) => {
             return {
                 username: profile.emails[0].value,
                 password: 'none',
@@ -76,16 +75,13 @@ module.exports = function (sequelize, DataTypes) {
                 firstName: profile._json.last_name,
                 email: profile.emails[0].value,
                 picture: profile.photos[0].value,
-                facebookProvider: {
-                    providerId: profile.id,
-                    token: accessToken
-                }
+                facebookProviderId: profile.id
             };
         }
         return Account.upsertUserFromProvider(profile, accessToken, 'facebookProviderId', mapUser, cb);
     };
     Account.upsertGoogleUser = (accessToken, refreshToken, profile, cb) => {
-        const mapUser = (profile, accessToken) => {
+        const mapUser = (profile) => {
             return {
                 username: profile.displayName,
                 password: 'none',
@@ -93,11 +89,7 @@ module.exports = function (sequelize, DataTypes) {
                 firstName: profile._json.given_name,
                 email: profile.emails[0].value,
                 picture: profile._json.picture,
-                googleProvider: {
-                    providerId: profile.id,
-                    provider: 'Google',
-                    token: accessToken
-                }
+                googleProviderId: profile.id
             };
         };
         return Account.upsertUserFromProvider(profile, accessToken, 'googleProviderId', mapUser, cb);
@@ -113,22 +105,16 @@ module.exports = function (sequelize, DataTypes) {
         try {
             const [userBySearch, userByProfile] = await Promise.all([searchByEmail, Account.findOne({where: {[providerField]: profile.id}})])
             if (userBySearch && _.get(userBySearch, 'userId') != _.get(userByProfile, 'userId')) {
-                cb(new Error('user already exist with that email'), false, profile);
+                return cb(new Error('user already exist with that email'), false, profile);
             }
             if (!userByProfile) {
-                const newUser = await Account.create(providerMapper(profile, accessToken), {
-                   include: ['googleProvider']
-                    // include:  [{
-                    //     association: sequelize.models.TokenProvider,
-                    //     as: 'googleProvider'
-                    // } ]
-                });
-                cb(null, newUser);
+                const newUser = await Account.create(providerMapper(profile));
+                return cb(null, newUser);
             } else {
-                cb(null, userByProfile);
+                return cb(null, userByProfile);
             }
         } catch (err) {
-            cb(err, null, profile);
+            return cb(err, null, profile);
         }
     };
     Account.prototype.hasChanged = function (firstName, lastName, email) {
@@ -147,7 +133,7 @@ module.exports = function (sequelize, DataTypes) {
         return `${this.first_name} ${this.last_name}`;
     };
     Account.prototype.toJSON =  function() {
-        const values = this.constructor.prototype.toJSON.call(this);
+        const values = this.constructor['__proto__'].prototype.toJSON.call(this);
         return _.omit(values, ['hashedPassword', 'salt', 'hashedPassword', 'facebookProvider', 'googleProvider']);
     };
     return Account;

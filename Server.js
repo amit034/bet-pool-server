@@ -16,13 +16,12 @@ const certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
 const credentials = {key: privateKey, cert: certificate};
 //const tester = require('./test/sdk');
 
-// Handlers
-// const AccountHandler = require('./handlers/AccountHandler');
-// const EventHandler = require('./handlers/EventHandler');
-// const GameHandler = require('./handlers/GameHandler');
-// const PoolHandler = require('./handlers/PoolHandler');
-// const BetHandler = require('./handlers/BetHandler');
-// const ShoppingListHandler = require('./handlers/ShoppingListHandler');
+//Handlers
+const AccountHandler = require('./handlers/AccountHandler');
+const EventHandler = require('./handlers/EventHandler');
+const GameHandler = require('./handlers/GameHandler');
+const PoolHandler = require('./handlers/PoolHandler');
+const BetHandler = require('./handlers/BetHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
@@ -58,13 +57,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const handlers = {
-    // account: new AccountHandler(),
-    // event : new EventHandler(),
-    // game : new GameHandler(),
-    // list: new ShoppingListHandler(),
+    account: new AccountHandler(),
+    event : new EventHandler(),
+    game : new GameHandler(),
     auth: new AuthenticationHandler(),
-    // pools: new PoolHandler(),
-    // bets  : new BetHandler()
+    pools: new PoolHandler(),
+    bets  : new BetHandler()
 };
 
 

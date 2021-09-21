@@ -13,6 +13,10 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
         },
+        roundId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
         playAt: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -51,8 +55,8 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     Game.associate = function (models) {
-        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode', scope: {eventId: '8'}});
-        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode', scope: {eventId: '8'}});
+        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode'});
+        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode'});
     };
     return Game;
 };

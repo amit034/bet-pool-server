@@ -109,7 +109,7 @@ class GameList extends React.Component {
             </div>
         };
         const Game = ({bet, key, showDay}) => {
-            const {score1, score2, score, medal, challenge: {_id: challengeId, result, game: {team1, team2}, playAt, factor}, closed} = bet;
+            const {score1, score2, score, medal, challenge: {id: challengeId, result, game: {homeTeam, awayTeam}, playAt, factor}, ioOpen} = bet;
             const gameSideClassName = classNames('game-side', {'main-event': factor > 1});
             return (<li className="game-row" key={key}>
                 <div className={gameSideClassName}>
@@ -120,18 +120,18 @@ class GameList extends React.Component {
                         <div className="game-day">{showDay ? moment(playAt).format('ddd DD/MM') : ''}</div>
                         <div className="game-hour">{moment(playAt).format('H:mm')}</div>
                         {/*< div className="game-more">{factor > 1 ? 'Main Event': ''}</div> */}
-                        <div className="bet-score">{closed ? <Medal score={score} medal={medal} /> : ''}</div>
+                        <div className="bet-score">{!ioOpen ? <Medal score={score} medal={medal} /> : ''}</div>
                     </div >
                     <div className="game-body">
-                        <TeamScore team={team1} teamBet={score1} closed={closed} challengeId={challengeId} betFieldName="score1"/>
-                        <MatchResult result={result} closed={closed} challengeId={challengeId}/>
-                        <TeamScore team={team2} teamBet={score2} closed={closed} challengeId={challengeId} betFieldName="score2"
+                        <TeamScore team={homeTeam} teamBet={score1} closed={!ioOpen} challengeId={challengeId} betFieldName="score1"/>
+                        <MatchResult result={result} closed={!ioOpen} challengeId={challengeId}/>
+                        <TeamScore team={awayTeam} teamBet={score2} closed={!ioOpen} challengeId={challengeId} betFieldName="score2"
                                    reverse={true} />
                     </div>
                 </div>
             </li>);
         };
-        const MatchResult = ({result, closed, challengeId}) => {
+        const MatchResult = ({score1, score2 , closed, challengeId}) => {
             const className = classNames('match-tip-image circular teal icon link small fitted', {
                 'users': closed,
                 'lightbulb': !closed
@@ -139,7 +139,7 @@ class GameList extends React.Component {
             return (<div className="game-result">
                 <div className="match-tip"><i class={className} onClick={() => this.onShowOthers(challengeId, closed)}></i>
                 </div>
-                <div className="match-result">{result.score1} : {result.score2}</div>
+                <div className="match-result">{score1} : {score2}</div>
             </div>);
         };
         const TeamScore = ({team: {flag, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
@@ -159,7 +159,7 @@ class GameList extends React.Component {
         const roundNode = _.map(_.pickBy(betsGroups, (value, key) => key >= currentRound), (roundBets, round) => {
             let currentDate = null;
             const gameNodes = roundBets.map((bet) => {
-                const gameNode = <Game bet={bet} key={bet._id}
+                const gameNode = <Game bet={bet} key={bet.id}
                                        showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')} />;
                 currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
                 return (gameNode);

@@ -4,11 +4,9 @@
  * This class contains all the methods to handle Account related requests
  */
 
-var Account = require('../models/Account');
-var AccountRepository = require('../repositories/accountRepository');
-var SecurityToken = require('../infrastructure/securityToken');
+const {Account, SecurityToken} = require('../models');
+const accountRepository = require('../repositories/accountRepository');
 var logger = require('../utils/logger');
-var winston = require('winston');
 
 var AccountHandler = function() {
 	this.createAccount = handleCreateAccountRequest;
@@ -46,7 +44,6 @@ function handleCreateAccountRequest(req, res) {
 
 function handleGetAccountRequest(req, res) {
 	var userId = req.params.userId || null;
-	var accountRepository = new AccountRepository();
 	accountRepository.findById(userId)
 	.then(
 		function(account) {
@@ -80,7 +77,6 @@ function handleUpdateAccountRequest(req, res) {
 	var username = req.params.username || null;
 	var updatedAccount = req.body || null;
 	updatedAccount.username = username;
-	var accountRepository = new AccountRepository();
 	accountRepository.updateAccount(updatedAccount)
 	.then(
 		function (account) {
@@ -109,8 +105,7 @@ function handleUpdateAccountRequest(req, res) {
 }
 
 function handleDeleteAccountRequest(req, res) {
-	var userId  = req.params.userId || null;
-	var accountRepository = new AccountRepository();
+	const userId  = req.params.userId || null;
 	accountRepository.disableAccount(userId)
 	.then(
 		function (account) {

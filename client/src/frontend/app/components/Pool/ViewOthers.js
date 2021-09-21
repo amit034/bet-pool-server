@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import NavigationMenu from './NavigationMenu';
 import {withRouter} from 'react-router-dom';
-import {getChallengeParticipates} from '../../actions/pools';
+import {getChallengeParticipates, getPoolParticipates} from '../../actions/pools';
 import {connect} from 'react-redux';
 import classNames from 'classnames';
 
@@ -13,19 +13,20 @@ class ViewOthers extends React.Component{
   }
   componentDidMount(){
       this.props.dispatch(getChallengeParticipates(this.props.match.params.id, this.props.match.params.challengeId));
+      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
   }
 
   render(){
     const BetsList = ({usersBets, participates}) => {
         const userBetsrNode = _.map( _.orderBy(participates, 'score', 'desc'), (participate) => {
-            return (<UserBet participate={participate} key={participate.id} bet={_.find(usersBets, {participate: participate.id}) || {}} />)
+            return (<UserBet participate={participate} key={participate.userId} bet={_.find(usersBets, {userId: participate.userId}) || {}} />)
         });
         return (<div><ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsrNode}</ul></div>);
     };
-  const MatchResult = ({result, closed}) => {
+  const MatchResult = ({score1, score2, closed}) => {
       const className = classNames('match-tip-image circular teal icon link small fitted', {'users': closed, 'lightbulb': !closed});
       return (<div className="game-result">
-          <div className="match-result">{result.score1} : {result.score2}</div>
+          <div className="match-result">{score1} : {score2}</div>
           </div>);
   };
   const TeamScore = ({team: {flag, name}, reverse}) => {
@@ -38,7 +39,7 @@ class ViewOthers extends React.Component{
       </div>);
   };
     const ChallengeDetails = ({challenge}) => {
-        const {id: challengeId, result, game: {team1, team2}, playAt} = challenge;
+        const {id: challengeId, result, game: {homeTeam, awayTeam}, playAt} = challenge;
         return (<li className="challenge-row" key={challengeId}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')}</div>
@@ -46,9 +47,9 @@ class ViewOthers extends React.Component{
                 <div className="game-more"></div>
             </div>
             <div className="game-body">
-                <TeamScore team={team1}/>
+                <TeamScore team={homeTeam}/>
                 <MatchResult result={result} />
-                <TeamScore team={team2} reverse={true} />
+                <TeamScore team={awayTeam} reverse={true} />
             </div>
 
         </li>);

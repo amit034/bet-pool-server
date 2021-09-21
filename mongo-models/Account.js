@@ -74,7 +74,7 @@ accountSchema.methods.toJSON = function () {
 };
 
 accountSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
-    var that = this;
+        var that = this;
         const email = profile.emails[0].value;
         let searchByEmail;
         if (email) {

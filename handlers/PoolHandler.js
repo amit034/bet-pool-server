@@ -1,23 +1,14 @@
 const _ = require('lodash');
-const moment = require('moment');
-var mongoose = require('mongoose');
 const Q = require('q');
-const Pool = require('../models/Pool');
-const Bet = require('../models/Bet');
-const Repository = require('../repositories/poolRepository');
-const AccountRepository = require('../repositories/accountRepository');
-const Challenge = require('../models/Challenge');
-const GameRepository = require('../repositories/gameRepository');
-const ChallengeRepository = require('../repositories/challengeRepository');
-const BetRepository = require('../repositories/betRepository');
-const EventRepository = require('../repositories/eventRepository');
+const {Bet, Challenge, Sequelize} = require('../models');
+const {Op} = Sequelize;
+const repository = require('../repositories/poolRepository');
+const accountRepository = require('../repositories/accountRepository');
+const gameRepository = require('../repositories/gameRepository');
+const challengeRepository = require('../repositories/challengeRepository');
+const betRepository = require('../repositories/betRepository');
+const eventRepository = require('../repositories/eventRepository');
 const logger = require('../utils/logger');
-const repository = new Repository();
-const eventRepository = new EventRepository();
-const accountRepository = new AccountRepository();
-const gameRepository = new GameRepository();
-const betRepository = new BetRepository();
-const challengeRepository = new ChallengeRepository();
 const  PoolHandler = function () {
     this.createPool = handleCreatePoolRequest;
     this.addGames = handleAddGames;
@@ -118,24 +109,24 @@ function handleGetParticipates(req, res) {
             return getPopulatePoolChallenges(poolModel, false)
                 .then((challenges) => {
                     const pool = poolModel.toJSON();
-                    pool.challenges = challenges;
+                    pool.challenges = _.map(challenges, item => item.toJSON());
                     return [pool, _.map(usersBets, bet => bet.toJSON())];
                 });
         }).then(([pool, usersBets]) => {
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
-                _.assign(participate, _.pick(participateModel.user, ['id', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
-                const userBets = _.filter(usersBets, (bet) => _.get(bet, 'participate.id') === participate.id);
+                _.assign(participate, _.pick(participateModel.user, ['userId', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
+                const userBets = _.filter(usersBets, (bet) => _.get(bet, 'userId') === participate.userId);
                 const bets = _.map(userBets, (bet) => {
-                    const challenge = _.find(pool.challenges, {id: _.toString(_.get(bet, 'challenge', -1))});
+                    const challenge = _.find(pool.challenges, {id: _.get(bet, 'challengeId', -1)});
                     if (_.isNil(challenge)) return null;
                     const challengeFactor = _.get(challenge, 'factor', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
                     const betModel = new Bet(bet);
-                    const medal = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
+                    const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
                     bet.medal = medal;
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
-                    bet.closed = challenge.closed;
+                    bet.closed = !challenge.isOpen;
                     return bet;
                 });
                 const closeBets = _.filter(bets, 'closed');
@@ -170,7 +161,7 @@ function handleGetUserBets(req, res) {
     return Promise.all([
         accountRepository.findById(userId),
         repository.findById(poolId),
-        betRepository.findUserBetsByQuery({participate: userId, pool: poolId})
+        betRepository.findUserBetsByQuery({userId, poolId})
     ]).then(([account, pool, userBets]) => {
         if (_.isNull(account) || _.isNull(pool)) {
             return res.status(400).send({
@@ -180,13 +171,11 @@ function handleGetUserBets(req, res) {
         return getPopulatePoolChallenges(pool)
             .then((challenges) => {
                 let bets = _.map(challenges, (challenge) => {
-                    let betModel = _.find(userBets, (bet) => {
-                        return _.toString(_.get(bet, 'challenge')) === challenge.id;
-                    });
+                    let betModel = _.find(userBets, {challengeId: challenge.id});
                     if (!betModel) {
                         betModel = new Bet({
-                            participate: account._id,
-                            pool: pool._id,
+                            userId: account.userId,
+                            poolId: pool.id,
                             challenge,
                             score1: null,
                             score2: null,
@@ -194,7 +183,7 @@ function handleGetUserBets(req, res) {
                         });
                     }
                     const bet = betModel.toJSON();
-                    const medal = betModel.score(_.parseInt(_.get(challenge, 'result.score1')), _.parseInt(_.get(challenge, 'result.score2')));
+                    const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
                     const challengeFactor = _.get(challenge, 'factor', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
@@ -204,7 +193,7 @@ function handleGetUserBets(req, res) {
                     return bet;
                 });
                 if (!req.requestForMe) {
-                    bets = bets.reject(bets, (bet) => ({closed: false}));
+                    bets = _.reject(bets, (bet) => ({closed: false}));
                 }
                 return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
             });
@@ -317,23 +306,27 @@ function handleAddParticipates(req, res) {
     });
 }
 
-function handleGetUserPools(req, res) {
+async function handleGetUserPools(req, res) {
     const userId = req.params.userId;
-    return repository.findByQuery({$or: [{'participates.user': userId}, {public: true}]})
-        .then(function (pools) {
-            const poolList = _.map(pools, pool => {
-                const item = pool.toJSON();
-                item.pot = _.parseInt(_.get(item, 'buyIn', 0)) * _.size(item.participates);
-                item.prices = [_.parseInt(_.get(item, 'buyIn', 0)) * _.ceil(_.size(item.participates) * 0.4)];
-                return item;
-            });
-            return res.send(poolList);
-        })
-        .catch(function (err) {
-            return res.status(500).send({
-                error: err.message
-            });
-        })
+    try{
+        const userPools = await repository.findParticipateByUserId(userId);
+        const publicPools = await repository.findAllByQuery({public: true});
+        const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
+        const poolList = _.map(pools, pool => {
+            const item = pool.toJSON();
+            const buyIn = _.parseInt(_.get(item, 'buyIn', 0));
+            item.pot = buyIn * _.size(item.participates);
+            item.prices = [buyIn * _.ceil(_.size(item.participates) * 0.4)];
+            return item;
+        });
+        return res.send(poolList);
+    }catch (err) {
+        logger.log('error', 'An error has occurred while processing a request to getUserPools ' +
+            'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+        return res.status(500).send({
+            error: err.message
+        });
+    }
 }
 
 function handleUpdatePoolRequest(req, res) {
@@ -469,33 +462,26 @@ function addParticipatesToPool(pool, usersIds, join, req) {
 }
 
 function getPopulatePoolChallenges(pool, active , challangeId) {
-    return gameRepository.findGamesByEventIds(pool.events, active)
+    const eventIds = _.map(pool.events, 'id');
+    return gameRepository.findGamesByEventIds(eventIds, active)
     .then((games) => {
         const challengesQuery = {
-                        refId: {$in: _.map(games, '_id')},
-                            refName: 'Game',
-                            type: Challenge.TYPES.FULL_TIME
-                        };
+                        refId: {[Op.in]: _.map(games, 'id')},
+                        refName: 'Game',
+                        type: Challenge.TYPES.FULL_TIME
+        };
         const poolChallengesQuery = {
-            _id: {$in: _.map(pool.challenges, '_id')},
+            id: {[Op.in]: _.map(pool.challenges, 'id')},
         };
 
         if (challangeId){
-            challengesQuery._id = challangeId;
-            poolChallengesQuery._id = {$in: _.map(_.filter(pool.challenges,{_id: challangeId}, '_id'))};
+            challengesQuery.id = challangeId;
+            poolChallengesQuery.id = {[Op.in]: _.map(_.filter(pool.challenges,{id: challangeId}, 'id'))};
         }
-        const fullTime = challengeRepository.findByQuery(challengesQuery).then((challenges) => {
-            const items = _.map(challenges, (challenge) => {
-                const item = challenge.toJSON();
-                item.game = _.find(games, {_id: challenge.refId});
-                return item;
-            });
-            return items;
-        });
-        const pollChallenges = !_.isEmpty(pool.challenges) ? challengeRepository.findByQuery() : Promise.resolve([]);
-        return Promise.all([fullTime, pollChallenges]).then(([fullTime, pollChallenges]) => {
-            const challenges = _.union(fullTime, pollChallenges);
-            return _.reject(challenges, _.isNil)
+        const fullTimeQ = challengeRepository.findAllByQuery(challengesQuery);
+        const pollChallengesQ = poolChallengesQuery ? challengeRepository.findAllByQuery(poolChallengesQuery) : Promise.resolve([]);
+        return Promise.all([fullTimeQ, pollChallengesQ]).then(([fullTime, pollChallenges]) => {
+            return  _.uniqBy(_.reject(_.concat(fullTime, pollChallenges), _.isNil), 'id');
         });
     });
 }

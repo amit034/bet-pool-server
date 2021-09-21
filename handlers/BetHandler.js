@@ -1,14 +1,11 @@
 const _ = require('lodash');
 const moment = require('moment');
-const Repository = require('../repositories/betRepository');
-const PoolRepository = require('../repositories/poolRepository');
-const GameRepository = require('../repositories/gameRepository');
-const ChallengeRepository = require('../repositories/challengeRepository');
+const repository = require('../repositories/betRepository');
+const poolRepository = require('../repositories/poolRepository');
+const gameRepository = require('../repositories/gameRepository');
+const challengeRepository = require('../repositories/challengeRepository');
 const logger = require('../utils/logger');
-const repository = new Repository();
-const poolRepository = new PoolRepository();
-const gameRepository = new GameRepository();
-const challengeRepository = new ChallengeRepository();
+
 var BetHandler = function() {
 	this.createOrUpdate = handleCreateOrUpdateRequest;
 	this.getOthersBets = handleGetOthersBets;
@@ -18,11 +15,11 @@ var BetHandler = function() {
 
 function handleGetOthersBets(req, res) {
     const poolId = req.params.poolId ||null;
-    const userId =req.params.userId || null;
+    const userId = req.params.userId || null;
     const challengeId = req.params.challengeId || null;
     return Promise.all([
         challengeRepository.findById(challengeId),
-        repository.findUserBetsByQuery({pool: poolId, challenge: challengeId})
+        repository.findUserBetsByQuery({poolId, challengeId})
     ]).then(function ([challenge, usersBets]) {
             if (challenge) {
                 const bets = _.map(usersBets, bet => bet.toJSON());
@@ -36,7 +33,7 @@ function handleGetOthersBets(req, res) {
                 });
            }
        });
-};
+}
 function handleUpdateUserBets(req, res){
     const poolId = req.params.poolId ||null;
     const userId =req.params.userId || null;

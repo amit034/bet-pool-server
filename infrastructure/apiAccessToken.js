@@ -6,15 +6,13 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var Random = require('../utils/Random');
-var moment = require('moment');
-var mongoose = require('mongoose');
+const Random = require('../utils/Random');
+const moment = require('moment');
 
-var ApiAccessToken = function(userId, password) {
+const ApiAccessToken = function(userId) {
 	this.accessToken = Random.generateApiAccessToken();
 	this.issueDate = moment();
-	this.expirationDate = moment().add('h', 24).toString();
-	//this.application = application;
+	this.expirationDate = moment().add(24, 'hour').toString();
 	this.userId = userId;
 };
 

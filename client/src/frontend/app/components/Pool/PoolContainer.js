@@ -24,7 +24,7 @@ class PoolContainer extends React.Component{
 
   componentDidMount(){
       this.props.dispatch(getUserBets(this.props.match.params.id));
-      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
+      //this.props.dispatch(getPoolParticipates(this.props.match.params.id));
   }
   // componentWillReceiveProps(nextProps) {
   //   if (nextProps.bets && (nextProps.bets !== this.props.bets)) {
@@ -70,7 +70,7 @@ class PoolContainer extends React.Component{
     //     const roundNode = _.map(betsGroups, (roundBets, round) => {
     //         let currentDate = null;
     //         const gameNodes = roundBets.map((bet) => {
-    //            const gameNode = <Game bet={bet} key={bet._id} showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
+    //            const gameNode = <Game bet={bet} key={bet.id} showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
     //            currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
     //            return (gameNode);
     //         });
@@ -94,18 +94,18 @@ class PoolContainer extends React.Component{
     //             <div className="game-hour">{moment(playAt).format('H:mm')}</div>
     //         </div>
     //         <div className="game-body">
-    //             <TeamScore team={team1} teamBet={score1} closed={closed} betId={bet._id} betFieldName="score1"/>
+    //             <TeamScore team={team1} teamBet={score1} closed={closed} betId={bet.id} betFieldName="score1"/>
     //             <MatchResult result={result} closed={closed}/>
-    //             <TeamScore team={team2} teamBet={score2} closed={closed} betId={bet._id} betFieldName="score2" reverse={true}/>
+    //             <TeamScore team={team2} teamBet={score2} closed={closed} betId={bet.id} betFieldName="score2" reverse={true}/>
     //         </div>
     //
     // </li>);
     // // return (
     // //         <li>
     // //             <img width={"25px"} height={"18px"} src={team1.flag} alt={team1.name} title={team1.name}/>
-    // //             <input onChange={(e) => this.onBetChange(bet._id, "score1", e.target.value)} value={score1} disabled={closed}></input>
+    // //             <input onChange={(e) => this.onBetChange(bet.id, "score1", e.target.value)} value={score1} disabled={closed}></input>
     // //             <span>{moment(playAt).format('hh:mm')}</span>
-    // //             <input onChange={(e) => this.onBetChange(bet._id, "score2", e.target.value)}  value={score2} disabled={closed}></input>
+    // //             <input onChange={(e) => this.onBetChange(bet.id, "score2", e.target.value)}  value={score2} disabled={closed}></input>
     // //             <img width={"25px"} height={"18px"} src={team2.flag} alt={team2.name} title={team2.name}/>
     // //             <span>{score1}</span>
     // //             <span>{score2}</span>

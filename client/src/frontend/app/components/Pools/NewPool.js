@@ -29,12 +29,12 @@ class NewPool extends React.Component{
     };
     const EventList = ({events, handleAddEventToPool}) => {
         const eventNode = events.map((event) => {
-            return (<Event event={event} key={event._id} handleAddEventToPool={handleAddEventToPool}/>)
+            return (<Event event={event} key={event.id} handleAddEventToPool={handleAddEventToPool}/>)
         });
         return (<ul className="list-group" style={{marginTop: '30px'}}>{eventNode}</ul>);
     };
     const Event = ({event, remove}) => {
-    return (<li><a href="#" className="list-group-item" onClick={() => {remove(event._id)}}>{event.name}</a></li>);
+    return (<li><a href="#" className="list-group-item" onClick={() => {remove(event.id)}}>{event.name}</a></li>);
     }
     return (
       <div>

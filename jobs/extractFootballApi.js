@@ -5,14 +5,10 @@ const _ = require('lodash');
 const moment = require('moment');
 const Challenge = require('../models/Challenge');
 const apiFootballSdk = require('../lib/apiFootballSDK');
-const EventRepository = require('../repositories/eventRepository');
-const TeamRepository = require('../repositories/teamRepository');
-const GameRepository = require('../repositories/gameRepository');
-const ChallengeRepository = require('../repositories/challengeRepository');
-const eventRepository = new EventRepository();
-const teamRepository = new TeamRepository();
-const gameRepository = new GameRepository();
-const challengeRepository = new ChallengeRepository();
+const eventRepository = require('../repositories/eventRepository');
+const teamRepository = require('../repositories/teamRepository');
+const gameRepository = require('../repositories/gameRepository');
+const challengeRepository = require('../repositories/challengeRepository');
 
 function extractId(refUrl) {
     return refUrl.match(/([^\/]*)\/*$/)[1];

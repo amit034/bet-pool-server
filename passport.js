@@ -1,11 +1,11 @@
 'use strict';
 const passport = require('passport');
 const {Account} = require("./models");
-const LocalStrategy           = require('passport-local');
-const BearerStrategy          = require('passport-http-bearer').Strategy;
+const LocalStrategy = require('passport-local');
+const BearerStrategy = require('passport-http-bearer').Strategy;
 const GoogleTokenStrategy = require('passport-google-token').Strategy;
 const FacebookTokenStrategy = require('passport-facebook-token');
-const SecurityToken = require('./infrastructure/securityToken');
+const {SecurityToken} = require('./models');
 
 module.exports = function () {
 
@@ -14,66 +14,49 @@ module.exports = function () {
         passwordField: 'password',
         passReqToCallback: true,
         session: false
-      },function(req, email, password, done) {
-            return Account.findOne({where: {email}}).then((user) => {
-                const info = { scope: '*' };
-                if (user && req.register) { return done(null, false, {message: "user already exist with that email" }); }
-                if (!user && !req.register) {return done(null, false, {message: "email or password are wrong" });}
-                if (!user && req.register){
-                    const {lastName, firstName} = req.body;
-                    return new Account({username: email, email, password, firstName, lastName}).save()
+    }, function (req, email, password, done) {
+        return Account.findOne({where: {email}}).then((user) => {
+            const info = {scope: '*'};
+            if (user && req.register) {
+                return done(null, false, {message: "user already exist with that email"});
+            }
+            if (!user && !req.register) {
+                return done(null, false, {message: "email or password are wrong"});
+            }
+            if (!user && req.register) {
+                const {lastName, firstName} = req.body;
+                return new Account({username: email, email, password, firstName, lastName}).save()
                     .then((user) => {
 
-                         done(null, user, info);
+                        done(null, user, info);
                     }).catch(done)
-                }
-                if (!user.checkPassword(password) || !user.isLocal()) {
+            }
+            if (!user.checkPassword(password) || !user.isLocal()) {
+                return done(null, false);
+            }
+            done(null, user.toJSON(), info);
+        }).catch((done));
+    }));
+    passport.use(new BearerStrategy(async function (accessToken, done) {
+            try {
+                const securityToken = await SecurityToken.findSecurityToken(accessToken)
+                if (!securityToken) {
                     return done(null, false);
                 }
-                done(null, user.toJSON(), info);
-            }).catch((done));
-    }));
-    passport.use(new BearerStrategy(function(accessToken, done) {
-            return SecurityToken.findSecurityToken(accessToken)
-            .then(function(securityToken) {
-                  if (!securityToken) { return done(null, false); }
-                  if (securityToken !== null && securityToken.isExpired()) {
-                      return SecurityToken.removeSecurityToken(accessToken)
-                      .then(() =>{
-                          return done(null, false, { message: 'Token expired' });
-                      }).catch(done)
-                  }
-                  else {
-                      return Account.findById(securityToken.userId).then((user) => {
-                          if (!user) { return done(null, false, { message: 'Unknown user' }); }
-                          const info = { scope: '*' };
-                          done(null, user.toJSON(), info);
-                      });
-                  }
-                })
-            .catch((err) => {
-                return done(null, false, { message: err.message });
-            });
-
-            AccessTokenModel.findOne({ token: accessToken }, function(err, token) {
-                if (err) { return done(err); }
-                if (!token) { return done(null, false); }
-
-                if( Math.round((Date.now()-token.created)/1000) > config.get('security:tokenLife') ) {
-                    AccessTokenModel.remove({ token: accessToken }, function (err) {
-                        if (err) return done(err);
-                    });
-                    return done(null, false, { message: 'Token expired' });
-                }
-
-                UserModel.findById(token.userId, function(err, user) {
-                    if (err) { return done(err); }
-                    if (!user) { return done(null, false, { message: 'Unknown user' }); }
-
-                    var info = { scope: '*' }
+                if (securityToken !== null && securityToken.isExpired()) {
+                    await SecurityToken.removeSecurityToken(accessToken)
+                    return done(null, false, {message: 'Token expired'});
+                } else {
+                    const user = await Account.findByPk(securityToken.userId);
+                    if (!user) {
+                        return done(null, false, {message: 'Unknown user'});
+                    }
+                    const info = {scope: '*'};
                     done(null, user.toJSON(), info);
-                });
-            });
+                }
+            } catch (err) {
+                return done(null, false, {message: err.message});
+            }
         }
     ));
     passport.use(new GoogleTokenStrategy({
@@ -83,17 +66,19 @@ module.exports = function () {
         function (req, accessToken, refreshToken, profile, done) {
             if (req.register) {
                 Account.upsertGoogleUser(accessToken, refreshToken, profile, function (err, user) {
-                    if (err) return done(null, false, { message: err.message });
+                    if (err) return done(null, false, {message: err.message});
                     return done(null, user.toJSON(), profile);
                 });
             } else {
                 Account.findOne({where: {googleProviderId: profile.id}})
                     .then((user) => {
-                        if (!user) { return done(null, false, { message: 'Unknown user' }); }
+                        if (!user) {
+                            return done(null, false, {message: 'Unknown user'});
+                        }
                         return done(null, user.toJSON(), profile);
                     }).catch((err) => {
-                    return done(err);
-                });
+                        return done(err);
+                    });
             }
         }));
 
@@ -106,17 +91,19 @@ module.exports = function () {
         function (req, accessToken, refreshToken, profile, done) {
             if (req.register) {
                 Account.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
-                    if (err) return done(null, false, { message: err.message });
+                    if (err) return done(null, false, {message: err.message});
                     return done(null, user.toJSON(), profile);
                 });
             } else {
                 Account.findOne({where: {facebookProviderId: profile.id}})
-                .then((user) => {
-                    if (!user) { return done(null, false, { message: 'Unknown user' }); }
-                    return done(null, user.toJSON(), profile);
-                    return done(null, null, profile);
+                    .then((user) => {
+                        if (!user) {
+                            return done(null, false, {message: 'Unknown user'});
+                        }
+                        return done(null, user.toJSON(), profile);
+                        return done(null, null, profile);
 
-                }).catch((err) => {
+                    }).catch((err) => {
                     return done(err);
                 });
             }

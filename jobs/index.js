@@ -5,9 +5,9 @@ const migrateDb = require('./migrateDb');
 const liveGames = require('./liveGames');
 module.exports = {
     start() {
-        liveGames.start();
+        //liveGames.start();
         //footballApi.start();
         //botsBet.start(),
-       // migrateDb.start();
+        migrateDb.start();
     }
 };
