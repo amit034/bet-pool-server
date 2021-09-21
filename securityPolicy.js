@@ -31,7 +31,9 @@ function userCanUpdateOrDeleteShoppingList(account, shoppingList) {
 }
 
 function requestForMe(req){
-    return (_.get(req, 'params.userId') === _.get(req, 'currentUser.id'))
+    const requestUserId = _.parseInt(_.get(req, 'params.userId', '0'));
+    const currentUserId = _.parseInt(_.get(req, 'currentUser.userId', '-1'));
+    return requestUserId === currentUserId;
 }
 
 function authorise(req, res, next) {

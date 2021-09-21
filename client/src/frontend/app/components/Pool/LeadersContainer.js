@@ -18,7 +18,7 @@ class LeadersContainer extends React.Component{
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, 'score', 'desc');
         const LeaderNode = _.map(leaders, (participate) => {
-            return (<Leader participate={participate} key={participate._id}/>)
+            return (<Leader participate={participate} key={participate.id}/>)
         });
         return (<div><ul className="leader-list" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
     };
@@ -48,7 +48,7 @@ class LeadersContainer extends React.Component{
             </li>);
     };
     return (
-      <div>
+      <div id="content" class="ui container">
         {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}`)}>Back to Bets</a>*/}
         <LeaderList
             participates={this.props.pools.participates}

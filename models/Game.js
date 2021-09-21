@@ -1,38 +1,43 @@
-const mongoose = require('mongoose');
+'use strict';
+const _ = require('lodash');
 const moment = require('moment');
-const Schema = mongoose.Schema;
+module.exports = function (sequelize, DataTypes) {
+    const {STRING, VIRTUAL, DATE, INTEGER} = DataTypes;
+    const Model = sequelize.define('Game', {
+        id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
+        eventId: {type: INTEGER(11), allowNull: false, field: 'event_id'},
+        round: {type: INTEGER(2), default: 0},
+        playAt: {type: DATE,  allowNull: false, field: 'play_at'},
+        isOpen: {
+            type: VIRTUAL,
+            get() {
+                return moment().isBefore(this.playAt);
+            }
+        },
+        homeTeamId: {type: INTEGER(9), allowNull: false, field: 'home_team_id'},
+        homeTeamScore: {type: INTEGER(3), field: 'home_team_score'},
+        awayTeamId: {type: INTEGER(9), allowNull: false, field: 'away_team_id'},
+        awayTeamScore: {type: INTEGER(3), field: 'away_team_score'},
+        status: {type: STRING(9), defaultValue: 'SCHEDULED'},
+        factorId: {type: INTEGER(1), defaultValue: 1, field: 'factor_id'}
+    },{
+        tableName: 'games',
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+    Model.associate = function (models) {
+        Model.belongsTo(models.Team, {
+            foreignKey: 'homeTeamId',
+            as: 'homeTeam'
+        });
+        Model.belongsTo(models.Team, {
+            foreignKey: 'awayTeamId',
+            as: 'awayTeam'
+        });
+    };
+    return Model;
+}
 
-const gameSchema = new Schema({
-    event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
-    round: { type: Number, default: 0},
-    team1 : {
-        code: {type : String},
-        flag : {type : String},
-        name : {type : String, required: true}
-    },
-    team2 : {
-        code: {type : String},
-        flag : {type : String},
-        name : {type : String, required: true}
-    },
-    challenges: {type: [mongoose.Schema.ObjectId], ref: 'Challenge'},
-    playAt: { type: Date ,required: true},
-    result: {
-        score1: {type: String},
-        score2: {type: String}
-    },
-    status: {type: String},
-    factor: {type: Number, default: 1},
-    '3pt': {type: mongoose.Schema.Types.Mixed}
-});
 
-gameSchema.index( { team1: 1, team2: 1 , playAt :1 }, { unique: true } );
 
-gameSchema.methods.isOpen = function() {
-    return (this.playAt !== new Date());
-};
-gameSchema.virtual('closed')
-.get(function () {
-    return this.playAt && moment(this.playAt) < moment();
-});
-module.exports =  mongoose.model('Game', gameSchema);

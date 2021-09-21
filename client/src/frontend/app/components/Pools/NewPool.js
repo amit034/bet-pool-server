@@ -29,7 +29,7 @@ class NewPool extends React.Component{
     };
     const EventList = ({events, handleAddEventToPool}) => {
         const eventNode = events.map((event) => {
-            return (<Event event={event} key={event._id} handleAddEventToPool={handleAddEventToPool}/>)
+            return (<Event event={event} key={event.id} handleAddEventToPool={handleAddEventToPool}/>)
         });
         return (<ul className="list-group" style={{marginTop: '30px'}}>{eventNode}</ul>);
     };

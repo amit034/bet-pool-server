@@ -26,6 +26,11 @@ function auth(state = {
         isAuthenticated: false,
         errorMessage: action.message
       });
+    case authActions.LOGOUT_SUCCESS:
+          return Object.assign({}, state, {
+            isFetching: false,
+            isAuthenticated: false,
+          });
     default:
       return state;
   }

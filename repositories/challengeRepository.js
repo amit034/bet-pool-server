@@ -1,50 +1,34 @@
 const _ = require('lodash');
-const mongoose = require('mongoose');
-const Challenge = require('../models/Challenge');
-const moment = require('moment');
-const Q = require('q');
+const {Challenge, Game} = require('../models');
 
-function ChallengeRepository() {
-	this.findById = findById;
-	this.createChallenge = createChallenge;
-	this.updateChallengeById = updateChallengeById;
-	this.updateChallengeByQuery = updateChallengeByQuery;
-	this.findByQuery = findByQuery;
+function findOneByQuery(query, {transaction} = {}){
+    return Challenge.findOne({where: query, transaction});
 }
-
-function findByQuery(query){
-    return Challenge.find(query).exec();
+function findAllByQuery(query, {transaction} = {}){
+    return Challenge.scope('game').findAll({where: query, transaction});
 }
-function findById(challengeId) {
-	return Challenge.findOne({
-        _id: challengeId
-    }).populate('game').exec();
-}
-
-function createChallenge(data) {
-	var challenge = new Challenge(data);
-    return challenge.save();
-}
-
-function updateChallengeById(id, challenge) {
-    var query = {
-        _id: mongoose.Types.ObjectId(id),
-    };
-    return updateChallengeByQuery(query, challenge)
-}
-
-function updateChallengeByQuery(query, challenge) {
-
-    var options = {
-        'new': false
-    };
+async function updateChallengeByQuery(query, data, {transaction} = {}) {
     const searchQuery = _.assign({status: {$ne: 'FINISHED'}, result: {$ne: null}}, query);
-    return Challenge.findOneAndUpdate(searchQuery,
-        {
-            result: challenge.result,
-            status: challenge.status
-        },
-        options
-    ).exec();
+    const challenge = await findOneByQuery(searchQuery, {transaction});
+    return challenge.update({
+        score1: challenge.score1,
+        score2: challenge.score2,
+        status: challenge.status});
 }
-module.exports = ChallengeRepository;
+module.exports = {
+    findOneByQuery,
+    findAllByQuery,
+    findById(challengeId, {transaction} = {}) {
+        return Challenge.scope('game').findByPk(challengeId, {transaction});
+    },
+    createChallenge(data, {transaction}= {}) {
+        return Challenge.create(data, {transaction});
+    },
+    updateChallengeById(id, challenge, {transaction} = {}) {
+        return updateChallengeByQuery({id}, challenge, {transaction})
+    },
+    updateChallengeByQuery
+};
+
+
+

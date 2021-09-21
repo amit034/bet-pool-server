@@ -57,13 +57,13 @@ class PoolsContainer extends React.Component{
     const PoolList = ({pools, leave, join, enter}) => {
         const poolArray = _.values(pools);
         const poolNode = poolArray.map((pool) => {
-            return (<Pool pool={pool} key={pool._id} leave={leave} join={join} enter={enter}/>)
+            return (<Pool pool={pool} key={pool.id} leave={leave} join={join} enter={enter}/>)
         });
         return (<ul className="pool-list" style={{marginTop: '30px'}}>{poolNode}</ul>);
     };
     const Pool = ({pool, leave, join, enter}) => {
         const userId = _.get(getUserFromLocalStorage(), 'userId');
-        const joined = _.find(pool.participates, (participate) => participate.user === userId && participate.joined);
+        const joined = _.find(pool.participates, {userId, joined: true});
         const actionObj = {action: () => {}, name: 'Closed'};
         if (moment(pool.lastCheckIn).isAfter(moment()) || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
@@ -103,13 +103,13 @@ class PoolsContainer extends React.Component{
                 </div>
             </div>
             <div className="pool-footer">
-                <div className="pool-action"><a onClick={() => { return actionObj.action(pool._id)}}>{actionObj.name}</a></div>
+                <div className="pool-action"><a onClick={() => { return actionObj.action(pool.id)}}>{actionObj.name}</a></div>
             </div>
-            {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${pool._id}`)}>{pool.name}</a>*/}
+            {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${pool.id}`)}>{pool.name}</a>*/}
         </li>);
         };
     return (
-      <div>
+      <div id="content" class="ui container">
         {/*<TodoForm addTodo={this.addTodo.bind(this)}/>*/}
         {/*<a className="list-group" style={{marginTop: '30px'}} onClick={() =>  this.props.history.push('/newPool')}>AddPool</a>*/}
         <PoolList

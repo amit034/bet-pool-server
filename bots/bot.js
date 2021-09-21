@@ -2,8 +2,7 @@
 const _ = require('lodash');
 const config = require('../Config-debug');
 const logger = require('../utils/logger');
-const AccountRepository = require('../repositories/accountRepository');
-const accountRepository = new AccountRepository();
+const accountRepository = require('../repositories/accountRepository');
 
 function Bot() {
 }

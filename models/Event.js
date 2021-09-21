@@ -1,18 +1,24 @@
-var mongoose = require('mongoose');
+'use strict';
+const _ = require('lodash');
 
-var Schema = mongoose.Schema;
+module.exports = function (sequelize, DataTypes) {
+    const {STRING, BOOLEAN, DATE, INTEGER, NOW} = DataTypes;
+    const Model = sequelize.define('Event', {
+        id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
+        name: {type: STRING, allowNull: false, unique: true},
+        isActive: {type: BOOLEAN, defaultValue: true, field: 'is_active'},
+        updatedAt: {type: DATE, defaultValue: NOW, field: 'updated_at'}
+    },{
+        tableName: 'new_events',
+        timestamps: true,
+        createdAt: false,
+        updatedAt: true,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+    Model.associate = function (models) {
 
-var eventSchema = new Schema({
-    name : {type : String  ,required: true, unique: false},
-    isActive : {type:Boolean, 'default' : true},
-    games: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Game'},
-    teams: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Team'},
-    startDate: { type: Date },
-    endDate: { type: Date },
-    winner: { type : String},
-    imageUrl: { type : String},
-    lastUpdated: { type: Date },
-    '3pt': {type: mongoose.Schema.Types.Mixed}
-});
+    };
+    return Model;
+}
 
-module.exports =  mongoose.model('Event', eventSchema);

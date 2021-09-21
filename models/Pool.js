@@ -1,29 +1,46 @@
-var mongoose = require('mongoose');
+'use strict';
+const _ = require('lodash');
 
-var Schema = mongoose.Schema;
+module.exports = function (sequelize, DataTypes) {
+    const {STRING, BOOLEAN, DATE, INTEGER} = DataTypes;
+    const Model = sequelize.define('Pool', {
+        id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true},
+        ownerId: {type: INTEGER(11), allowNull: false, field: 'owner_id'},
+        name : {type: STRING, allowNull: false},
+        lastCheckIn:{type: DATE, field: 'last_check_in'},
+        image: {type: STRING},
+        public: {type: BOOLEAN, defaultValue: true},
+        buyIn: {type: INTEGER(5), defaultValue: 0, field: 'buy_in'},
+        factorsStrategy: {type: INTEGER(5), defaultValue: 0, field: 'factors_strategy'}
+    },{
+        tableName: 'pools',
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+    Model.associate = function (models) {
+        Model.belongsToMany(models.Event, {
+            through: models.PoolEvents,
+            foreignKey: 'poolId',
+            otherKey: 'eventId',
+            as: 'events'
+        });
+        Model.belongsToMany(models.Account, {
+            through: models.PoolParticipants,
+            foreignKey: 'poolId',
+            otherKey: 'userId'
+        });
+        Model.hasMany(models.PoolParticipants, {
+            foreignKey: 'poolId',
+            as: 'participates'
+        });
+        Model.belongsToMany(models.Challenge, {
+            through: models.PoolChallenges,
+            foreignKey: 'poolId',
+            otherKey: 'challengeId',
+            as: 'challenges'
+        });
+    };
+    return Model;
+}
 
-var participateSchema = new Schema({
-    user: { type: mongoose.Schema.ObjectId , ref: 'Account' ,required: true },
-    joined : { type : Boolean ,'default': false}
-});
-var poolSchema = new Schema({
-    owner: {type: mongoose.Schema.ObjectId,required: true , ref: 'Account'},
-    participates : {type: [participateSchema], 'default': []},
-    challenges: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Challenge'},
-    events: {type: [mongoose.Schema.ObjectId], 'default': [], ref: 'Event'},
-    name : {type : String  ,required: true},
-    lastCheckIn:{type : Date},
-    image: {type : String},
-    public: {type : Boolean, default: true},
-    buyIn: {type : Number ,default: 0},
-    factors: {
-        0: {type : Number, required: true, default: 0},
-        1: {type : Number  ,required: true, default: 10},
-        2: {type : Number  ,required: true, default: 20},
-        3: {type : Number  ,required: true, default: 30},
-    }
-});
-
-mongoose.set('debug', true);
-
-module.exports =  mongoose.model('Pool', poolSchema);

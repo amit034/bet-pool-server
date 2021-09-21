@@ -1,3 +1,6 @@
+.ui#content{
+  padding-top: 55px;
+}
 .bottom-menu{
   display: flex;
   .item{
@@ -22,9 +25,48 @@
     background-color: lime;
   }
 }
+.challenge-tip{
+  width: 300px;
+  max-height: 300px;
+  .users-bets-list{
+    text-align: center;
+    padding:0;
+    .user-bet-row {
+      list-style: none;
+      border: 1px solid;
+      margin-bottom: 10px;
+      .user-bet-body {
+        display: flex;
+        .user-bet-side {
+          padding: 5px;
+          flex: 1;
+          .user-bet-image {
+            width: 32px;
+            height: 32px;
+          }
+        }
+        .user-bet-center {
+          text-align: left;
+          padding-left: 5px;
+          padding-top: 5px;
+          flex: 7;
+          display: flex;
+          .user-bet-name{
+            flex: 2;
+          }
+          .user-bet-score1, .user-bet-score2{
+            text-align: right;
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  }
+}
 .game-list{
   text-align: center;
   padding:0;
+  list-style: none;
   .round-title{
     text-align: left;
     display: block;
@@ -34,7 +76,7 @@
     .game-row {
       list-style: none;
       border: 1px solid;
-      padding-bottom: 10px;
+      display: flex;
       margin-bottom: 10px;
       .game-title{
         display: flex;
@@ -42,59 +84,98 @@
         font-size: 12px;
         display: flex;
         .game-day{
-          flex: 4;
+          flex: 5;
         }
         .game-hour{
-          flex:1;
+          flex:5;
           text-align: center;
         }
-        .game-more{
-          flex:4;
-        }
-      }
-      .game-body {
-        display: flex;
-        .team-score {
-          flex: 4;
+        .bet-score{
           display: flex;
-          align-items: center;
-          justify-content: center;
-          &.team-reverse {
-            flex-direction: row-reverse;
+          flex: 1;
+          .bet-score-points {
+              font-size: 13px;
+              padding-top: 2px;
+              flex: 1;
           }
-          .team-details {
-            flex: 6;
-            .team-flag {
-              display: block;
-              margin-left: auto;
-              margin-right: auto;
-              width: 50px;
-              height: 36px;
-            }
-            .team-name {
-              font-size: 12px;
-            }
-          }
-          .team-bet {
-            input {
-              width: 25px;
-              font-size: 24px;
-              text-align: center;
-            }
-            flex: 1
+          .bet-score-medal{
+                flex:1;
+                flex-direction: column;
+                .gold-medal{
+                  color: #D9A441;
+                }
+                .sliver-medal{
+                  color: #CCC2C2;
+                }
+                .bronze-medal{
+                  color: #965A38;
+                }
           }
         }
-        .game-result{
-          flex:1;
-          align-items: center;
-          justify-content: center;
-          .match-tip{
-            i {
-              padding-left: 3px;
-            }
-          }
-        }
+
       }
+      .game-side{
+        background-color: #fafafa;
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        width: 20px;
+        margin-right: 10px;
+        font-size: 12px;
+      }
+      .game-side.main-event{
+        background-color: #f3ab00;
+        padding: 5px 5px 5px 0px;
+      }
+      .game-center{
+        flex: auto;
+        margin-bottom: 10px;
+        .game-body {
+              display: flex;
+              .team-score {
+                flex: 4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                &.team-reverse {
+                  flex-direction: row-reverse;
+                }
+                .team-details {
+                  flex: 6;
+                  padding-top: 7px;
+                  .team-flag {
+                    display: block;
+                    margin-left: auto;
+                    margin-right: auto;
+                    width: 50px;
+                    height: 36px;
+                  }
+                  .team-name {
+                    font-size: 12px;
+                  }
+                }
+                .team-bet {
+                  input {
+                    width: 25px;
+                    font-size: 24px;
+                    text-align: center;
+                  }
+                  flex: 1
+                }
+              }
+              .game-result{
+                flex:1;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                .match-tip{
+                  margin-top: 5px;
+                  margin-bottom: 2px;
+                  i {
+                    padding-left: 3px;
+                  }
+                }
+              }
+            }}
     }
   }
 }

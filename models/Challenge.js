@@ -1,34 +1,48 @@
-const mongoose = require('mongoose');
+'use strict';
+const _ = require('lodash');
 const moment = require('moment');
-const Schema = mongoose.Schema;
 
 const TYPES = {
     FULL_TIME: "FULL_TIME"
 };
-const Challenge = new Schema({
-    name: {type: String},
-    type:  {type: String, default: TYPES.FULL_TIME ,required: true},
-    event :{type: mongoose.Schema.ObjectId, ref: 'Event',required: true},
-    status: {type: String},
-    playAt: { type: Date ,required: true},
-    refId: {type: mongoose.Schema.ObjectId, required: true},
-    refName: {type: String, required: true},
-    factor: {type: Number, default: 1},
-    result: {
-        score1: {type: String},
-        score2: {type: String}
+module.exports = function (sequelize, DataTypes) {
+    const {STRING, VIRTUAL, DATE, INTEGER} = DataTypes;
+    const Model = sequelize.define('Challenge', {
+        id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
+        name: {type: STRING, allowNull: false, require: true},
+        type: {type: STRING(15), defaultValue: TYPES.FULL_TIME ,allowNull: false},
+        refName: {type: STRING(15), allowNull: false, field: 'ref_name'},
+        refId : {type: INTEGER(11), allowNull: false, field: 'ref_id'},
+        playAt: {type: DATE,  allowNull: false, field: 'play_at'},
+        status: {type: STRING(9), defaultValue: 'SCHEDULED'},
+        score1: {type: INTEGER(3), field: 'score_1'},
+        score2: {type: INTEGER(9), allowNull: false, field: 'score_2'},
+        factorId: {type: INTEGER(1), defaultValue: 1, field: 'factor_id'},
+        isOpen: {
+            type: VIRTUAL,
+            get() {
+                return moment().isBefore(this.playAt);
+            }
+        }
+    },{
+        tableName: 'challenges',
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+    Model.associate = function (models) {
+        Model.belongsTo(models.Game, {
+            foreignKey: 'refId',
+            as: 'game'
+        });
+        Model.addScope('game', {
+            where: { refName: 'Game' },
+            include: [
+                { model: models.Game, as: 'game', include: [{model: models.Team, as: 'homeTeam'}, {model: models.Team, as: 'awayTeam'}]}
+            ]
+        });
     }
-}, {toObject: { virtuals: true }});
-Challenge.virtual('game', {
-  ref: doc => doc.refName, // The model to use, conditional on the doc
-  localField: 'refId', // Find people or organizations where `localField`
-  foreignField: '_id', // is equal to `foreignField`
-  justOne: true // and return only one
-});
-Challenge.virtual('closed')
-.get(function () {
-    return this.playAt && moment(this.playAt) < moment();
-});
-Challenge.statics.TYPES = TYPES;
-Challenge.index( { type: 1, refId: 1 , refName :1 }, { unique: true } );
-module.exports =  mongoose.model('Challenge', Challenge);
+
+    Model.TYPES = TYPES;
+    return Model;
+}

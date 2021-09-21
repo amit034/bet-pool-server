@@ -13,9 +13,13 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
         },
-        gameId: {
-            type: DataTypes.STRING,
-            allowNull: false
+        roundId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
+        playAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
         },
         score1: {
             type: DataTypes.STRING,
@@ -34,6 +38,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false,
             field: 'team2_code'
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        openFbId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: true,
         }
     }, {
         tableName: 'Scores',
@@ -43,8 +55,8 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     Game.associate = function (models) {
-        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode', scope: {eventId: '8'}});
-        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode', scope: {eventId: '8'}});
+        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode'});
+        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode'});
     };
     return Game;
 };

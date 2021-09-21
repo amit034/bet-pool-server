@@ -1,158 +1,45 @@
 const _ = require('lodash');
-const Pool = require('../models/Pool');
-const Game = require('../models/Game');
-const Account = require('../models/Account');
-var logger = require('../utils/logger');
-var Q = require('q');
-const mongoose = require('mongoose');
+const {Pool, Challenge, PoolParticipants, Event, Account} = require('../models');
 
-function PoolRepository() {
-    this.findById = findById;
-    this.createPool = createPool;
-    this.addGames = addGames;
-    this.addEvents = addEvents;
-    this.addParticipates = addParticipates;
-    this.findGameById = findGameById;
-    this.findByQuery = findByQuery;
-    this.findParticipateByUserId = findParticipateByUserId;
-    this.findByUserId = findByUserId;
+function findByQuery(query, {transaction} = {}) {
+    return Pool.findOne({where: query, transaction});
 }
-
-function findById(id) {
-    var query = {
-        _id: id
-    };
-    return Pool.findOne(query)
-    .populate({path: 'events', model: 'Event'})
-    .exec()
-    .then((pool) => {
-        return Game.populate(pool.events, {path: 'games'})
-    .then(() => {
-        return Account.populate(pool.participates, {path: 'user'});
-    })
-    .then(() => pool);
-    });
+function findAllByQuery(query, {transaction} = {}) {
+    return Pool.findAll({where: query, transaction});
 }
-
-function findByQuery(query) {
-    return Pool.find(query).exec();
-}
-function findByUserId(userId) {
-    return Pool.find({'participates.user': userId}).exec();
-}
-
-function findParticipateByUserId(poolId, userId) {
-
-    return Pool.findOne({_id: poolId, 'participates.user': userId, 'participates.joined': true})
-    .then((pool) => {
-        if (pool && pool.participates) {
-            return _.find(pool.participates, (participate) => {
-                return _.toString(participate.user) === userId;
-            })
-        }
-        return null;
-    });
-}
-
-function findGameById(poolId, gameId) {
-    var deferred = Q.defer();
-
-    Pool.findOne({_id: poolId, 'games': gameId}).populate({path: 'games', model: 'Game'}).exec(function (err, pool) {
-
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            if (pool && pool.games) {
-                deferred.resolve(pool.games[0]);
-            } else {
-                deferred.resolve(null);
-            }
-
-        }
-    });
-    return deferred.promise;
-}
-
-function createPool(owner, name) {
-    var deferred = Q.defer();
-    var pool = new Pool({
-        owner: owner,
-        name: name
-    });
-    pool.save(function (err, doc) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            deferred.resolve(doc);
-        }
-    });
-    return deferred.promise;
-}
-
-
-function addGames(poolId, games) {
-    var deferred = Q.defer();
-
-    var query = {
-        _id: poolId
-    };
-
-    Pool.update(query, {$addToSet: {games: {$each: games}}}, function (err, doc) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            deferred.resolve(doc);
-        }
-    });
-    return deferred.promise;
-}
-
-function addEvents(poolId, events) {
-    var deferred = Q.defer();
-    var query = {
-        _id: poolId
-    };
-
-    Pool.update(query, {$addToSet: {events: {$each: events}}}, function (err, doc) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            deferred.resolve(doc);
-        }
-    });
-    return deferred.promise;
-}
-
-function addInvitees(poolId, accounts) {
-    var deferred = Q.defer();
-    var query = {
-        _id: poolId
-    };
-
-    Pool.update(query, {$addToSet: {invitees: {$each: accounts}}}, function (err, doc) {
-        if (err) {
-            deferred.reject(new Error(err));
-        }
-        else {
-            deferred.resolve(doc);
-        }
-    });
-    return deferred.promise;
-}
-
-function addParticipates(poolId, participates) {
-    var query = {
-        _id: poolId
-    };
-
-    return Pool.update(query, {$addToSet: {'participates': {$each: participates}}}).exec()
-    .then(()=>{
-        return Pool.findOne(query).exec();
-    });
-}
-
-module.exports = PoolRepository;
+module.exports = {
+    findById(id) {
+        return Pool.findByPk(id, {include: [{
+            model: PoolParticipants, as: 'participates',
+            include: [{model: Account, as: 'user'}]}, {model: Challenge, as: 'challenges'},  {model: Event, as: 'events'}]});
+    },
+    findByQuery,
+    findAllByQuery,
+    findByUserId(userId, {transaction}) {
+        return Pool.findAll({where: {ownerId: userId}, include: [{model: PoolParticipants, as: 'participates'}], transaction});
+    },
+    async findParticipateByUserId(userId, {transaction} = {}) {
+        const userParticipants = await PoolParticipants.findAll({where: {userId}, transaction});
+        const poolIds = _.map(userParticipants, 'poolId');
+        return Pool.findAll({where: {id: poolIds}, include: [{model: PoolParticipants, as: 'participates'}] , transaction});
+    },
+    createPool(details, {transaction}) {
+        return Pool.create(details, {transaction, returning: true});
+    },
+    async addChallenges(poolId, challenges, {transaction}) {
+        const pool = await Pool.findByPk(poolId, {include: [Challenge], transaction});
+        return pool.addChallenges(challenges, {transaction});
+    },
+    async addEvents(poolId, events, {transaction}) {
+        const pool = await Pool.findByPk(poolId, {include: [Event], transaction});
+        return pool.addEvents(events, {transaction});
+    },
+    async addInvitees(poolId, accounts, {transaction}) {
+        const pool = await Pool.findByPk(poolId, {include: [PoolParticipants]}, {transaction});
+        return pool.addParticipants(_.map(accounts, 'userId'), {transaction});
+    },
+    async addParticipates(poolId, participants, {transaction}) {
+        const pool = await Pool.findByPk(poolId, {include: [PoolParticipants], transaction});
+        return pool.addPoolParticipants(participants, {transaction});
+    }
+};

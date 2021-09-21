@@ -4,8 +4,7 @@ const logger = require('../utils/logger');
 const bots = require('../bots');
 const _ = require('lodash');
 const moment = require('moment');
-const ChallengeRepository = require('../repositories/challengeRepository');
-const challengeRepository = new ChallengeRepository();
+const challengeRepository = require('../repositories/challengeRepository');
 let activeBots = [];
 module.exports = {
 

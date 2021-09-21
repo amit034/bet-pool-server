@@ -1,35 +1,24 @@
-const Q = require('q');
-const mongoose = require('mongoose');
-const Bet = require('../models/Bet');
+const _ = require('lodash');
+const {Bet, Challenge, Game} = require('../models');
 
-function BetRepository() {
-	this.createOrUpdate = createOrUpdate;
-	this.findUserBetsByPoolId = findUserBetsByPoolId;
-	this.findByChallengeId = findByChallengeId;
-	this.findUsersBetsByPoolId = findUsersBetsByPoolId;
+function findUserBetsByQuery(query, {transaction} = {}) {
+	return Bet.findAll({where: query, transaction});
 }
-
-
-function findUserBetsByPoolId(userId , poolId) {
-	const query  = {participate :userId , pool: poolId};
-	return Bet.find(query).populate('challenge').populate('challenge.game').exec();
-}
-function findUsersBetsByPoolId(poolId) {
-	const query  = {pool: poolId};
-	return Bet.find(query).populate('participate').exec();
-}
-
-function createOrUpdate(bet) {
-	const {participate, challenge, pool, score1, score2 } = bet;
-	const query  = {participate, challenge, pool};
-    return Bet.findOneAndUpdate(query, {score1 , score2},{upsert: true, new: true}).populate({
-    	path: 'challenge',
-    	populate: { path: 'game', model: 'Game'}}).exec();
-}
-
-function findByChallengeId(challengeId){
-	const query  = {challenge : challengeId};
-	return Bet.find(query).populate('challenge').populate('challenge.game').exec();
-}
-
-module.exports = BetRepository;
+module.exports = {
+	findUserBetsByQuery,
+	findUsersBetsByPoolId(poolId, {transaction} = {}) {
+		return findUserBetsByQuery({poolId}, {transaction});
+	},
+	async createOrUpdate(data, {transaction}) {
+		const {userId, challengeId, poolId, score1, score2 } = data;
+		const searchQuery = {poolId, challengeId, userId};
+		let bets = await findUserBetsByQuery(searchQuery, {transaction});
+		if (_.isEmpty(bets)) {
+			await Bet.create(_.assign(searchQuery, {score1, score2}), {transaction});
+		}
+		return Bet.findAll({where: searchQuery, transaction});
+	},
+	findByChallengeId(challengeId, {transaction}){
+		return findUserBetsByQuery({challengeId}, {transaction});
+	}
+};

@@ -92,7 +92,7 @@ class LoginPage extends React.Component {
     }
 
     goToRegister(){
-        this.props.history.push(`/#/register`)
+        this.props.history.push(`/register`)
     }
     /**
      * Render the component.
@@ -121,6 +121,8 @@ class LoginPage extends React.Component {
                             <GoogleLogin
                                 clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
                                 onSuccess={this.googleResponse}
+                                onFailure={this.googleResponse}
+                                autoLoad={false}
                                 render={renderProps => (
                                     <div className="field">
                                         <Button fluid size='large' color='google plus' onClick={renderProps.onClick}>

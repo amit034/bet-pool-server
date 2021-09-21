@@ -9,9 +9,14 @@ const morgan = require('morgan');
 const debug = require('debug')('dev:server');
 const fs = require('fs');
 const securityPolicy = require('./securityPolicy');
+const http = require('http');
+const https = require('https');
+const privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+const certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
 //const tester = require('./test/sdk');
 
-// Handlers
+//Handlers
 const AccountHandler = require('./handlers/AccountHandler');
 const EventHandler = require('./handlers/EventHandler');
 const GameHandler = require('./handlers/GameHandler');
@@ -65,10 +70,13 @@ const handlers = {
 
 exports.start = () => {
     routes.setup(app, handlers, securityPolicy.authorise);
-    const server = app.listen(port);
+    const httpServer = http.createServer(app);
+    const httpsServer = https.createServer(credentials, app);
 
-    server.on('error', onError);
-    server.on('listening', onListening);
+    httpServer.listen(8080);
+    httpsServer.listen(8443);
+    httpServer.on('error', onError);
+    httpServer.on('listening', onListening);
 
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);

@@ -1,6 +1,7 @@
 //webpack.config.js
 var webpack = require('webpack');
 var path = require('path');
+var fs = require('fs');
 var BUILD_DIR = path.resolve(__dirname, 'src/frontend/public');
 var APP_DIR = path.resolve(__dirname, 'src/frontend/app');
 const srcPath = path.join(__dirname, 'src', 'frontend', 'app', 'index.jsx');
@@ -23,6 +24,16 @@ var config = {
         publicPath: '/'
     },
     devServer: {
+        https:{
+            minVersion: 'TLSv1.1',
+            key: fs.readFileSync(path.join(__dirname, './server.key')),
+            cert: fs.readFileSync(path.join(__dirname, './server.crt')),
+            passphrase: 'webpack-dev-server',
+            requestCert: true,
+        },
+        proxy: {
+            '/api': 'http://localhost:3000',
+        },
         historyApiFallback: true,
     },
     plugins: [

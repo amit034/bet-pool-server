@@ -17,7 +17,10 @@ export const UPDATE_USER_BETS_REQUEST = 'UPDATE_USER_BET_REQUEST';
 export const UPDATE_USER_BETS_SUCCESS = 'UPDATE_USER_BET_SUCCESS';
 export const UPDATE_USER_BETS_FAILURE = 'UPDATE_USER_BET_FAILURE';
 export const GET_USER_BETS_FAILURE = 'GET_POOL_GAMES_FAILURE';
+export const GET_POOL_PARTICIPATES_REQUEST = 'GET_POOL_PARTICIPATES_REQUEST';
 export const GET_POOL_PARTICIPATES_SUCCESS = 'GET_POOL_PARTICIPATES_SUCCESS';
+export const GET_CHALLENGE_PARTICIPATES_REQUEST = 'GET_CHALLENGE_PARTICIPATES_REQUEST';
+export const GET_CHALLENGE_PARTICIPATES_SUCCESS = 'GET_CHALLENGE_PARTICIPATES_SUCCESS';
 
 function requestUserPools(userId) {
     return {
@@ -163,7 +166,22 @@ function postUserBetFail(userId, poolId, message) {
         message
     }
 }
-
+function requestPoolParticipates(userId, poolId){
+    return {
+           type: GET_POOL_PARTICIPATES_REQUEST,
+           isFetching: true,
+           poolId,
+           userId,
+       }
+}
+function requestChallengeParticipates(userId, poolId){
+    return {
+           type: GET_CHALLENGE_PARTICIPATES_REQUEST,
+           isFetching: true,
+           poolId,
+           userId,
+       }
+}
 function receiveParticipates(userId, poolId, participates) {
     return {
         type: GET_POOL_PARTICIPATES_SUCCESS,
@@ -174,6 +192,15 @@ function receiveParticipates(userId, poolId, participates) {
     }
 }
 
+function receiveChallengeParticipates(poolId, {challenge, usersBets}) {
+    return {
+        type: GET_CHALLENGE_PARTICIPATES_SUCCESS,
+        isFetching: false,
+        poolId,
+        challenge,
+        usersBets
+    }
+}
 export function getPoolGames(poolId, userId) {
     return dispatch => {
         userId = userId || getUserFromLocalStorage().userId;
@@ -275,10 +302,26 @@ export function joinPool(poolId) {
 export function getPoolParticipates(poolId, challengeId, userId) {
     return dispatch => {
         userId = userId || getUserFromLocalStorage().userId;
+        dispatch(requestPoolParticipates(userId, poolId));
         return axios.get(`/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
             .then((response) => {
                 const participate = response.data;
                 dispatch(receiveParticipates(userId, poolId, participate))
+            }).catch((err) => {
+                const authErr = authError(err);
+                if (!_.isEmpty(authErr)) dispatch(authErr);
+            });
+    }
+}
+
+export function getChallengeParticipates(poolId, challengeId, userId) {
+    return dispatch => {
+        userId = userId || getUserFromLocalStorage().userId;
+        dispatch(requestChallengeParticipates(userId, poolId));
+        return axios.get(`/api/${userId}/pools/${poolId}/challenges/${challengeId}`, {headers: authHeader()})
+            .then((response) => {
+                const {challenge, usersBets} = response.data;
+                dispatch(receiveChallengeParticipates(poolId, {challenge, usersBets}))
             }).catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) dispatch(authErr);

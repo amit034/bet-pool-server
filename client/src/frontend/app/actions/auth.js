@@ -3,7 +3,8 @@ import _ from 'lodash'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
-
+export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
+export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 function requestLogin(creds) {
   return {
     type: LOGIN_REQUEST,
@@ -21,6 +22,14 @@ function receiveLogin(user) {
     user: user
   }
 }
+function receiveLogout(user) {
+  return {
+    type: LOGOUT_SUCCESS,
+    isFetching: false,
+    isAuthenticated: false,
+    user: user
+  }
+}
 
 function loginError(message) {
   return {
@@ -29,6 +38,15 @@ function loginError(message) {
     isAuthenticated: false,
     message
   }
+}
+
+function logoutError(message) {
+    return {
+        type: LOGOUT_FAILURE,
+        isFetching: false,
+        isAuthenticated: false,
+        message
+    }
 }
 export function authHeader() {
 
@@ -78,8 +96,13 @@ export function loginUser(creds) {
 }
 export function logoutUser() {
     return dispatch => {
-        localStorage.removeItem('user');
-        localStorage.removeItem('apiAccessToken');
+        return axios.post('/api/auth/logout', {},{headers: authHeader()}).then((response) => {
+            localStorage.removeItem('user');
+            localStorage.removeItem('apiAccessToken');
+            dispatch(receiveLogout())
+        }).catch((err) => {
+            dispatch(loginError(_.get(err, 'response.data.error', err)));
+        });
     };
 }
 export function registerUser(creds) {
@@ -105,9 +128,9 @@ export function registerUser(creds) {
 export function verifyFacebookToken(response) {
     return dispatch => {
         axios.post('/api/auth/facebook', {access_token: response.accessToken, appName:'betPool'},{
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
+            headers: {
+                'Content-Type': 'application/json',
+            }
         }).then(r => {
             const user = r.data;
             localStorage.setItem('user', JSON.stringify(user));

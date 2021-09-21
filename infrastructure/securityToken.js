@@ -32,12 +32,7 @@ securityTokenSchema.statics.createFromApiToken = function(apiToken) {
     if (!apiToken || apiToken.accessToken < 32 ) {
         throw new Error('The Api access token and the Facebook user access token are required');
     }
-    var obj = new SecurityToken();
-    obj.apiAccessToken = apiToken.accessToken;
-    obj.issueDate = apiToken.issueDate;
-    obj.expirationDate = apiToken.expirationDate;
-    obj.userId = apiToken.userId;
-    return obj;
+    return securityToken.create(apiToken);
 };
 securityTokenSchema.statics.saveSecurityToken = function(securityToken) {
 	var deferred = Q.defer();
