@@ -34,7 +34,17 @@ class NewPool extends React.Component{
         return (<ul className="list-group" style={{marginTop: '30px'}}>{eventNode}</ul>);
     };
     const Event = ({event, remove}) => {
-    return (<li><a href="#" className="list-group-item" onClick={() => {remove(event.id)}}>{event.name}</a></li>);
+        return (<li>
+            <div className="event">
+                <div className="event-side">
+                    <div className="event-select"></div>
+                    <div className="event-image"></div>
+                </div>
+                <div className="event-center">
+                    <div className="event-name"></div>
+                </div>
+            </div>
+    </li>);
     }
     return (
       <div>

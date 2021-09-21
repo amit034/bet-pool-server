@@ -2,16 +2,22 @@ const debug = require('debug')('dev:routes');
 const path = require("path");
 const passport = require('passport');
 require('./passport')();
+const path = require('path');
+const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public', 'index.html');
 function setup(app, handlers, authorisationPolicy) {
+    app.get('/status', (req, res)=> res.send('ok'));
     app.post('/api/profiles', handlers.account.createAccount);
     app.get('/api/profiles/:userId', handlers.account.getAccount);
     app.delete('/api/profiles/:userId', handlers.account.deleteAccount);
+    app.get('/api/admin/competitions',  handlers.footballApi.getCompetitions);
+    app.get('/api/admin/competition/:competitionId/matches',  handlers.footballApi.getMatches);
+    app.get('/api/admin/events', handlers.event.handleCreateAndGetEventsRequest);
     app.post('/api/admin/events',  handlers.event.createEvent);
     app.post('/api/admin/teams',  handlers.event.createTeam);
     app.get('/api/admin/events/:eventId/teams', handlers.event.getTeams);
     app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
     app.post('/api/admin/events/:eventId/games', handlers.game.createGame);
-    app.get('/api/events',  handlers.event.handleGetEventsRequest);
+    app.get('/api/events', handlers.event.handleActiveEventsRequest);
     app.get('/api/events/:eventId/teams', handlers.event.getTeams);
     app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
     app.get('/api/:userId/pools',  authorisationPolicy , handlers.pools.getPools);
@@ -48,10 +54,10 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/register', (req, res, next) => { req.register = true; req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
     app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
-
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
     app.get('*', (req,res) =>{
         res.sendFile(path.join(__dirname+'/client/src/frontend/public/index.html'));
+    });
     });
     // 404
     // Error handler

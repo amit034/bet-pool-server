@@ -22,6 +22,7 @@ const EventHandler = require('./handlers/EventHandler');
 const GameHandler = require('./handlers/GameHandler');
 const PoolHandler = require('./handlers/PoolHandler');
 const BetHandler = require('./handlers/BetHandler');
+const FootBallApiHandler = require('./handlers/FootBallApiHandler');
 const AuthenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
@@ -62,7 +63,8 @@ const handlers = {
     game : new GameHandler(),
     auth: new AuthenticationHandler(),
     pools: new PoolHandler(),
-    bets  : new BetHandler()
+    bets  : new BetHandler(),
+    footballApi: FootBallApiHandler
 };
 
 
