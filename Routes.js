@@ -2,7 +2,6 @@ const debug = require('debug')('dev:routes');
 const path = require("path");
 const passport = require('passport');
 require('./passport')();
-const path = require('path');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public', 'index.html');
 function setup(app, handlers, authorisationPolicy) {
     app.get('/status', (req, res)=> res.send('ok'));

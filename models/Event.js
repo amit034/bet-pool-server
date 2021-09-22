@@ -12,7 +12,7 @@ module.exports = function (sequelize, DataTypes) {
         tableName: 'new_events',
         timestamps: true,
         createdAt: false,
-        updatedAt: true,
+        updatedAt: 'updated_at',
         engine: 'InnoDB',
         charset: 'utf8'
     });
