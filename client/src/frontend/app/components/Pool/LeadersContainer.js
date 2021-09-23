@@ -34,6 +34,7 @@ class LeadersContainer extends React.Component{
     return (
             <li className="leader-row">
                 <div className="leader-body">
+                    <div className="leader-rank"> 1 </div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
