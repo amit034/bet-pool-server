@@ -10,3 +10,5 @@ npm-debug.log
 /client/server.crt
 /client/server.key
 /sslcert/**
+/client/npm-shrinkwrap.json
+/client/npm-shrinkwrap.json

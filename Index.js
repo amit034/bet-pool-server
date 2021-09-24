@@ -17,6 +17,6 @@ debug('logger started. Connecting to MongoDB...');
 //mongoose.connect(config.db.mongodb);
 debug('Successfully connected to MongoDB. Starting web server...');
 server.start();
-//jobs.start();
+jobs.start();
 debug('Successfully started web server. Waiting for incoming connections...');
 

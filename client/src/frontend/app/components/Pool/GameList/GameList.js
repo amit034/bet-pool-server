@@ -50,7 +50,7 @@ class GameList extends React.Component {
     }
     render() {
         const {bets, usersBets, participates} = this.props;
-        const betArray = _.values(bets);
+        const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
         const currentBet = _.find(betArray, (bet) => {
                     return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
                 });
@@ -109,7 +109,7 @@ class GameList extends React.Component {
             </div>
         };
         const Game = ({bet, key, showDay}) => {
-            const {score1, score2, score, medal, challenge: {id: challengeId, result, game: {homeTeam, awayTeam}, playAt, factor}, ioOpen} = bet;
+            const {score1, score2, score, medal, challenge: {id: challengeId, score1: c_score1, score2: c_score2, game: {homeTeam, awayTeam}, playAt, factor}, ioOpen} = bet;
             const gameSideClassName = classNames('game-side', {'main-event': factor > 1});
             return (<li className="game-row" key={key}>
                 <div className={gameSideClassName}>
@@ -124,7 +124,7 @@ class GameList extends React.Component {
                     </div >
                     <div className="game-body">
                         <TeamScore team={homeTeam} teamBet={score1} closed={!ioOpen} challengeId={challengeId} betFieldName="score1"/>
-                        <MatchResult result={result} closed={!ioOpen} challengeId={challengeId}/>
+                        <MatchResult score1={c_score1} score2={c_score2} closed={!ioOpen} challengeId={challengeId}/>
                         <TeamScore team={awayTeam} teamBet={score2} closed={!ioOpen} challengeId={challengeId} betFieldName="score2"
                                    reverse={true} />
                     </div>

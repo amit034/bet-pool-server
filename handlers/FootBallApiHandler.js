@@ -4,7 +4,7 @@ function getCompetitions(req, res) {
     return apiFootballSdk.getCompetitions({play: 'TIER_ONE'}).then(res.json);
 }
 function getMatches(req, res) {
-    return apiFootballSdk.getFixtures(req.param.competitionId).then(res.json);
+    return apiFootballSdk.getMatches(req.param.competitionId).then(res.json);
 }
 module.exports = {
     getCompetitions,

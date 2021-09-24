@@ -78,8 +78,8 @@ function extractGame(event, game) {
             });
         });
     }).then((gameModel) => {
-        return challengeRepository.findByQuery({refId: gameModel.id, refName: 'Game'})
-            .then(([challenge]) => {
+        return challengeRepository.findOneByQuery({refId: gameModel.id, refName: 'Game'})
+            .then((challenge) => {
                 if (challenge) return challenge;
                 return challengeRepository.createChallenge({
                     type: Challenge.TYPES.FULL_TIME,
@@ -103,7 +103,7 @@ function extractGame(event, game) {
                     score1: score1,
                     score2: score2
                 };
-                return gameRepository.updateGame({id: gameModel.id, result, status})
+                return gameRepository.updateScore({id: gameModel.id, result, status})
                     .then(() => {
                         return challengeRepository.updateChallengeByQuery({refId: gameModel.id, refName: 'Game'}, {
                             status: game.status,

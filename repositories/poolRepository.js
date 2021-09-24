@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {Pool, Challenge, PoolParticipants, Event, Account} = require('../models');
+const {Pool, Challenge, PoolParticipant, Event, Account} = require('../models');
 
 function findByQuery(query, {transaction} = {}) {
     return Pool.findOne({where: query, transaction});
@@ -10,7 +10,7 @@ function findAllByQuery(query, {transaction} = {}) {
 module.exports = {
     findById(id) {
         return Pool.findByPk(id, {include: [{
-            model: PoolParticipants, as: 'participates',
+            model: PoolParticipant, as: 'participates',
             include: [{model: Account, as: 'user'}]}, {model: Challenge, as: 'challenges'},  {model: Event, as: 'events'}]});
     },
     findByQuery,
@@ -19,9 +19,9 @@ module.exports = {
         return Pool.findAll({where: {ownerId: userId}, include: [{model: PoolParticipants, as: 'participates'}], transaction});
     },
     async findParticipateByUserId(userId, {transaction} = {}) {
-        const userParticipants = await PoolParticipants.findAll({where: {userId}, transaction});
+        const userParticipants = await PoolParticipant.findAll({where: {userId}, transaction});
         const poolIds = _.map(userParticipants, 'poolId');
-        return Pool.findAll({where: {id: poolIds}, include: [{model: PoolParticipants, as: 'participates'}] , transaction});
+        return Pool.findAll({where: {id: poolIds}, include: [{model: PoolParticipant, as: 'participates'}] , transaction});
     },
     createPool(details, {transaction}) {
         return Pool.create(details, {transaction, returning: true});
@@ -35,11 +35,11 @@ module.exports = {
         return pool.addEvents(events, {transaction});
     },
     async addInvitees(poolId, accounts, {transaction}) {
-        const pool = await Pool.findByPk(poolId, {include: [PoolParticipants]}, {transaction});
+        const pool = await Pool.findByPk(poolId, {include: [PoolParticipant]}, {transaction});
         return pool.addParticipants(_.map(accounts, 'userId'), {transaction});
     },
     async addParticipates(poolId, participants, {transaction}) {
-        const pool = await Pool.findByPk(poolId, {include: [PoolParticipants], transaction});
+        const pool = await Pool.findByPk(poolId, {include: [PoolParticipant], transaction});
         return pool.addPoolParticipants(participants, {transaction});
     }
 };

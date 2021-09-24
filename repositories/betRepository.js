@@ -10,7 +10,7 @@ module.exports = {
 		return findUserBetsByQuery({poolId}, {transaction});
 	},
 	async createOrUpdate(data, {transaction}) {
-		const {userId, challengeId, poolId, score1, score2 } = data;
+		const {userId, challengeId, poolId, score1, score2} = data;
 		const searchQuery = {poolId, challengeId, userId};
 		let bets = await findUserBetsByQuery(searchQuery, {transaction});
 		if (_.isEmpty(bets)) {

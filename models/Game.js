@@ -19,7 +19,8 @@ module.exports = function (sequelize, DataTypes) {
         awayTeamId: {type: INTEGER(9), allowNull: false, field: 'away_team_id'},
         awayTeamScore: {type: INTEGER(3), field: 'away_team_score'},
         status: {type: STRING(9), defaultValue: 'SCHEDULED'},
-        factorId: {type: INTEGER(1), defaultValue: 1, field: 'factor_id'}
+        factorId: {type: INTEGER(1), defaultValue: 1, field: 'factor_id'},
+        fapiId: {type: INTEGER(11), field: 'f_api_id'},
     },{
         tableName: 'games',
         timestamps: false,
