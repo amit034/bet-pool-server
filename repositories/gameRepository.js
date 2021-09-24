@@ -1,7 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const moment = require('moment');
-const {Game, Team, Sequelize} = require('../models');
+const {Game, Team, Event, Sequelize} = require('../models');
 const {Op} = Sequelize;
 
 module.exports = {
@@ -30,6 +30,22 @@ module.exports = {
         return Game.findAll({
             where: {playAt: {[Op.gte]: moment()}} ,
             include: [{model: Team, as: 'homeTeam'},{model: Team, as: 'awayTeam'}],
+            transaction});
+    },
+    findLive({transaction}) {
+        return Game.findAll({
+            where: {
+                playAt: {[Op.lte]: moment()},
+                status: {[Op.ne]: 'FINISHED'},
+                fapiId: {[Op.gt]: 0}
+            },
+            include: [{
+                model: Event,
+                as: 'event',
+                where: {
+                    fapiId: {[Op.gt]: 0}
+                }
+            }],
             transaction});
     },
     async findOrCreate(data, {transaction}) {

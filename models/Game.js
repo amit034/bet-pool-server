@@ -28,6 +28,10 @@ module.exports = function (sequelize, DataTypes) {
         charset: 'utf8'
     });
     Model.associate = function (models) {
+        Model.belongsTo(models.Event, {
+            foreignKey: 'eventId',
+            as: 'event'
+        });
         Model.belongsTo(models.Team, {
             foreignKey: 'homeTeamId',
             as: 'homeTeam'
