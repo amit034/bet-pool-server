@@ -20,22 +20,22 @@ module.exports = function (sequelize, DataTypes) {
     });
     Model.associate = function (models) {
         Model.belongsToMany(models.Event, {
-            through: models.PoolEvents,
+            through: models.PoolEvent,
             foreignKey: 'poolId',
             otherKey: 'eventId',
             as: 'events'
         });
         Model.belongsToMany(models.Account, {
-            through: models.PoolParticipants,
+            through: models.PoolParticipant,
             foreignKey: 'poolId',
             otherKey: 'userId'
         });
-        Model.hasMany(models.PoolParticipants, {
+        Model.hasMany(models.PoolParticipant, {
             foreignKey: 'poolId',
             as: 'participates'
         });
         Model.belongsToMany(models.Challenge, {
-            through: models.PoolChallenges,
+            through: models.PoolChallenge,
             foreignKey: 'poolId',
             otherKey: 'challengeId',
             as: 'challenges'

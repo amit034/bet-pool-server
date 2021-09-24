@@ -8,6 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {type: STRING(45), allowNull: false},
         shortName: {type: STRING(15), required: true, field: 'short_name'},
         flag: {type : STRING(255)},
+        fapiId: {type: INTEGER(11), field: 'f_api_id'},
     },{
         tableName: 'new_teams',
         timestamps: false,

@@ -5,11 +5,17 @@ module.exports = {
     findById(id) {
         return Team.findOne({_id: id}).exec();
     },
-    findByCode(code, {transaction}) {
-        return Team.findOne({where: {code}, transaction});
+    findOneByQuery(query, {transaction}) {
+        return Team.findOne({where: query, transaction});
     },
-    createTeam(req, opt) {
-        req.shortName = _.get(req, 'shortName', req.name);
-        return Team.create(req, opt);
+    async findOrCreate(data, {transaction}) {
+        const query  = {};
+        if (data.id) {
+            query.id = data.id
+        } else {
+            query.fapiId = data.fapiId;
+        }
+        const team = await Team.findOne({where: query, transaction});
+        return !_.isNil(team) ? team : Team.create(_.assign({}, data, query), {transaction});
     }
 };
