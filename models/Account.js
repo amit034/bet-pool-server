@@ -124,17 +124,17 @@ module.exports = function (sequelize, DataTypes) {
         return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
     };
     Account.prototype.checkPassword = function (password) {
-        return this.encryptPassword(password) === this.hashed_password;
+        return this.encryptPassword(password) === this.hashedPassword;
     };
-    Account.prototype.isLocal = () => {
-        return !this.facebook_provider_id && !this.google_provider_id;
+    Account.prototype.isLocal = function() {
+        return this.facebookProviderId < 1 && this.googleProviderId < 1
     };
     Account.prototype.getFullName = function () {
-        return `${this.first_name} ${this.last_name}`;
+        return `${this.firstName} ${this.lastName}`;
     };
     Account.prototype.toJSON =  function() {
         const values = this.constructor['__proto__'].prototype.toJSON.call(this);
-        return _.omit(values, ['hashedPassword', 'salt', 'hashedPassword', 'facebookProvider', 'googleProvider']);
+        return _.omit(values, ['hashedPassword', 'salt', 'hashedPassword', 'facebookProviderId', 'googleProviderId']);
     };
     return Account;
 }
