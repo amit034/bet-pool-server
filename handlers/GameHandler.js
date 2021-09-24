@@ -118,7 +118,7 @@ function handleGetGameRequest(req, res) {
 function handleGetActiveGamesRequest(req, res) {
     var eventId = req.params.eventId || null;
     var gameRepository = new GameRepository();
-    
+
     gameRepository.findActive()
         .then(function (games) {
             if (games) {
@@ -150,7 +150,7 @@ function handleUpdateGameRequest(req, res) {
 
 
     var gameRepository = new GameRepository();
-    gameRepository.updateGame(updatedGame)
+    gameRepository.updateScore(updatedGame)
         .then(
             function (game) {
                 if (event) {

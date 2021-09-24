@@ -30,7 +30,7 @@ async function createAccountsFromEvent(eventId, {transaction}) {
 }
 
 async function createOrTeam({name, teamCode} = {}, {transaction}){
-    let team = await teamRepository.findByCode(teamCode, {transaction})
+    let team = await teamRepository.findOneByQuery(teamCode, {transaction})
     if (!team) {
         team = await teamRepository.createTeam({name, code: teamCode}, {transaction, ignoreDuplicates: true});
     }

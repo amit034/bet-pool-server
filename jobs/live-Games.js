@@ -1,4 +1,5 @@
-'use strict';
+http://api.football-data.org/v2/competitions/2001/matches?stage=GROUP_STAGE
+    'use strict';
 const schedule = require('node-schedule');
 const logger = require('../utils/logger');
 const moment = require('moment');
@@ -6,6 +7,7 @@ const _ = require('lodash');
 const sqlModules = require('../mysql_models');
 const { Op } = require("sequelize");
 const apiFootballSdk = require('../lib/apiFootballSDK');
+const poolRepo = require('../repositories/poolRepository');
 const {Game: GameSql} = sqlModules;
 const NOW = moment.tz('Israel');
 const TODAY_START =  moment.tz('Israel').startOf('day').subtract(4, 'hours');
@@ -13,13 +15,7 @@ module.exports = {
 
     start() {
         schedule.scheduleJob('*/1 * * * *', async () => {
-            const activeGames = await GameSql.findAll({
-                where: {
-                    playAt: {[Op.gt]: TODAY_START, [Op.lt]: NOW},
-                    openFbId: {[Op.ne]: null},
-                    status: {[Op.or]: {[Op.ne]: 'FINISHED', [Op.eq]: null}}
-                }
-            });
+            poolRepo.findAllByQuery()
             return _.reduce(activeGames, (prev, game) => {
                 return prev.then(async () => {
                     const {match} = await apiFootballSdk.getMatch(game.openFbId);

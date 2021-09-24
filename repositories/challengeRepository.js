@@ -24,6 +24,11 @@ module.exports = {
     createChallenge(data, {transaction}= {}) {
         return Challenge.create(data, {transaction});
     },
+    async findOrCreate(data, {transaction}) {
+        const query = {refId: data.refId, refName: data.refName, type: data.type};
+        const challenge = await Challenge.findOne({where: query, transaction});
+        return !_.isNil(challenge) ? challenge : Challenge.create(_.assign({}, data, query), {transaction});
+    },
     updateChallengeById(id, challenge, {transaction} = {}) {
         return updateChallengeByQuery({id}, challenge, {transaction})
     },

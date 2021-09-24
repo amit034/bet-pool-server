@@ -32,15 +32,25 @@ module.exports = {
             include: [{model: Team, as: 'homeTeam'},{model: Team, as: 'awayTeam'}],
             transaction});
     },
-    createGame(data, {transaction}) {
-        return Game.create(data, {transaction});
+    async findOrCreate(data, {transaction}) {
+        const query  = {eventId: data.eventId};
+        if (data.id) {
+            query.id = data.id
+        }else {
+            query.fapiId = data.fapiId;
+        }
+        const game = await Game.findOne({where: query, transaction});
+        return !_.isNil(game) ? game : Game.create(_.assign({}, data, query), {transaction});
     },
-    async updateGame(data, {transaction}) {
+    async updateScore({id, score1, score2, status}, {transaction}) {
         const query = {
             status: {[Op.ne]: 'FINISHED'},
-            id: data.id,
+            id,
         };
         const game = await Game.findOne({where: query, transaction});
-        return game.update({score1: data.result.score1, score2: data.result.score2, status: data.status}, {transaction});
+        if(game) {
+            return game.update({score1, score2, status}, {transaction});
+        }
+        return Promise.resolve()
     }
 };

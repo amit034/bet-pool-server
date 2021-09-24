@@ -3,7 +3,7 @@ const _ = require('lodash');
 const moment = require('moment');
 module.exports = function (sequelize, DataTypes) {
     const {BOOLEAN, INTEGER} = DataTypes;
-    const Model = sequelize.define('PoolParticipants', {
+    const Model = sequelize.define('PoolParticipant', {
         id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
         poolId: {type: INTEGER(11), allowNull: false, field: 'pool_id'},
         userId: {type: INTEGER(11), allowNull: false, field: 'user_id'},
