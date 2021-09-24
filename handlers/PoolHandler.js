@@ -266,7 +266,7 @@ function handleAddEvents(req, res) {
 
 function handleJoinToPool(req, res) {
     const poolId = req.params.poolId || null;
-    const userId = req.currentUser.id;
+    const userId = req.currentUser.userId;
     repository.findById(poolId).then(function (pool) {
         return addParticipatesToPool(pool, [userId], true, req);
     }).then(function (docs) {
@@ -413,53 +413,20 @@ function addEventsToPool(pool, eventsIds, req) {
 }
 
 
-function addParticipatesToPool(pool, usersIds, join, req) {
-    return accountRepository.findActiveAccountsByIds(usersIds)
-        .then(function (users) {
-            if (users && users.length > 0) {
-                const participatesToAdd = [];
-                users.forEach(function (user) {
-                    const participateObj = {'user': user._id, 'joined': user.equals(pool.owner) || join};
-                    const invited = _.find(pool.participates, (participate) => {
-                        return _.get(participate, 'user.id', participate.user) === user.id;
-                    });
-                    if (invited) {
-                        const updateObj = invited.toJSON();
-                        updateObj.joined = join;
-                        updateObj.user = _.get(updateObj, 'user.id', updateObj.user);
-                        participatesToAdd.push(updateObj);
-                    } else {
-                        participatesToAdd.push(participateObj);
-                    }
-                });
-
-                return repository.addParticipates(pool._id, participatesToAdd)
-                    .then(
-                        function (doc) {
-                            logger.log('info', 'add users to Pool' + pool._id + ' has been created.' +
-                                'Request from address ' + req.connection.remoteAddress + '.');
-                            return Promise.resolve(_.get(doc, 'participates'));
-                        }).catch(
-                        function (err) {
-                            logger.log('error', 'An error has occurred while processing a request to add users to ' +
-                                'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                            return Promise.reject(err);
-                        }
-                    )
-            } else {
-                console.log('users not found');
-                logger.log('info', 'users not found or not active ' + usersIds + ', no ' +
-                    'such id exists. Request from address ' + req.connection.remoteAddress + '.');
-                return Promise.resolve([]);
-            }
-        }).catch(
-            function (err) {
-                logger.log('error', 'An error has occurred while processing a request to add ' +
-                    'users ids ' + usersIds + ' from ' + req.connection.remoteAddress +
-                    '. Stack trace: ' + err.stack);
-                Promise.reject(err);
-            });
+async function addParticipatesToPool(pool, usersIds, join, req, {transaction} = {}) {
+    const users = await accountRepository.findActiveAccountsByIds(usersIds)
+    try {
+        pool = await repository.setParticipates(pool.id, _.map(users, 'userId'), join, {transaction});
+        logger.log('info', 'add users to Pool' + pool.id + ' has been created.' +
+            'Request from address ' + req.connection.remoteAddress + '.');
+        return Promise.resolve(pool);
+    } catch (err) {
+        logger.error('An error has occurred while processing a request to add users to ' +
+            'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+        return Promise.reject(err);
+    }
 }
+
 
 function getPopulatePoolChallenges(pool, active , challangeId) {
     const eventIds = _.map(pool.events, 'id');
