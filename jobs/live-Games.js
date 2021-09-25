@@ -1,38 +1,54 @@
-http://api.football-data.org/v2/competitions/2001/matches?stage=GROUP_STAGE
-    'use strict';
+'use strict';
+
 const schedule = require('node-schedule');
 const logger = require('../utils/logger');
 const moment = require('moment');
 const _ = require('lodash');
-const sqlModules = require('../mysql_models');
-const { Op } = require("sequelize");
+const {sequelize, Challenge: {TYPES}} = require('../models');
+const {Op} = require("sequelize");
 const apiFootballSdk = require('../lib/apiFootballSDK');
-const poolRepo = require('../repositories/poolRepository');
-const {Game: GameSql} = sqlModules;
-const NOW = moment.tz('Israel');
-const TODAY_START =  moment.tz('Israel').startOf('day').subtract(4, 'hours');
+const eventRepository = require('../repositories/eventRepository');
+const teamRepository = require('../repositories/teamRepository');
+const gameRepository = require('../repositories/gameRepository');
+const challengeRepository = require('../repositories/challengeRepository');
+let score1 = 0;
+let score2 = 0;
 module.exports = {
 
-    start() {
-        schedule.scheduleJob('*/1 * * * *', async () => {
-            poolRepo.findAllByQuery()
-            return _.reduce(activeGames, (prev, game) => {
-                return prev.then(async () => {
-                    const {match} = await apiFootballSdk.getMatch(game.openFbId);
-                    const {status, score: {fullTime: {homeTeam, awayTeam}}} = match;
-                    if(game.status !== status || game.score1 !== _.toString(homeTeam) || game.score2 !== _.toString(awayTeam)){
-                        game.set('status', status);
-                        game.set('score1', homeTeam);
-                        game.set('score2', awayTeam);
-                        await game.save();
-                    }
-                    return Promise.resolve();
-                }).catch((e) => {
-                    logger.log(e);
-                    return Promise.resolve();
-                });
-            }, Promise.resolve());
-        });
+    async start(io) {
+       schedule.scheduleJob('*/1 * * * *', async () => {
+           const transaction = await sequelize.transaction();
+           try {
+               const liveEvents = await eventRepository.findLiveGames({transaction});
+               await Promise.all(_.map(liveEvents, async ({fapiId, games, pools}) => {
+                   const matches = await apiFootballSdk.getMatches(fapiId);
+                   await Promise.all(_.map(games, async (game) => {
+                       const match = _.find(matches, {id: game.fapiId});
+                       if (match) {
+                           const {status, utcDate: playAt, score: {fullTime: {homeTeam: homeTeamScore, awayTeam: awayTeamScore}}} = match;
+                           await game.update({playAt, homeTeamScore, awayTeamScore}, {transaction});
+                           const challenge = await challengeRepository.updateChallengeByQuery({
+                                   refName: 'Game',
+                                   refId: game.id,
+                                   type: TYPES.FULL_TIME
+                               },
+                               {score1: homeTeamScore, score2: awayTeamScore}, {transaction});
+                           const data = challenge.toJSON();
+                           score1 += moment().minute() % 2 == 0;
+                           score2 += moment().minute() % 2 == 1;
+                           data.score1 = score1;
+                           data.score2 = score2;
+                           return io.in(_.map(pools, 'id').join(' ')).emit('updateChallenge', data);
+                       }
+                       return Promise.resolve();
+                   }));
+               }))
+               await transaction.commit();
+           } catch (e) {
+               logger.error(e);
+               await transaction.rollback();
+           }
+       });
     }
 };
 

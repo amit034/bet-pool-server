@@ -1,19 +1,20 @@
 const _ = require('lodash');
-const {Challenge, Game} = require('../models');
+const {Challenge, Sequelize} = require('../models');
+const {Op} = Sequelize;
 
 function findOneByQuery(query, {transaction} = {}){
-    return Challenge.findOne({where: query, transaction});
+    return Challenge.scope('game').findOne({where: query, transaction});
 }
 function findAllByQuery(query, {transaction} = {}){
     return Challenge.scope('game').findAll({where: query, transaction});
 }
 async function updateChallengeByQuery(query, data, {transaction} = {}) {
-    const searchQuery = _.assign({status: {$ne: 'FINISHED'}, result: {$ne: null}}, query);
+    const searchQuery = _.assign({status: {[Op.ne]: 'FINISHED'}}, query);
     const challenge = await findOneByQuery(searchQuery, {transaction});
     return challenge.update({
-        score1: challenge.score1,
-        score2: challenge.score2,
-        status: challenge.status});
+        score1: data.score1,
+        score2: data.score2,
+        status: data.status}, {transaction});
 }
 module.exports = {
     findOneByQuery,

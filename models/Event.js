@@ -29,7 +29,8 @@ module.exports = function (sequelize, DataTypes) {
             as: 'pools'
         });
         Model.hasMany(models.Game, {
-            foreignKey: 'eventId'
+            foreignKey: 'eventId',
+            as: 'games'
         });
     };
     return Model;
