@@ -1,7 +1,9 @@
 const express = require('express');
 const passport = require('passport');
+const { Server } = require("socket.io");
 const cors = require('cors');
 const path = require('path');
+const jobs = require('./jobs');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const methodOverride = require('method-override');
@@ -77,7 +79,6 @@ exports.start = () => {
     httpsServer.listen(8443);
     httpServer.on('error', onError);
     httpServer.on('listening', onListening);
-
     function onListening() {
         debug(`server listening on port ${port} in ${app.settings.env} mode`);
         // tester.runTests().then((response) => {
@@ -100,6 +101,20 @@ exports.start = () => {
                 throw error;
         }
     }
+    const io = new Server(httpsServer);
+    io.on('connection', function(socket) {
+
+        socket.on('joinPool', (poolId) => {
+            socket.join(poolId);
+        });
+
+        socket.on('leavePool', (poolId) => {
+            socket.leave(poolId);
+        });
+
+    });
+    jobs.start(io);
+
 };
 
 exports.app = app;

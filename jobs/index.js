@@ -5,8 +5,8 @@ const migrateDb = require('./migrateDb');
 const liveGames = require('./live-Games');
 const autoGames = require('./auto-games');
 module.exports = {
-    start() {
-        autoGames.start();
+    start(io) {
+        liveGames.start(io);
         //footballApi.start();
         //botsBet.start(),
         //migrateDb.start();

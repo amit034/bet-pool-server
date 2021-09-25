@@ -20,7 +20,15 @@ function pools(state = {
         case poolActions.GET_POOL_GAMES_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.GET_POOL_GAMES_SUCCESS:
-            return update(state, { isFetching: { $set: false }, games: { $set: _.keyBy(action.games, 'id') }, errorMessage: { $set: null } });
+            return update(state, {isFetching: {$set: false}, games: {$set:_.keyBy(action.games, 'id')}, errorMessage: {$set: null}});
+        case poolActions.UPDATE_CHALLEGE_SUCCESS:
+            const challengeId = action.challenge.id;
+            const bet = _.cloneDeep(_.get(state.bets, challengeId));
+            if (bet) {
+                bet.challenge = action.challenge;
+                return update(state, {isFetching: {$set: false}, bets: {$merge: {[challengeId]: bet}}, errorMessage: {$set: null}});
+            }
+            return update(state, {isFetching: {$set: false}, errorMessage: {$set: null}});
         case poolActions.GET_USER_BETS_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.GET_USER_BETS_SUCCESS:
@@ -51,7 +59,7 @@ function pools(state = {
         case poolActions.UPDATE_USER_BETS_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.UPDATE_USER_BETS_SUCCESS:
-            return update(state, { isFetching: { $set: false, bets: { $set: action.bets }, errorMessage: { $set: null } } });
+            return update(state, {isFetching: {$set: false, bets: {$set: action.bets}, errorMessage: {$set: null}}});
         case poolActions.UPDATE_USER_BETS_FAILURE:
             return update(state, { isFetching: { $set: false }, errorMessage: { $set: action.message } });
         default:

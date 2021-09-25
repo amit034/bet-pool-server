@@ -1,31 +1,22 @@
-/***
- * Author: Valerio Gheri
- * Date: 15/03/2013
- * This class contains all the methods to handle Account related requests
- */
-
-const {Account, SecurityToken} = require('../models');
+'use strict';
+const {SecurityToken} = require('../models');
 const accountRepository = require('../repositories/accountRepository');
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
-var AccountHandler = function() {
+const AccountHandler = function() {
 	this.createAccount = handleCreateAccountRequest;
 	this.getAccount = handleGetAccountRequest;
 	this.updateAccount = handleUpdateAccountRequest;
 	this.deleteAccount = handleDeleteAccountRequest;
 };
 
-// On success should return status code 201 to notify the client the account
-// creation has been successful
-// On error should return status code 400 and the error message
 function handleCreateAccountRequest(req, res) {
-	var username = req.body.username || null;
-	var password = req.body.password || null;
-	var firstName = req.body.firstName || null;
-	var lastName = req.body.lastName || null;
-	var email = req.body.email || null;
-	var accountRepository = new AccountRepository();
-	accountRepository.createAccount(username, password, firstName, lastName, email)
+	const username = req.body.username || null;
+	const password = req.body.password || null;
+	const firstName = req.body.firstName || null;
+	const lastName = req.body.lastName || null;
+	const email = req.body.email || null;
+	accountRepository.createAccount({username, password, firstName, lastName, email})
 	.then(
 		function (account) {
 			logger.log('info', 'Account ' + username + ' has been created.' +
@@ -43,7 +34,7 @@ function handleCreateAccountRequest(req, res) {
 }
 
 function handleGetAccountRequest(req, res) {
-	var userId = req.params.userId || null;
+	const userId = req.params.userId || null;
 	accountRepository.findById(userId)
 	.then(
 		function(account) {
@@ -74,8 +65,8 @@ function handleGetAccountRequest(req, res) {
 
 function handleUpdateAccountRequest(req, res) {
 	// Retrieve the username from the request
-	var username = req.params.username || null;
-	var updatedAccount = req.body || null;
+	const username = req.params.username || null;
+	const updatedAccount = req.body || null;
 	updatedAccount.username = username;
 	accountRepository.updateAccount(updatedAccount)
 	.then(

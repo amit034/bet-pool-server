@@ -1,5 +1,7 @@
 const _ = require('lodash');
-const {Event, Team, Pool} = require('../models');
+const moment = require('moment');
+const {Event, Team, Pool, Game, Sequelize} = require('../models');
+const {Op} = Sequelize;
 function findById(id) {
     return Event.findByPk(id, {include: [{model: Team, as: 'homeTeam'}, {model: Team, as: 'awayTeam'}]});
 }
@@ -16,6 +18,24 @@ module.exports = {
     },
     findByName(name, {transaction}) {
         return Event.findOne({where: {name}, transaction});
+    },
+    findLiveGames({transaction}) {
+      return Event.findAll({
+          where: {
+              fapiId: {[Op.gt]: 0}
+          },
+          include: [{
+              model: Game,
+              as: 'games',
+              where: {
+                  playAt: {[Op.lte]: moment()},
+                  status: {[Op.ne]: 'FINISHED'},
+                  fapiId: {[Op.gt]: 0}
+              }
+          }, {
+              model: Pool,
+              as: 'pools'
+          }], transaction});
     },
     createEvent(data, {transaction}) {
         return Event.create(data, {transaction});
