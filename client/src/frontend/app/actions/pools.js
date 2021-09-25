@@ -19,8 +19,10 @@ export const UPDATE_USER_BETS_FAILURE = 'UPDATE_USER_BET_FAILURE';
 export const GET_USER_BETS_FAILURE = 'GET_POOL_GAMES_FAILURE';
 export const GET_POOL_PARTICIPATES_REQUEST = 'GET_POOL_PARTICIPATES_REQUEST';
 export const GET_POOL_PARTICIPATES_SUCCESS = 'GET_POOL_PARTICIPATES_SUCCESS';
+export const JOIN_TO_POOL_SUCCESS = 'JOIN_TO_POOL_SUCCESS';
 export const GET_CHALLENGE_PARTICIPATES_REQUEST = 'GET_CHALLENGE_PARTICIPATES_REQUEST';
 export const GET_CHALLENGE_PARTICIPATES_SUCCESS = 'GET_CHALLENGE_PARTICIPATES_SUCCESS';
+
 
 function requestUserPools(userId) {
     return {
@@ -182,6 +184,16 @@ function requestChallengeParticipates(userId, poolId){
            userId,
        }
 }
+function receiveJoinToPool(userId, poolId, pool, participates) {
+    return {
+        type: JOIN_TO_POOL_SUCCESS,
+        isFetching: false,
+        poolId,
+        pool,
+        userId,
+        participates: participates
+    }
+}
 function receiveParticipates(userId, poolId, participates) {
     return {
         type: GET_POOL_PARTICIPATES_SUCCESS,
@@ -291,7 +303,7 @@ export function joinPool(poolId) {
         return axios.post(`/api/${userId}/pools/${poolId}/join`, null, {headers: authHeader()})
             .then((response) => {
                 const participate = response.data;
-                dispatch(receiveParticipates(userId, poolId, participate))
+                dispatch(receiveJoinToPool(userId, poolId, pool, participate))
             }).catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) dispatch(authErr);
