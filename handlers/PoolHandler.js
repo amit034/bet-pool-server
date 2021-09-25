@@ -314,7 +314,7 @@ async function handleGetUserPools(req, res) {
         const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
         const poolList = _.map(pools, pool => {
             const item = pool.toJSON();
-            const buyIn = _.parseInt(_.get(item, 'buyIn', 0));
+            const buyIn = _.parseInt(_.get(item, 'buyIn', '0'));
             item.pot = buyIn * _.size(item.participates);
             item.prices = [buyIn * _.ceil(_.size(item.participates) * 0.4)];
             return item;

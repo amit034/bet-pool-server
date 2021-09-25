@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const {Event, Team, Pool, Game, Sequelize} = require('../models');
 const {Op} = Sequelize;
 function findById(id) {
@@ -25,11 +26,15 @@ module.exports = {
           },
           include: [{
               model: Game,
+              as: 'games',
               where: {
                   playAt: {[Op.lte]: moment()},
                   status: {[Op.ne]: 'FINISHED'},
                   fapiId: {[Op.gt]: 0}
               }
+          }, {
+              model: Pool,
+              as: 'pools'
           }], transaction});
     },
     createEvent(data, {transaction}) {

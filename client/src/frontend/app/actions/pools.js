@@ -21,6 +21,7 @@ export const GET_POOL_PARTICIPATES_REQUEST = 'GET_POOL_PARTICIPATES_REQUEST';
 export const GET_POOL_PARTICIPATES_SUCCESS = 'GET_POOL_PARTICIPATES_SUCCESS';
 export const GET_CHALLENGE_PARTICIPATES_REQUEST = 'GET_CHALLENGE_PARTICIPATES_REQUEST';
 export const GET_CHALLENGE_PARTICIPATES_SUCCESS = 'GET_CHALLENGE_PARTICIPATES_SUCCESS';
+export const UPDATE_CHALLEGE_SUCCESS = 'UPDATE_CHALLEGE_SUCCESS';
 
 function requestUserPools(userId) {
     return {
@@ -28,6 +29,14 @@ function requestUserPools(userId) {
         isFetching: true,
         userId,
         pools: []
+    }
+}
+
+export function updateChallenge(challenge) {
+    return {
+        type: UPDATE_CHALLEGE_SUCCESS,
+        isFetching: false,
+        challenge
     }
 }
 

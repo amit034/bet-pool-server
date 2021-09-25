@@ -188,6 +188,6 @@ GameList.propTypes = {
     usersBets: PropTypes.array
 };
 
-export default connect(({pools: {isFetching, participates, otherBets : {challenge, usersBets}}}) => {
-    return {challenge, usersBets, participates, isFetching}
+export default connect(({pools: {bets, isFetching, participates, otherBets : {challenge, usersBets}}}) => {
+    return {bets, challenge, usersBets, participates, isFetching}
 })(GameList);
