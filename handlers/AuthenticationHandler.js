@@ -7,14 +7,6 @@ const {SecurityToken} = require('../models');
 const LoginViewModel = require('../viewModels/loginViewModel');
 const logger = require('../utils/logger');
 
-const AuthenticationHandler = function () {
-    this.handleLoginRequest = handleLoginRequest;
-    this.handleUserPasswordRegister = handleUserPasswordRegister;
-    this.handleGoggleRegister = handleGoggleRegister;
-    //this.handleRegisterRequest = handleRegisterRequest;
-    this.postLogin = postLogin;
-    this.logout = handleLogoutRequest;
-};
 
 async function handleUserPasswordRegister(req, res, next) {
     const {password, username, firstName, lastName, email} = req.body.password;
@@ -153,4 +145,11 @@ async function postLogin(req, res) {
     }
 }
 
-module.exports = AuthenticationHandler;
+module.exports = {
+    handleLoginRequest,
+    handleUserPasswordRegister,
+    handleGoggleRegister,
+    //this.handleRegisterRequest = handleRegisterRequest;
+    postLogin,
+    logout: handleLogoutRequest
+};

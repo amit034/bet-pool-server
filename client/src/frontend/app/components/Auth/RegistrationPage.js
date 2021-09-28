@@ -4,6 +4,8 @@ import {connect} from "react-redux";
 //import FacebookLogin from 'react-facebook-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import {GoogleLogin} from 'react-google-login';
+import {TiSocialFacebook} from 'react-icons/ti';
+import {TiSocialGooglePlus} from 'react-icons/ti';
 import {registerUser, registerWithFacebookToken, registerWithGoogleToken} from '../../actions/auth';
 import {Button, Form, Grid, Header, Icon} from 'semantic-ui-react'
 import RegistrationForm from './RegistrationForm';
@@ -74,40 +76,13 @@ class RegistrationPage extends React.Component {
      * Render the component.
      */
     render() {
-        return (<div style={{height: '100%'}}>
-                <Header as='h2' color='teal' textAlign='center'>
+        return (<div style={{height: '100%'}} className={'login-page'}>
+                <Header as='h2' textAlign='center'  className={'login-header'}>
                     Create An Account
                 </Header>
                 <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
                     <Grid.Row stretched>
-                        <Grid.Column style={{maxWidth: 450}}>
-                            <Form size='large'>
-                                <FacebookLogin
-                                    appId="476316572540105"
-                                    autoLoad={false}
-                                    fields="name,email,picture,app_name"
-                                    render={renderProps => (
-                                        <div className="field">
-                                            <Button fluid size='large' color='facebook' onClick={renderProps.onClick}>
-                                                <Icon name='facebook' /> Register with Facebook
-                                            </Button>
-                                        </div>
-                                    )}
-                                    callback={this.facebookResponse} />
-                                <GoogleLogin
-                                    clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
-                                    onSuccess={this.googleResponse}
-                                    render={renderProps => (
-                                        <div className="field">
-                                            <Button fluid size='large' color='google plus' onClick={renderProps.onClick}>
-                                                <Icon name='google' /> Register with Google
-                                            </Button>
-                                        </div>
-                                    )}
-                                />
-                            </Form>
-                        </Grid.Column>
-                        <Grid.Column style={{maxWidth: 450}}>
+                        <Grid.Column style={{maxWidth: 450}} className={'login-container'}>
                             <RegistrationForm
                                 onSubmit={this.processForm}
                                 onChange={this.changeUser}
@@ -116,6 +91,34 @@ class RegistrationPage extends React.Component {
                                 user={this.state.user}
                                 goToRegister={this.goToRegister}
                             />
+                        </Grid.Column>
+                        <Grid.Column style={{maxWidth: 450}} className={'social-login-container'}>
+                            Or register with
+                            <Form size='large'>
+                                <FacebookLogin
+                                    appId="476316572540105"
+                                    autoLoad={false}
+                                    fields="name,email,picture,app_name"
+                                    render={renderProps => (
+                                        <div className="social-button facebook-button">
+                                            <button onClick={renderProps.onClick}>
+                                                <TiSocialFacebook  style={{color: '#334a97', fontSize: '1.5em' }} />
+                                            </button>
+                                        </div>
+                                    )}
+                                    callback={this.facebookResponse} />
+                                <GoogleLogin
+                                    clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                                    onSuccess={this.googleResponse}
+                                    render={renderProps => (
+                                        <div className="social-button">
+                                            <Button  onClick={renderProps.onClick} >
+                                                <TiSocialGooglePlus style={{color: 'red', fontSize: '1.5em' }}/>
+                                            </Button>
+                                        </div>
+                                    )}
+                                />
+                            </Form>
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>

@@ -9,17 +9,6 @@ const challengeRepository = require('../repositories/challengeRepository');
 const betRepository = require('../repositories/betRepository');
 const eventRepository = require('../repositories/eventRepository');
 const logger = require('../utils/logger');
-const  PoolHandler = function () {
-    this.createPool = handleCreatePoolRequest;
-    this.addGames = handleAddGames;
-    this.getGames = handleGetGames;
-    this.addEvents = handleAddEvents;
-    this.addParticipates = handleAddParticipates;
-    this.joinToPool = handleJoinToPool;
-    this.getPools = handleGetUserPools;
-    this.getUserBets = handleGetUserBets;
-    this.getParticipates = handleGetParticipates;
-};
 
 // On success should return status code 201 to notify the client the account
 // creation has been successful
@@ -90,8 +79,7 @@ function handleAddGames(req, res) {
         }).then(function (docs) {
         res.status(201).send({"addedGames": docs});
     }).catch(function (err) {
-
-        logger.log('error', 'An error has occurred while processing a request to add games ' +
+        logger.error('An error has occurred while processing a request to add games ' +
             'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
             '. Stack trace: ' + err.stack);
         res.status(500).send({
@@ -453,5 +441,15 @@ function getPopulatePoolChallenges(pool, active , challangeId) {
     });
 }
 
-module.exports = PoolHandler;
+module.exports = {
+        createPool: handleCreatePoolRequest,
+        addGames: handleAddGames,
+        getGames: handleGetGames,
+        addEvents: handleAddEvents,
+        addParticipates: handleAddParticipates,
+        joinToPool: handleJoinToPool,
+        getPools: handleGetUserPools,
+        getUserBets: handleGetUserBets,
+        getParticipates: handleGetParticipates
+};
 

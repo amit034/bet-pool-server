@@ -4,15 +4,7 @@ const EventRepository = require('../repositories/eventRepository');
 const TeamRepository = require('../repositories/teamRepository');
 const apiFootballSdk = require('../lib/apiFootballSDK');
 const logger = require('../utils/logger');
-const EventHandler = function () {
-    this.handleActiveEventsRequest = handleActiveEventsRequest;
-    this.handleGetEventsRequest = handleGetEventsRequest;
-    this.handleCreateAndGetEventsRequest = handleCreateAndGetEventsRequest;
-    this.createEvent = handleCreateEventRequest;
-    this.addTeam = handleAddTeamToEventRequest;
-    this.createTeam = handleCreateTeamRequest;
-    this.getTeams = handleGetTeamsRequest;
-};
+
 
 function handleCreateAndGetEventsRequest(req, res) {
     const repository = new EventRepository();
@@ -158,5 +150,13 @@ function handleGetTeamsRequest(req, res) {
     });
 }
 
-module.exports = EventHandler;
+module.exports = {
+    handleActiveEventsRequest,
+    handleGetEventsRequest,
+    handleCreateAndGetEventsRequest,
+    createEvent: handleCreateEventRequest,
+    addTeam: handleAddTeamToEventRequest,
+    createTeam: handleCreateTeamRequest,
+    getTeams: handleGetTeamsRequest
+};
 

@@ -28,7 +28,8 @@ const LoginForm = ({
             <Form.Input fluid icon='user'
                         iconPosition='left'
                         name='email'
-                        placeholder='E-mail address'
+                        placeholder='Email'
+                        className={'login-input'}
                         onChange={onChange}
                         value={user.email}
             />
@@ -39,18 +40,29 @@ const LoginForm = ({
               iconPosition='left'
               placeholder='Password'
               type='password'
+              className={'login-input'}
               onChange={onChange}
               value={user.password}
             />
 
-            <Button color='teal' fluid size='large'>
-              Login
+            <Button fluid size='large' className={'login-button'}>
+              LOGIN
             </Button>
+            <Grid className={'login-help'}>
+                <Grid.Row>
+                    <Grid.Column floated='left' width={6}>
+                        Forget password?
+                    </Grid.Column>
+                    <Grid.Column floated='right' width={7}>
+                        New user? <a onClick={goToRegister} className={'sign-up-button'}>SIGN UP</a>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
 
         </Form>
-        <Message>
-          New to us? <a onClick={goToRegister}>Sign Up</a>
-        </Message>
+        {/*<Message attached='bottom'>*/}
+        {/*  New to us? <a onClick={goToRegister}>Sign Up</a>*/}
+        {/*</Message>*/}
   </div>
 )
 
