@@ -1,0 +1,81 @@
+.login-page {
+  background-image:linear-gradient($background-4, $background-1);
+  color: white;
+  font-family: 'Titillium web', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  padding: 20px;
+  .login-button {
+    font-family: 'Titillium web', sans-serif;
+    background-color: white !important;
+    color: $title-3 !important;
+    border-radius: 0 !important;
+  }
+
+  .sign-up-button {
+    color: white !important;
+    border-radius: 0 !important;
+    font-weight: 600;
+    font-style: normal;
+    margin-left: 5px;
+  }
+
+  .login-header{
+    padding-top: 50px;
+    font-family: 'Titillium web', sans-serif;
+    color: white !important;
+    height: 200px;
+  }
+  .login-help{
+    margin-top: 0px;
+    font-size: 12px;
+    .left {
+      text-align: left;
+    }
+    .right {
+      text-align: right;
+    }
+  }
+  .login-input {
+    border-radius: 0;
+    margin: 0 0 0.2em !important;
+    input {
+      background-color: $background-3 !important;
+      font-family: 'Titillium web', sans-serif !important;
+      font-style: italic;
+    }
+    i {
+      color: white !important;
+    }
+    input::placeholder {
+      color: white !important;
+    }
+  }
+
+  .social-button {
+    display: inline-block;
+    button{
+      padding: 0;
+      border-radius: 35px ;
+      width: 35px ;
+      height: 35px;
+    }
+    margin-left: 5px;
+  }
+  .facebook-button{
+    button{
+      border-radius: 38px;
+      width: 38px;
+      height: 38px;
+    }
+  }
+}
+
+@media only screen and (max-width: 767px){
+  #app .social-login-container{
+    margin-top: 10rem!important;
+  }
+  #app .login-container {
+    min-height: 320px;
+  }
+}

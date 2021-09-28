@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import {TiSocialFacebook} from 'react-icons/ti';
+import {TiSocialGooglePlus} from 'react-icons/ti';
 //import FacebookLogin from 'react-facebook-login';
 import {GoogleLogin} from 'react-google-login';
 import {loginUser, verifyFacebookToken, verifyGoogleToken} from '../../actions/auth';
@@ -98,23 +100,34 @@ class LoginPage extends React.Component {
      * Render the component.
      */
     render() {
-        return (<div style={{ height: '100%' }}>
-            <Header as='h2' color='teal' textAlign='center'>
-              Log-in to your account
+        return (<div style={{ height: '100%' }} className={'login-page'}>
+            <Header as='h2' color='white' textAlign='center' className={'login-header'}>
+                365 Betting Pool
             </Header>
             <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
                 <Grid.Row stretched>
-                    <Grid.Column style={{ maxWidth: 450 }}>
+                    <Grid.Column style={{ maxWidth: 450 }} className={'login-container'}>
+                        <LoginForm
+                            onSubmit={this.processForm}
+                            onChange={this.changeUser}
+                            errors={{summary: this.props.auth.errorMessage}}
+                            successMessage={this.state.successMessage}
+                            user={this.state.user}
+                            goToRegister={this.goToRegister}
+                        />
+                    </Grid.Column>
+                    <Grid.Column style={{ maxWidth: 450 }}  className={'social-login-container'}>
+                        Or login with
                         <Form size='large'>
                             <FacebookLogin
                                 appId="476316572540105"
                                 autoLoad={false}
                                 fields="name,email,picture,app_name"
                                 render={renderProps => (
-                                    <div className="field">
-                                        <Button fluid size='large' color='facebook' onClick={renderProps.onClick}>
-                                            <Icon name='facebook' /> Facebook
-                                        </Button>
+                                    <div className="social-button facebook-button">
+                                        <button onClick={renderProps.onClick}>
+                                            <TiSocialFacebook  style={{color: '#334a97', fontSize: '1.5em' }} />
+                                        </button>
                                     </div>
                                 )}
                                 callback={this.facebookResponse} />
@@ -124,24 +137,14 @@ class LoginPage extends React.Component {
                                 onFailure={this.googleResponse}
                                 autoLoad={false}
                                 render={renderProps => (
-                                    <div className="field">
-                                        <Button fluid size='large' color='google plus' onClick={renderProps.onClick}>
-                                            <Icon name='google' /> Google
+                                    <div className="social-button">
+                                        <Button  onClick={renderProps.onClick} >
+                                            <TiSocialGooglePlus style={{color: 'red', fontSize: '1.5em' }}/>
                                         </Button>
                                     </div>
                                 )}
                             />
                         </Form>
-                    </Grid.Column>
-                    <Grid.Column style={{ maxWidth: 450 }}>
-                        <LoginForm
-                            onSubmit={this.processForm}
-                            onChange={this.changeUser}
-                            errors={{summary: this.props.auth.errorMessage}}
-                            successMessage={this.state.successMessage}
-                            user={this.state.user}
-                            goToRegister={this.goToRegister}
-                        />
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

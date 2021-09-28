@@ -6,13 +6,6 @@ const gameRepository = require('../repositories/gameRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const logger = require('../utils/logger');
 
-var BetHandler = function() {
-	this.createOrUpdate = handleCreateOrUpdateRequest;
-	this.getOthersBets = handleGetOthersBets;
-	this.updateUserBets = handleUpdateUserBets;
-
-};
-
 function handleGetOthersBets(req, res) {
     const poolId = req.params.poolId ||null;
     const userId = req.params.userId || null;
@@ -111,5 +104,9 @@ function handleCreateOrUpdateRequest(req, res) {
 }
 
 
-module.exports = BetHandler;
+module.exports = {
+    createOrUpdate: handleCreateOrUpdateRequest,
+    getOthersBets: handleGetOthersBets,
+    updateUserBets: handleUpdateUserBets
+};
 
