@@ -322,7 +322,7 @@ export function joinPool(poolId) {
 
 export function getPoolParticipates(poolId) {
     return dispatch => {
-        userId = getUserFromLocalStorage().userId;
+        const userId = getUserFromLocalStorage().userId;
         dispatch(requestPoolParticipates(userId, poolId));
         return axios.get(`/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
         .then((response) => {

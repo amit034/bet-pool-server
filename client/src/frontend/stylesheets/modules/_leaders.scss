@@ -4,9 +4,9 @@
   .leader-row {
     list-style: none;
     border: 1px solid;
-    margin-bottom: 10px;
     .leader-body {
       display: flex;
+      background: $background-5;
       .leader-rank{
         width: 40px;
         justify-self: center;
@@ -34,6 +34,7 @@
         .leader-score{
           text-align: right;
           margin-right: 5px;
+          align-self: center;
         }
         .leader-medals{
           display: flex;

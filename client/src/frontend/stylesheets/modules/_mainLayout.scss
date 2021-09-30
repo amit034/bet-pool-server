@@ -1,5 +1,9 @@
+.app-wrapper{
+  background-color: $background-1;
+}
+
 .ui#content{
-  padding: 55px 0;
+  padding: 25px 0 55px 0
 }
 .bottom-menu{
   display: flex;
@@ -78,6 +82,7 @@
       border: 1px solid;
       display: flex;
       margin-bottom: 10px;
+      background-color:$background-5 ;
       .game-title{
         display: flex;
         text-align: left;
@@ -115,7 +120,7 @@
 
       }
       .game-side{
-        background-color: #fafafa;
+        // background-color: #fafafa;
         writing-mode: vertical-lr;
         text-orientation: mixed;
         width: 20px;
