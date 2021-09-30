@@ -179,11 +179,11 @@ function postUserBetFail(userId, poolId, message) {
 }
 function requestPoolParticipates(userId, poolId){
     return {
-           type: GET_POOL_PARTICIPATES_REQUEST,
-           isFetching: true,
-           poolId,
-           userId,
-       }
+        type: GET_POOL_PARTICIPATES_REQUEST,
+        isFetching: true,
+        poolId,
+        userId,
+    }
 }
 function requestChallengeParticipates(userId, poolId){
     return {
@@ -320,18 +320,18 @@ export function joinPool(poolId) {
     }
 }
 
-export function getPoolParticipates(poolId, challengeId, userId) {
+export function getPoolParticipates(poolId) {
     return dispatch => {
-        userId = userId || getUserFromLocalStorage().userId;
+        userId = getUserFromLocalStorage().userId;
         dispatch(requestPoolParticipates(userId, poolId));
         return axios.get(`/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
-            .then((response) => {
-                const participate = response.data;
-                dispatch(receiveParticipates(userId, poolId, participate))
-            }).catch((err) => {
-                const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
-            });
+        .then((response) => {
+            const participate = response.data;
+            dispatch(receiveParticipates(userId, poolId, participate))
+        }).catch((err) => {
+            const authErr = authError(err);
+            if (!_.isEmpty(authErr)) dispatch(authErr);
+        });
     }
 }
 
