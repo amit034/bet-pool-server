@@ -14,7 +14,7 @@ const RegistrationForm = ({
   successMessage,
   user
 }) => (
-    <div className='login-form'>
+    <div className={'login-form'}>
         {/*
           Heads up! The styles below are necessary for the correct render of this example.
           You can do same with CSS, the main idea is that all the elements up to the `Grid`
@@ -33,7 +33,8 @@ const RegistrationForm = ({
                 <Form.Input fluid icon='user'
                             iconPosition='left'
                             name='email'
-                            placeholder='E-mail address'
+                            className={'login-input'}
+                            placeholder='Email'
                             onChange={onChange}
                             value={user.email}
                 />
@@ -43,6 +44,7 @@ const RegistrationForm = ({
                   name='password'
                   iconPosition='left'
                   placeholder='Password'
+                  className={'login-input'}
                   type='password'
                   onChange={onChange}
                   value={user.password}
@@ -52,6 +54,7 @@ const RegistrationForm = ({
                   icon='lock'
                   name='password2'
                   iconPosition='left'
+                  className={'login-input'}
                   placeholder='Password (again)'
                   type='password'
                   onChange={onChange}
@@ -60,19 +63,21 @@ const RegistrationForm = ({
                 <Form.Input fluid icon='user'
                            iconPosition='left'
                           name="firstName"
+                            className={'login-input'}
                            placeholder='First Name'
                            onChange={onChange}
                            value={user.firstName}
                />
                 <Form.Input fluid icon='user'
                            iconPosition='left'
+                            className={'login-input'}
                           name="lastName"
                            placeholder='Last Name'
                            onChange={onChange}
                            value={user.lastName}
                />
-                <Button color='teal' fluid size='large'>
-                    Register Now
+                <Button color='teal' fluid size='large' className={'login-button'}>
+                    REGISTER NOW
                 </Button>
             </Form>
       </div>

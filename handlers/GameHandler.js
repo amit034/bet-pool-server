@@ -1,42 +1,24 @@
-/***
- * Author: Valerio Gheri
- * Date: 15/03/2013
- * This class contains all the methods to handle Account related requests
- */
-
-var Game = require('../models/Game');
-var GameRepository = require('../repositories/gameRepository');
-var EventRepository = require('../repositories/eventRepository');
-var TeamRepository = require('../repositories/teamRepository');
-var logger = require('../utils/logger');
-var Q = require('q');
-
-var GameHandler = function () {
-    this.createGame = handleCreateGameRequest;
-    this.getGame = handleGetGameRequest;
-    this.updateGame = handleUpdateGameRequest;
-    this.getActiveGames = handleGetActiveGamesRequest;
-
-};
+const gameRepository = require('../repositories/gameRepository');
+const eventRepository = require('../repositories/eventRepository');
+const teamRepository = require('../repositories/teamRepository');
+const logger = require('../utils/logger');
+const Q = require('q');
 
 // On success should return status code 201 to notify the client the account
 // creation has been successful
 // On error should return status code 400 and the error message
 function handleCreateGameRequest(req, res) {
-    var teamId1 = req.body.teamId || null;
-    var teamId2 = req.body.teamId || null;
-    var eventId = req.params.eventId || null;
-    var playAt = req.body.playAt || null;
-    var gameRepository = new GameRepository();
-    var teamRepository = new TeamRepository();
-    var eventRepository = new EventRepository();
+    const teamId1 = req.body.teamId || null;
+    const teamId2 = req.body.teamId || null;
+    const eventId = req.params.eventId || null;
+    const playAt = req.body.playAt || null;
 
     return eventRepository.findById(eventId).then(function (event) {
         if (event) {
             Q.all([teamRepository.findById(teamId1), teamRepository.findById(teamId1)])
                 .then(function ([team1, team2]) {
                     if (team1 && team2) {
-                        gameRepository.createGame(event._id, team1._id, team2._id, playAt)
+                        return gameRepository.createGame(event._id, team1._id, team2._id, playAt)
                             .then(function (game) {
                                 logger.log('info', 'Game ' + team1.name + " " + team2.name + ' has been created.' +
                                     'Request from address ' + req.connection.remoteAddress + '.');
@@ -52,7 +34,7 @@ function handleCreateGameRequest(req, res) {
                             }
                         )
                     } else {
-                        var message = 'Cant find both team codes for event ' + eventId + " " + team1_code + ' and ' + team2_code;
+                        const message = 'Cant find both team codes for event ' + eventId + " " + team1_code + ' and ' + team2_code;
                         logger.log('error', message + ' from ' + req.connection.remoteAddress);
                         return res.status(400).send({
                             error: message
@@ -88,8 +70,7 @@ function handleCreateGameRequest(req, res) {
 function handleGetGameRequest(req, res) {
     const gameId = req.params.gameId || null;
 
-    var gameRepository = new GameRepository();
-    gameRepository.findById(gameId)
+    return gameRepository.findById(gameId)
     .then(function (game) {
         if (game) {
             logger.log('info', 'Game ' + gameId + ' has been retrieved.' +
@@ -114,12 +95,9 @@ function handleGetGameRequest(req, res) {
     });
 }
 
-
 function handleGetActiveGamesRequest(req, res) {
-    var eventId = req.params.eventId || null;
-    var gameRepository = new GameRepository();
-
-    gameRepository.findActive()
+    const eventId = req.params.eventId || null;
+    return gameRepository.findActive()
         .then(function (games) {
             if (games) {
                 logger.log('info', 'Games has been retrieved.' +
@@ -144,13 +122,11 @@ function handleGetActiveGamesRequest(req, res) {
 
 function handleUpdateGameRequest(req, res) {
     // Retrieve the username from the request
-    var gameId = req.params.gameId || null;
-    var updatedGame = req.body || null;
+    const gameId = req.params.gameId || null;
+    const updatedGame = req.body || null;
     updatedGame._id = gameId;
 
-
-    var gameRepository = new GameRepository();
-    gameRepository.updateScore(updatedGame)
+    return gameRepository.updateScore(updatedGame)
         .then(
             function (game) {
                 if (event) {
@@ -176,7 +152,10 @@ function handleUpdateGameRequest(req, res) {
         }
     ).done();
 }
-
-
-module.exports = GameHandler;
+module.exports = {
+    createGame: handleCreateGameRequest,
+    getGame: handleGetGameRequest,
+    updateGame: handleUpdateGameRequest,
+    getActiveGames: handleGetActiveGamesRequest
+};
 

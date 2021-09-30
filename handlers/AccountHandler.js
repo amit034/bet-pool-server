@@ -3,13 +3,6 @@ const {SecurityToken} = require('../models');
 const accountRepository = require('../repositories/accountRepository');
 const logger = require('../utils/logger');
 
-const AccountHandler = function() {
-	this.createAccount = handleCreateAccountRequest;
-	this.getAccount = handleGetAccountRequest;
-	this.updateAccount = handleUpdateAccountRequest;
-	this.deleteAccount = handleDeleteAccountRequest;
-};
-
 function handleCreateAccountRequest(req, res) {
 	const username = req.body.username || null;
 	const password = req.body.password || null;
@@ -126,5 +119,10 @@ function handleDeleteAccountRequest(req, res) {
 	);
 }
 
-module.exports = AccountHandler;
+module.exports = {
+	createAccount: handleCreateAccountRequest,
+	getAccount: handleGetAccountRequest,
+	updateAccount: handleUpdateAccountRequest,
+	deleteAccount: handleDeleteAccountRequest
+};
 

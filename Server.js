@@ -19,13 +19,13 @@ const credentials = {key: privateKey, cert: certificate};
 //const tester = require('./test/sdk');
 
 //Handlers
-const AccountHandler = require('./handlers/AccountHandler');
-const EventHandler = require('./handlers/EventHandler');
-const GameHandler = require('./handlers/GameHandler');
-const PoolHandler = require('./handlers/PoolHandler');
-const BetHandler = require('./handlers/BetHandler');
+const accountHandler = require('./handlers/AccountHandler');
+const eventHandler = require('./handlers/EventHandler');
+const gameHandler = require('./handlers/GameHandler');
+const poolHandler = require('./handlers/PoolHandler');
+const betHandler = require('./handlers/BetHandler');
 const FootBallApiHandler = require('./handlers/FootBallApiHandler');
-const AuthenticationHandler = require('./handlers/AuthenticationHandler');
+const authenticationHandler = require('./handlers/AuthenticationHandler');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -60,12 +60,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const handlers = {
-    account: new AccountHandler(),
-    event : new EventHandler(),
-    game : new GameHandler(),
-    auth: new AuthenticationHandler(),
-    pools: new PoolHandler(),
-    bets  : new BetHandler(),
+    account: accountHandler,
+    event : eventHandler,
+    game : gameHandler,
+    auth: authenticationHandler,
+    pools: poolHandler,
+    bets  : betHandler,
     footballApi: FootBallApiHandler
 };
 
@@ -113,7 +113,7 @@ exports.start = () => {
         });
 
     });
-    jobs.start(io);
+    //jobs.start(io);
 
 };
 
