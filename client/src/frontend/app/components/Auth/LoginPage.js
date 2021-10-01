@@ -100,7 +100,10 @@ class LoginPage extends React.Component {
      * Render the component.
      */
     render() {
-        return (<div style={{ height: '100%' }} className={'login-page'}>
+        return (<div style={{ height: '100%' }} >
+            <div className={'login-page-bg'}></div>
+            <div style={{ height: '100%' }} className={'login-page'}>
+
             <Header as='h2' color='white' textAlign='center' className={'login-header'}>
                 365 Betting Pool
             </Header>
@@ -148,6 +151,7 @@ class LoginPage extends React.Component {
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
+            </div>
             </div>
         );
     }

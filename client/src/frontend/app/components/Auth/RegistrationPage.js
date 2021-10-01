@@ -76,7 +76,9 @@ class RegistrationPage extends React.Component {
      * Render the component.
      */
     render() {
-        return (<div style={{height: '100%'}} className={'login-page'}>
+        return (<div style={{ height: '100%' }} >
+            <div className={'login-page-bg'}></div>
+            <div style={{height: '100%'}} className={'login-page'}>
                 <Header as='h2' textAlign='center'  className={'login-header'}>
                     Create An Account
                 </Header>
@@ -122,6 +124,7 @@ class RegistrationPage extends React.Component {
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
+            </div>
             </div>
         );
     }

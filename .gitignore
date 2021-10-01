@@ -12,3 +12,5 @@ npm-debug.log
 /sslcert/**
 /client/npm-shrinkwrap.json
 /client/npm-shrinkwrap.json
+/client/src/frontend/images/spritesmith-generated/sprite.png
+/client/src/frontend/stylesheets/spritesmith-generated/sprite.scss

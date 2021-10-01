@@ -1,5 +1,30 @@
+@import '../spritesmith-generated/sprite';
+
+//.winner-icon{
+//  background: url($winner-image) no-repeat;
+//  background-position-x: $winner-offset-x;
+//  background-position-y: $winner-offset-y;
+//  width: 60px;
+//  height: 60px;
+//  border-radius: 60px;
+//}
+.login-page-bg {
+    background: url($bg-image);
+    background-position-x: $bg-offset-x;
+    background-position-y: $bg-offset-y;
+    //filter: blur(8px);
+    //-webkit-filter: blur(8px);
+  /* Full height */
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 .login-page {
-  background-image:linear-gradient($background-4, $background-1);
+  background:linear-gradient($background-6, $background-1);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  opacity: 90%;
   color: white;
   font-family: 'Titillium web', sans-serif;
   font-weight: 400;
@@ -24,7 +49,7 @@
     padding-top: 50px;
     font-family: 'Titillium web', sans-serif;
     color: white !important;
-    height: 200px;
+    height: 150px;
   }
   .login-help{
     margin-top: 0px;
@@ -43,6 +68,7 @@
       background-color: $background-3 !important;
       font-family: 'Titillium web', sans-serif !important;
       font-style: italic;
+      border-radius: 0px !important;
     }
     i {
       color: white !important;
@@ -73,9 +99,9 @@
 
 @media only screen and (max-width: 767px){
   #app .social-login-container{
-    margin-top: 10rem!important;
+    margin-top: 0 !important;
   }
   #app .login-container {
-    min-height: 320px;
+    min-height: 300px;
   }
 }
