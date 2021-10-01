@@ -16,7 +16,7 @@ let score2 = 0;
 module.exports = {
 
     async start(io) {
-       schedule.scheduleJob('*/1 * * * *', async () => {
+       schedule.scheduleJob('* * * * *', async () => {
            const transaction = await sequelize.transaction();
            try {
                const liveEvents = await eventRepository.findLiveGames({transaction});

@@ -31,14 +31,16 @@ class LeadersContainer extends React.Component{
             <div className="medal-badge">{medal}</div>
         </div>);
     }) ;
+    console.log(participate);
     return (
             <li className="leader-row">
                 <div className="leader-body">
+                    <div className="leader-rank"> 19. </div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
                     <div className="leader-center">
-                        <div className="leader-name">{participate.username} {participate.firstName} {participate.lastName}</div>
+                        <div className="leader-name">{participate.firstName}</div>
                         <div className="leader-medals">
                             {medals}
                         </div>
