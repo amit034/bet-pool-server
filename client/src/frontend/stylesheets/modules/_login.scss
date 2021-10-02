@@ -46,10 +46,10 @@
   }
 
   .login-header{
-    padding-top: 50px;
+    padding-top: 20px;
     font-family: 'Titillium web', sans-serif;
     color: white !important;
-    height: 150px;
+    height: 100px;
   }
   .login-help{
     margin-top: 0px;
@@ -79,29 +79,48 @@
   }
 
   .social-button {
-    display: inline-block;
-    button{
-      padding: 0;
-      border-radius: 35px ;
-      width: 35px ;
-      height: 35px;
-    }
-    margin-left: 5px;
+    display: block;
+    padding: 0;
+    width: 100px ;
+    height: 40px;
+    background-color: white !important;
+    border-radius: 0px;
+    margin-bottom: 5px;
+    font-family: 'Titillium web', sans-serif;
+    font-weight: 900;
   }
   .facebook-button{
-    button{
-      border-radius: 38px;
-      width: 38px;
-      height: 38px;
-    }
+    color: #3b5998;
+  }
+  .google-button{
+    color: #dd4b39;
   }
 }
 
 @media only screen and (max-width: 767px){
   #app .social-login-container{
     margin-top: 0 !important;
-  }
-  #app .login-container {
-    min-height: 300px;
+    .social-login-title{
+      overflow: hidden;
+      text-align: center;
+      margin-bottom: 2rem;
+      &:before, &:after{
+        background-color: #fff;
+        content: "";
+        display: inline-block;
+        height: 1px;
+        position: relative;
+        vertical-align: middle;
+        width: 50%;
+      }
+      &:before{
+        right: 0.5em;
+        margin-left: -50%;
+      }
+      &:after{
+        left: 0.5em;
+        margin-right: -50%;
+      }
+    }
   }
 }
