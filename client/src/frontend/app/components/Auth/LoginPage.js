@@ -105,7 +105,7 @@ class LoginPage extends React.Component {
             <div style={{ height: '100%' }} className={'login-page'}>
 
             <Header as='h2' color='white' textAlign='center' className={'login-header'}>
-                365 Betting Pool
+                Welcome
             </Header>
             <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
                 <Grid.Row stretched>
@@ -120,34 +120,32 @@ class LoginPage extends React.Component {
                         />
                     </Grid.Column>
                     <Grid.Column style={{ maxWidth: 450 }}  className={'social-login-container'}>
-                        Or login with
-                        <Form size='large'>
-                            <FacebookLogin
-                                appId="476316572540105"
-                                autoLoad={false}
-                                fields="name,email,picture,app_name"
-                                render={renderProps => (
-                                    <div className="social-button facebook-button">
-                                        <button onClick={renderProps.onClick}>
-                                            <TiSocialFacebook  style={{color: '#334a97', fontSize: '1.5em' }} />
-                                        </button>
-                                    </div>
-                                )}
-                                callback={this.facebookResponse} />
-                            <GoogleLogin
-                                clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
-                                onSuccess={this.googleResponse}
-                                onFailure={this.googleResponse}
-                                autoLoad={false}
-                                render={renderProps => (
-                                    <div className="social-button">
-                                        <Button  onClick={renderProps.onClick} >
-                                            <TiSocialGooglePlus style={{color: 'red', fontSize: '1.5em' }}/>
-                                        </Button>
-                                    </div>
-                                )}
-                            />
-                        </Form>
+                       <div className={'social-login-title'}><span>Or</span></div>
+                        <FacebookLogin
+                            appId="476316572540105"
+                            autoLoad={false}
+                            fields="name,email,picture,app_name"
+
+                            render={renderProps => (
+                                <div className="field">
+                                    <Button fluid size='large' onClick={renderProps.onClick} className={'social-button facebook-button'}>
+                                        <Icon name='facebook' /> Login with Facebook
+                                    </Button>
+                                </div>
+                            )}
+                            callback={this.facebookResponse} />
+                        <GoogleLogin
+                            clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                            onSuccess={this.googleResponse}
+                            cssClass="social-login"
+                            render={renderProps => (
+                                <div className="field">
+                                    <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
+                                        <Icon name='google' /> Login with Google
+                                    </Button>
+                                </div>
+                            )}
+                        />
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
