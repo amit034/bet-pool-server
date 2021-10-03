@@ -6,9 +6,11 @@ package-lock.json
 client/node_modules/**
 logs/**
 npm-debug.log
-/client/src/frontend/public/**
 /client/server.crt
 /client/server.key
-/sslcert/**
+/client/src/frontend/public/js/bundle.js
 /client/npm-shrinkwrap.json
 /client/npm-shrinkwrap.json
+/client/src/frontend/images/spritesmith-generated/sprite.png
+/client/src/frontend/stylesheets/spritesmith-generated/sprite.scss
+/client/src/frontend/public/img/sprite.png

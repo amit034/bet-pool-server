@@ -1,5 +1,30 @@
+@import '../spritesmith-generated/sprite';
+
+//.winner-icon{
+//  background: url($winner-image) no-repeat;
+//  background-position-x: $winner-offset-x;
+//  background-position-y: $winner-offset-y;
+//  width: 60px;
+//  height: 60px;
+//  border-radius: 60px;
+//}
+.login-page-bg {
+    background: url($bg-image);
+    background-position-x: $bg-offset-x;
+    background-position-y: $bg-offset-y;
+    //filter: blur(8px);
+    //-webkit-filter: blur(8px);
+  /* Full height */
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 .login-page {
-  background-image:linear-gradient($background-4, $background-1);
+  background:linear-gradient($background-6, $background-1);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  opacity: 90%;
   color: white;
   font-family: 'Titillium web', sans-serif;
   font-weight: 400;
@@ -21,10 +46,10 @@
   }
 
   .login-header{
-    padding-top: 50px;
+    padding-top: 20px;
     font-family: 'Titillium web', sans-serif;
     color: white !important;
-    height: 200px;
+    height: 100px;
   }
   .login-help{
     margin-top: 0px;
@@ -43,6 +68,7 @@
       background-color: $background-3 !important;
       font-family: 'Titillium web', sans-serif !important;
       font-style: italic;
+      border-radius: 0px !important;
     }
     i {
       color: white !important;
@@ -53,29 +79,48 @@
   }
 
   .social-button {
-    display: inline-block;
-    button{
-      padding: 0;
-      border-radius: 35px ;
-      width: 35px ;
-      height: 35px;
-    }
-    margin-left: 5px;
+    display: block;
+    padding: 0;
+    width: 100px ;
+    height: 40px;
+    background-color: white !important;
+    border-radius: 0px;
+    margin-bottom: 5px;
+    font-family: 'Titillium web', sans-serif;
+    font-weight: 900;
   }
   .facebook-button{
-    button{
-      border-radius: 38px;
-      width: 38px;
-      height: 38px;
-    }
+    color: #3b5998;
+  }
+  .google-button{
+    color: #dd4b39;
   }
 }
 
 @media only screen and (max-width: 767px){
   #app .social-login-container{
-    margin-top: 10rem!important;
-  }
-  #app .login-container {
-    min-height: 320px;
+    margin-top: 0 !important;
+    .social-login-title{
+      overflow: hidden;
+      text-align: center;
+      margin-bottom: 2rem;
+      &:before, &:after{
+        background-color: #fff;
+        content: "";
+        display: inline-block;
+        height: 1px;
+        position: relative;
+        vertical-align: middle;
+        width: 50%;
+      }
+      &:before{
+        right: 0.5em;
+        margin-left: -50%;
+      }
+      &:after{
+        left: 0.5em;
+        margin-right: -50%;
+      }
+    }
   }
 }

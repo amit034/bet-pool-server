@@ -2,10 +2,12 @@
 var webpack = require('webpack');
 var path = require('path');
 var fs = require('fs');
+const context = path.resolve(__dirname, 'src/frontend');
 var BUILD_DIR = path.resolve(__dirname, 'src/frontend/public');
 var APP_DIR = path.resolve(__dirname, 'src/frontend/app');
 const srcPath = path.join(__dirname, 'src', 'frontend', 'app', 'index.jsx');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const SpritesmithPlugin = require('webpack-spritesmith');
 
 const isProductionEnvironment = process.env.NODE_ENV !== 'development';
 const fileNameFormat =
@@ -14,7 +16,24 @@ const fileNameFormat =
         CSS: isProductionEnvironment ? 'styles.[chunkhash].css' : 'styles.[hash].css'
     };
 
+const spritesmithPluginConfig = {
+    src: {
+        cwd: path.resolve(context, 'stylesheets/images'),
+        glob: '*.png'
+    },
+    target: {
+        image: path.resolve(__dirname, 'src/frontend/images/spritesmith-generated/sprite.png'),
+        css: path.resolve(__dirname,  'src/frontend/stylesheets/spritesmith-generated/sprite.scss')
+    },
+    spritesmithOptions: {
+        padding: 10
+    },
+    apiOptions: {
+        cssImageRef: '../images/spritesmith-generated/sprite.png'
+    }
+};
 var config = {
+    context,
     entry: {
         app: srcPath
     },
@@ -38,6 +57,7 @@ var config = {
     },
     plugins: [
         new webpack.EnvironmentPlugin(['NODE_ENV']),
+        new SpritesmithPlugin(spritesmithPluginConfig),
     ],
     module: {
         rules: [
@@ -53,11 +73,50 @@ var config = {
                 }
             },
             {
+                test: /svgLoader\.json$/,
+                type: 'javascript/auto',
+                exclude: /node_modules/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'webfonts-loader'
+                ]
+            },
+            {
+                test: /\.svg/,
+                use: 'svg-url-loader'
+            },
+            {
                 test: /\.scss$/,
                 use: [
                     {loader: "style-loader"},
                     {loader: "css-loader" },
                     {loader: "sass-loader"}
+                ]
+            },
+            {
+                test: /\.(png|jpe?g|gif)$/i,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            publicPath: 'img',
+                            outputPath: 'img',
+                            useRelativePath: true,
+                            esModule: false,
+                        }
+                    },
+
+                    {
+                        loader: 'image-webpack-loader',
+                        options: {
+                            mozjpeg: {
+                                progressive: true,
+                                quality: 65
+                            }
+                        }
+                    }
                 ]
             }
         ]
