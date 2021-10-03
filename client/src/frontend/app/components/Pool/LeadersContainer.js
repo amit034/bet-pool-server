@@ -15,6 +15,7 @@ class LeadersContainer extends React.Component{
   }
 
   render(){
+      let idx = 1;
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, 'score', 'desc');
         const LeaderNode = _.map(leaders, (participate) => {
@@ -35,7 +36,7 @@ class LeadersContainer extends React.Component{
     return (
             <li className="leader-row">
                 <div className="leader-body">
-                    <div className="leader-rank"> 19. </div>
+                    <div className="leader-rank">{idx++}. </div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
