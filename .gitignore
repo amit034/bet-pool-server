@@ -13,5 +13,6 @@ npm-debug.log
 /client/npm-shrinkwrap.json
 /client/src/frontend/images/spritesmith-generated/sprite.png
 /client/src/frontend/stylesheets/spritesmith-generated/sprite.scss
-/client/src/frontend/public/img/sprite.png
-client/src/frontend/public/js/bundle.js.map
+/client/src/frontend/public/**
+/sslcert/server.crt
+/sslcert/server.key
