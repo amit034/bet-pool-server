@@ -14,3 +14,4 @@ npm-debug.log
 /client/src/frontend/images/spritesmith-generated/sprite.png
 /client/src/frontend/stylesheets/spritesmith-generated/sprite.scss
 /client/src/frontend/public/img/sprite.png
+client/src/frontend/public/js/bundle.js.map
