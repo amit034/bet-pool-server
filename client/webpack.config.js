@@ -73,6 +73,20 @@ var config = {
                 }
             },
             {
+                test: /svgLoader\.json$/,
+                type: 'javascript/auto',
+                exclude: /node_modules/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'webfonts-loader'
+                ]
+            },
+            {
+                test: /\.svg/,
+                use: 'svg-url-loader'
+            },
+            {
                 test: /\.scss$/,
                 use: [
                     {loader: "style-loader"},
