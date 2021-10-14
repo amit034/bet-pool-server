@@ -9,14 +9,12 @@ module.exports = {
 	findUsersBetsByPoolId(poolId, {transaction} = {}) {
 		return findUserBetsByQuery({poolId}, {transaction});
 	},
-	async createOrUpdate(data, {transaction}) {
-		const {userId, challengeId, poolId, score1, score2} = data;
+	async createOrUpdate(data, {transaction} = {}) {
+		const {userId, challengeId, poolId} = data;
 		const searchQuery = {poolId, challengeId, userId};
-		let bets = await findUserBetsByQuery(searchQuery, {transaction});
-		if (_.isEmpty(bets)) {
-			await Bet.create(_.assign(searchQuery, {score1, score2}), {transaction});
-		}
-		return Bet.findAll({where: searchQuery, transaction});
+
+		await Bet.create(data, {transaction, updateOnDuplicate: ['score_1', 'score_2']});
+		return Bet.findOne({where: searchQuery, transaction});
 	},
 	findByChallengeId(challengeId, {transaction}){
 		return findUserBetsByQuery({challengeId}, {transaction});

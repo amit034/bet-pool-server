@@ -47,11 +47,10 @@ class PoolContainer extends React.Component{
    //    return !_.isEqual(_.get(nextProps, 'bets'), _.get(this.props, 'bets')) || !_.isEqual(this.state, nextState); // equals() is your implementation
     // }
   onBetKetChange(challengeId, key, value){
-     //this.setState(_.set(this.state.updates, `${challengeId}.${key}`, _.toString(value)), () => {
         const bet = _.get(this.props.bets, challengeId);
         _.set(bet, key, value);
         this.props.dispatch(updateUserBet(this.props.match.params.id , challengeId, bet))
-    // });
+
   }
    onBetChange(challengeId, updatedBet){
      //this.setState(_.set(this.state.updates, `${challengeId}.${key}`, _.toString(value)), () => {
@@ -71,10 +70,10 @@ class PoolContainer extends React.Component{
   }
 
   render(){
-    return (<div id="content" class="ui container">
+    return (<div id="content" className="ui container">
         {/*<a onClick={this.submitBets}>Submit</a>*/}
         {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}/participates`)}>See Leaders</a>*/}
-        <GameList poolId={this.props.match.params.id} onBetChange={this.onBetChange} onBetKetChange={this.onBetKetChange} onShowOthers ={this.onShowOthers} onBetFocused={this.onBetFocused} />
+        <GameList poolId={this.props.match.params.id} onBetChange={this.onBetChange} onBetKeyChange={this.onBetKetChange} onShowOthers ={this.onShowOthers} onBetFocused={this.onBetFocused} />
         <BetPad focused={this.props.focused} onBetChange={this.onBetChange}/>
         <NavigationMenu  />
     </div>);
@@ -82,9 +81,9 @@ class PoolContainer extends React.Component{
   }
 }
 
-function mapStateToProps({betPad}) {
+function mapStateToProps({pools: {bets}}) {
     return {
-        focused: betPad
+        bets
     }
 }
 

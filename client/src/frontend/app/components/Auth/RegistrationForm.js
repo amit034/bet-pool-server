@@ -20,13 +20,6 @@ const RegistrationForm = ({
           You can do same with CSS, the main idea is that all the elements up to the `Grid`
           below must have a height of 100%.
         */}
-        {/*<style>{`*/}
-        {/*  body > div,*/}
-        {/*  body > div > div,*/}
-        {/*  body > div > div > div.login-form {*/}
-        {/*    height: 100%;*/}
-        {/*  }*/}
-        {/*`}</style>*/}
             <Form size='large' action="/" onSubmit={onSubmit}>
                 {successMessage && <p className="success-message">{successMessage}</p>}
                 {errors.summary && <p className="error-message">{errors.summary}</p>}

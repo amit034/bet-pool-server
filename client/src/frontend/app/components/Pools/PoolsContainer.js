@@ -69,7 +69,7 @@ class PoolsContainer extends React.Component{
         if (moment(pool.lastCheckIn).isAfter(moment()) || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
         }
-        return (<li className="pool" onClick={() => { return actionObj.action(pool.id)}}>
+        return (<li className="pool" key={pool.id} onClick={() => { return actionObj.action(pool.id)}}>
             <div className= 'pool-left-side'>
                 <div className='pool-left-title'>{pool.name}</div>
                 <div className='pool-left-detail'>

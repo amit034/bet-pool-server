@@ -18,15 +18,17 @@ class LeadersContainer extends React.Component{
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, 'score', 'desc');
         const LeaderNode = _.map(leaders, (participate) => {
-            return (<Leader participate={participate} key={participate.id}/>)
+            return (<Leader participate={participate} key={participate.id} rank={_.sortedIndexBy(leaders, participate, (p) => {
+                return p.medals[3] * 10000 +  p.medals[2] * 100 + p.medals[1];
+            })}/>)
         });
         return (<div><ul className="leader-list" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
     };
-    const Leader = ({participate}) => {
+    const Leader = ({participate, rank}) => {
 
     const medals = _.map(_.forOwnRight(participate.medals), (medal, key)=> {
         const className = classNames('icon star large fitted', {'bronze-medal': key === "1", 'sliver-medal': key === "2", 'gold-medal': key === "3"});
-        return (<div className="leader-medal">
+        return (<div className="leader-medal" key={key}>
             <i className={className}></i>
             <div className="medal-badge">{medal}</div>
         </div>);
@@ -35,7 +37,7 @@ class LeadersContainer extends React.Component{
     return (
             <li className="leader-row">
                 <div className="leader-body">
-                    <div className="leader-rank"> 19. </div>
+                    <div className="leader-rank"> {rank}. </div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
