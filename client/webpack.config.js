@@ -57,7 +57,7 @@ var config = {
     },
     plugins: [
         new webpack.EnvironmentPlugin(['NODE_ENV']),
-        new SpritesmithPlugin(spritesmithPluginConfig),
+        new SpritesmithPlugin(spritesmithPluginConfig)
     ],
     module: {
         rules: [
@@ -66,9 +66,10 @@ var config = {
                 include: APP_DIR,
                 loader: 'babel-loader',
                 query: {
-                    presets: ["react", "es2015"],
+                    presets: ["@babel/preset-env", "@babel/preset-react"],
                     plugins: [
-                        'transform-object-rest-spread'
+                        '@babel/plugin-proposal-object-rest-spread',
+                        '@babel/plugin-transform-async-to-generator'
                     ]
                 }
             },
@@ -118,7 +119,20 @@ var config = {
                         }
                     }
                 ]
-            }
+            },
+            // {
+            //     test: /\.m?js$/,
+            //     exclude: /node_modules/,
+            //     use: {
+            //         loader: 'babel-loader',
+            //         options: {
+            //             presets: [
+            //                 ['@babel/preset-env', { targets: "defaults" }],
+            //                 "@babel/preset-react"
+            //             ]
+            //         }
+            //     }
+            // }
         ]
     }
 };
