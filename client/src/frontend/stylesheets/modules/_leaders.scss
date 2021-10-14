@@ -4,14 +4,12 @@
   // font-weight: 600;
   .leader-row {
     list-style: none;
-    border: 1px solid;
     // box-shadow: 2px 5px 0px 0px #000240;
     border: 1px solid #414d7e;
     // margin-bottom: 10px;
     // height: 55px;
     .leader-body {
       display: flex;
-      height: 100%;
       .leader-rank{
         width: 40px;
         justify-self: center;
@@ -22,11 +20,12 @@
       .leader-side {
         display:flex;
         padding: 5px;
-        flex: 1;
+        // flex: 1;
         .leader-image {
           width: 32px;
           height: 32px;
           align-self: center;
+          border-radius: 50%;
         }
       }
       .leader-center {
@@ -37,6 +36,7 @@
           flex: 2;
           align-self: center;
           font-size: 1.2rem;
+          margin-inline-start: 3%;
         }
         .leader-score{
           text-align: right;
