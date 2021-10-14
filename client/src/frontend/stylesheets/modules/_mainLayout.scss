@@ -1,7 +1,7 @@
 #app{
   background-color: $background-1;
   height: 100%;
-  color: $title-1;
+  color: $title-11;
   overflow: auto;
 }
 .app-wrapper{
@@ -11,18 +11,18 @@
   padding: 25px 0 55px 0
 }
 .top-menu {
-  background-color: $background-1 !important;
+  background-color: $background-frame !important;
   .item{
-    color: $title-1 !important;
+    color: $title-11 !important;
   }
 }
 .bottom-menu{
   display: flex;
-  color: $title-1 !important;
-  background-color: $background-1 !important;
+  color: $title-11 !important;
+  background-color: $background-frame !important;
   .item{
     flex: 1;
-    color: $title-1 !important;
+    color: $title-11 !important;
   }
   .item.disabled {
     color: rgba(225,225,225,.3) !important;

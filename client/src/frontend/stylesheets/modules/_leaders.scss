@@ -1,19 +1,23 @@
 .leader-list{
   text-align: center;
   padding:0;
-  font-weight: 600;
+  // font-weight: 600;
   .leader-row {
     list-style: none;
     border: 1px solid;
+    // box-shadow: 2px 5px 0px 0px #000240;
+    border: 1px solid #414d7e;
+    // margin-bottom: 10px;
+    // height: 55px;
     .leader-body {
       display: flex;
-      background: $background-5;
+      height: 100%;
       .leader-rank{
         width: 40px;
         justify-self: center;
         align-self: center;
         font-size: 1.5rem;
-        font-weight: bold;
+        // font-weight: bold;
       }
       .leader-side {
         display:flex;
@@ -27,8 +31,6 @@
       }
       .leader-center {
         text-align: left;
-        padding-left: 5px;
-        padding-top: 5px;
         flex: 7;
         display: flex;
         .leader-name{
@@ -40,17 +42,22 @@
           text-align: right;
           margin: 5px;
           align-self: center;
-          font-size: 1.5rem;
-          color:$title-4;
+          font-size: 1.6rem;
+          min-width: 55px;
+          // color:$title-4;
         }
         .leader-medals{
           display: flex;
-          min-width: 71px;
+          // min-width: 71px;
           margin-right: 5px;
           text-align: center;
+          align-items: center;
           .leader-medal{
             // flex:1;
             flex-direction: column;
+            .medals-size{
+              font-size: 1em;
+            }
             .gold-medal{
               color: #D9A441;
             }

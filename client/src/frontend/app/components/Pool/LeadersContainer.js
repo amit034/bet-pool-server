@@ -27,7 +27,7 @@ class LeadersContainer extends React.Component{
     const Leader = ({participate, rank}) => {
 
     const medals = _.map(_.forOwnRight(participate.medals), (medal, key)=> {
-        const className = classNames('icon star large fitted', {'bronze-medal': key === "1", 'sliver-medal': key === "2", 'gold-medal': key === "3"});
+        const className = classNames('icon star large fitted medals-size', {'bronze-medal': key === "1", 'sliver-medal': key === "2", 'gold-medal': key === "3"});
         return (<div className="leader-medal" key={key}>
             <i className={className}></i>
             <div className="medal-badge">{medal}</div>
