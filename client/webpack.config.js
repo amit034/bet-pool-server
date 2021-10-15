@@ -66,9 +66,9 @@ var config = {
                 include: APP_DIR,
                 loader: 'babel-loader',
                 query: {
-                    presets: ["react", "es2015"],
+                    presets: ["@babel/preset-react", "@babel/preset-env"],
                     plugins: [
-                        'transform-object-rest-spread'
+                        '@babel/plugin-proposal-object-rest-spread'
                     ]
                 }
             },

@@ -16,3 +16,6 @@ npm-debug.log
 /client/src/frontend/public/img/sprite.png
 /sslcert/server.crt
 /sslcert/server.key
+/client/node_modules_old/**
+/node_modules_old.**
+/node_modules_old/**
