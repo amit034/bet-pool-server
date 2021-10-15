@@ -54,9 +54,9 @@ function handleUpdateUserBets(req, res){
     });
 }
 function handleCreateOrUpdateRequest(req, res) {
-	const poolId = req.params.poolId || null;
-    const userId =req.currentUser.id;
-    const challengeId = req.params.challengeId || null;
+	const poolId = req.params.poolId || -1;
+    const userId = req.currentUser.userId || -1;
+    const challengeId = req.params.challengeId || -1;
     const score1 = _.get(req, 'body.score1', null);
     const score2 = _.get(req, 'body.score2', null);
 
@@ -64,18 +64,18 @@ function handleCreateOrUpdateRequest(req, res) {
         challengeRepository.findById(challengeId),
         poolRepository.findParticipateByUserId(poolId, userId)])
     .then(function([challenge, participate]) {
-        if (challenge && participate){
+        if (challenge && !_.isEmpty(participate)){
             if (challenge.playAt < moment()){
                 return res.status(403).send({
                     error: "too late to change bet for this challenge"
                 });
             }
-            return repository.createOrUpdate({pool: poolId, participate: participate.user._id, challenge: challenge._id, score1, score2})
+            return repository.createOrUpdate({poolId, userId, challengeId, score1, score2})
                 .then(
                 function (bet) {
                     logger.log('info', 'bet for' + poolId + ' has been submitted.' +
                         'Request from address ' + req.connection.remoteAddress + '.');
-                    return res.status(201).send(bet);
+                    return res.status(201).send(_.assign({}, bet.toJSON(), {challenge: challenge.toJSON()}));
                 }).catch(
                 function (err) {
                     logger.log('error', 'An error has occurred while processing a request to create a ' +

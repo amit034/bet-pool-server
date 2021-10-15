@@ -18,4 +18,3 @@ npm-debug.log
 /sslcert/server.key
 /client/node_modules_old/**
 /node_modules_old.**
-/node_modules_old/**

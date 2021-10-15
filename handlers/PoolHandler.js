@@ -177,7 +177,7 @@ function handleGetUserBets(req, res) {
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                     bet.medal = medal;
                     bet.challenge = challenge;
-                    bet.closed = challenge.closed;
+                    bet.closed = !challenge.isOpen;
                     return bet;
                 });
                 if (!req.requestForMe) {
