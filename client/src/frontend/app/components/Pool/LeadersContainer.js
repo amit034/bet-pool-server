@@ -46,7 +46,7 @@ class LeadersContainer extends React.Component{
                         <div className="leader-medals">
                             {medals}
                         </div>
-                        <div className="leader-score">{participate.score}</div>
+                        <div className="leader-score-box"><span className="leader-score-numbers">{participate.score}</span></div>
                     </div>
                 </div>
             </li>);

@@ -38,25 +38,29 @@
           font-size: 1.2rem;
           margin-inline-start: 3%;
         }
-        .leader-score{
+        .leader-score-box{
           text-align: right;
-          margin: 5px;
           align-self: center;
-          font-size: 1.6rem;
           min-width: 55px;
-          // color:$title-4;
+          height: 100%;
+          display: flex;
+          background-color: #608ba8;
+          justify-content: center;
+          align-items: center;
+          font-size: 1.6em;
         }
         .leader-medals{
           display: flex;
-          // min-width: 71px;
-          margin-right: 5px;
+          margin-right: 25px;
           text-align: center;
           align-items: center;
+          gap: 5px;
+          font-size: 0.9rem;
           .leader-medal{
             // flex:1;
             flex-direction: column;
             .medals-size{
-              font-size: 1em;
+              font-size: 0.9em;
             }
             .gold-medal{
               color: #D9A441;

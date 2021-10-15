@@ -1,33 +1,44 @@
 #app{
   background-color: $background-1;
   height: 100%;
-  color: $title-11;
+  color: $title-1;
   overflow: auto;
 }
 .app-wrapper{
   height: 100%;
+  .ui.inverted.top-menu {
+    background-color: $background-1 !important;
+    .item{
+      color: $title-1 !important;
+    }
+    .item:before{
+      background: none;
+    }
+  }
+  
 }
 .ui#content{
   padding: 40px 0 55px 0
 }
 .top-menu {
-  background-color: $background-frame !important;
+  background-color: $background-1 !important;
   .item{
-    color: $title-11 !important;
+    color: $title-1 !important;
   }
 }
 .bottom-menu{
   display: flex;
-  color: $title-11 !important;
+  color: $title-1 !important;
   background-color: $background-frame !important;
   .item{
     flex: 1;
-    color: $title-11 !important;
+    color: $title-1 !important;
   }
   .item.disabled {
     color: rgba(225,225,225,.3) !important;
   }
 }
+
 .bet-pad{
   position: absolute;
   border: 1px solid;
