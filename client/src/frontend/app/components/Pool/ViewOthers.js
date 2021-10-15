@@ -57,17 +57,17 @@ class ViewOthers extends React.Component{
     const UserBet = ({participate, bet}) => {
     return (
             <li className="user-bet-row">
-                <div className="user-bet-body">
-                    <div className="user-bet-rank"> 18. ({participate.score}) </div>
-                    <div className="user-bet-side">
+                {/* <div className="user-bet-body"> */}
+                    <div className="user-bet-rank"> Rank:18 ({participate.score}pts) </div>
+                    {/* <div className="user-bet-side">
                         <img className="user-bet-image" src={participate.picture} alt={participate.username} title={participate.username}/>
-                    </div>
-                    <div className="user-bet-center">
+                    </div> */}
+                    {/* <div className="user-bet-center"> */}
                         <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
                         <div className="user-bet-score">{bet.score1} : {bet.score2}</div>
                         {/* <div className="user-bet-score2">{bet.score2}</div> */}
-                    </div>
-                </div>
+                    {/* </div>
+                </div> */}
             </li>);
     };
     return (
