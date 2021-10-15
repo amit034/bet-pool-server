@@ -6,8 +6,6 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 require('../stylesheets/styles.scss');
 import { BrowserRouter } from 'react-router-dom';
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import App from "./components/App";
 import rootReducer from './reducers'
 import thunk from 'redux-thunk';

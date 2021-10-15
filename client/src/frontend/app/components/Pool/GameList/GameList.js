@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Header, Button} from 'semantic-ui-react'
-import NumPad from 'react-numpad';
 import {getChallengeParticipates} from '../../../actions/pools';
 import {connect} from 'react-redux';
 
