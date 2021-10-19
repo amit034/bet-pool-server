@@ -15,6 +15,7 @@ class LeadersContainer extends React.Component{
   }
 
   render(){
+      console.log(this.props.pools.participates);
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
         const LeaderNode = _.map(leaders, (participate) => {
@@ -41,7 +42,7 @@ class LeadersContainer extends React.Component{
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
                     <div className="leader-center">
-                        <div className="leader-name">{participate.firstName}</div>
+                        <div className="leader-name">{participate.firstName} {participate.lastName}</div>
                         <div className="leader-medals">
                             {medals}
                         </div>

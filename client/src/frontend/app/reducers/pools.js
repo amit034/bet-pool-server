@@ -8,7 +8,8 @@ function pools(state = {
     otherBets: {},
     games: {},
     bets: {},
-    participates: {}
+    participates: {},
+    goal:null
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
@@ -26,9 +27,11 @@ function pools(state = {
             const bet = _.cloneDeep(_.get(state.bets, challengeId));
             if (bet) {
                 bet.challenge = action.challenge;
-                return update(state, {isFetching: {$set: false}, bets: {$merge: {[challengeId]: bet}}, errorMessage: {$set: null}});
+                return update(state, {isFetching: {$set: false} , goal:{$set:challengeId} , bets: {$merge: {[challengeId]: bet}}, errorMessage: {$set: null}});
             }
             return update(state, {isFetching: {$set: false}, errorMessage: {$set: null}});
+        case poolActions.CLEAR_GOAL_ANIMA:
+            return update(state , {goal:{$set:null}})
         case poolActions.GET_USER_BETS_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.GET_USER_BETS_SUCCESS:

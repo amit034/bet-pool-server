@@ -10,6 +10,8 @@
     background-color: $background-1 !important;
     .item{
       color: $title-1 !important;
+      font-size: 1.1em;
+      font-weight:600;
     }
     .item:before{
       background: none;
@@ -24,6 +26,7 @@
   background-color: $background-1 !important;
   .item{
     color: $title-1 !important;
+
   }
 }
 .bottom-menu{

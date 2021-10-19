@@ -3,7 +3,7 @@ import {io} from "socket.io-client"
 import {connect} from "react-redux";
 import {Menu, Icon ,Dropdown, Image} from 'semantic-ui-react'
 import {logoutUser ,getUserFromLocalStorage} from '../actions/auth';
-import {updateChallenge} from '../actions/pools';
+import {updateChallenge , clearGoalAnima} from '../actions/pools';
 import {Route, Switch, withRouter, Redirect, NavLink} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
@@ -24,6 +24,27 @@ class App extends React.Component {
             dispatch(updateChallenge(challenge))
         })
     }
+    componentDidMount(){
+        console.log("did mount app.js");
+        // const interval = setInterval(()=>this.fakeLiveGoal(),40000)
+    }
+    fakeLiveGoal() {
+        console.log("fake GOALL");
+        const num = Math.floor(Math.random()*10)
+        let fChallenge = {
+            factorId: 1,game: {
+            awayTeam: {code: "RBS",fapiId: 1877,flag: "https://crests.football-data.org/1877.svg",id: 316,name: "Red Bull",shortName: "Red Bull"},
+            awayTeamId: 316,awayTeamScore: 1,eventId: 85,factorId: 1,fapiId: null,
+            homeTeam: {code: "SEV",fapiId: 559,flag: "https://crests.football-data.org/559.svg",id: 300,name: "Sevilla",shortName: "Sevilla"},
+            homeTeamId: 300,homeTeamScore: 1,id: 124,isOpen: false,playAt: "2021-09-14T16:45:00.000Z",round: 2,status: "FINISHED"},
+            id: 124,isOpen: false,name: null,playAt: "2021-09-14T16:45:00.000Z",refId: 124,refName: "Game",score1: num,score2: 1,status: "FINISHED",type: "FULL_TIME"
+        }
+        this.props.dispatch(updateChallenge(fChallenge));
+        // setTimeout(() => {
+            // this.props.dispatch(clearGoalAnima())
+        // },3000)
+    }
+
     logout() {
         this.props.dispatch(logoutUser());
     }

@@ -1,27 +1,28 @@
 .challenge-row {
-  margin-top: 15px;
+  margin-top: 25px;
   list-style: none;
-  border: 1px solid;
+  border: 1px solid #414d7e;
+  box-shadow: 0px 2px 0px 2px #000000;
   padding-bottom: 10px;
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   .game-title {
     display: flex;
-    text-align: left;
     font-size: 12px;
-    display: flex;
-    .game-day {
-      flex: 4;
-    }
-    .game-hour {
-      flex: 1;
-      text-align: center;
-    }
-    .game-more {
-      flex: 4;
-      color: #c5862b;
-    }
+    padding: 3px 15px;
+    // justify-content: space-between;
+    // .game-day {
+    //   flex: 4;
+    // }
+    // .game-hour {
+    //   flex: 1;
+    //   text-align: center;
+    // }
+    // .game-more {
+    //   flex: 4;
+    //   color: #c5862b;
+    // }
   }
   .game-body {
     display: flex;
@@ -37,10 +38,16 @@
         align-items: center;
         .team-flag {
           display: block;
-          margin-left: auto;
-          margin-right: auto;
-          width: 50px;
-          height: 36px;
+          width: 55px;
+          height: 55px;
+          background-color: #EEE;
+          padding: 8px;
+          opacity: 0.8;
+          border-radius: 36px;
+          .team-image{
+            width: 100%;
+            height: 100%
+          }
         }
         .team-name {
           font-size: 12px;
@@ -67,19 +74,30 @@
   .user-bet-row {
     display: flex;
     list-style: none;
+    box-shadow: 0px 2px 0px 2px #000000;
     border: 1px solid #414d7e;
+    margin-bottom: 10px;
     height: 35px;
-    font-size: 1.0em;
-    padding: 0 5px;
+    font-size: 0.9em;
+    padding-left:5px;
     > div {
       align-self: center;
     }
     .user-bet-rank {
-      min-width: 35%;
+      min-width: 29%;
     }
     .user-bet-name {
       flex: 2;
       margin-inline-start: 3%;
+    }
+    .user-bet-score {
+      min-width: 55px;
+      height: 100%;
+      display: flex;
+      background-color: #608ba8;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.0em;  
     }
   }
 }
