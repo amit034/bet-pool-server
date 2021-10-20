@@ -10,7 +10,7 @@
   .game-title {
     display: flex;
     font-size: 12px;
-    padding: 3px 15px;
+    padding: 3px 0 10px 10px;
     // justify-content: space-between;
     // .game-day {
     //   flex: 4;
@@ -40,7 +40,7 @@
           display: block;
           width: 55px;
           height: 55px;
-          background-color: #EEE;
+          background-color: #ffffff;
           padding: 8px;
           opacity: 0.8;
           border-radius: 36px;

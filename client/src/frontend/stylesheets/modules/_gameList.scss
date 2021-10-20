@@ -33,8 +33,6 @@
         letter-spacing: 0.2em;
       }
 
-      .game-side.main-event {}
-
       .game-center {
         flex: auto;
         display: flex;
@@ -196,14 +194,3 @@
     }
   }
 } 
-.goal-anima{
-  background: url($bg-image2);
-    background-position-x: $bg-offset-x;
-    background-position-y: $bg-offset-y;
-    //filter: blur(8px);
-    //-webkit-filter: blur(8px);
-  /* Full height */
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: cover;
-}
