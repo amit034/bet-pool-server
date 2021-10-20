@@ -136,10 +136,10 @@ class GameList extends React.Component {
                 'users': !isOpen,
                 'lightbulb': isOpen
             });
-            
+            console.log(challengeId);
             return (
                 <section  >
-                {124 !== challengeId ? (
+                {165 !== challengeId ? (
             <li className="game-row" key={challengeId} data={challengeId}>
                 <div className={gameSideClassName}>
                     {factorId > 1 ? 'Main Event': ''}
@@ -163,7 +163,7 @@ class GameList extends React.Component {
                                    reverse={true} />
                     </div>
                 </div> 
-            </li>) : (<div className={'login-page-bg'}></div>)}
+            </li>) : (<div className={'login-page-bg'} style={{backgroundColor:"red"}}>///////'/ג/'ג/ג'/</div>)}
             </section>)}
         const MatchResult = ({score1, score2}) => {
             return (<div className="game-result game-body-column">
