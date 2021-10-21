@@ -72,10 +72,11 @@ class GameList extends React.Component {
         const {bets, usersBets, participates,goal} = this.props;
         const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
         const currentBet = _.find(betArray, (bet) => {
-                    return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
-                });
+            return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
+        });
         const currentRound = _.get(currentBet, 'challenge.game.round', 1);
         const betsGroups = _.groupBy(betArray, 'challenge.game.round');
+
         // const BetPad = ({focused}) => {
         //     if (focused)
         //     const betPadNodes = _.map(_.range(10), (score) => {
@@ -205,23 +206,32 @@ class GameList extends React.Component {
                 </div>
             </div>);
         };
+        
+        let newArr=[];
+        _.forEachRight(betsGroups,function(roundBets){
+            newArr.push(roundBets)}
+        );
 
-        const roundNode = _.map(_.pickBy(betsGroups, (value, key) => key >= currentRound), (roundBets, round) => {
+
+        const roundNode = _.map(_.pickBy(newArr, (value, key) => key >= 0), (roundBets) => {
             let currentDate = null;
+            let roundNum = roundBets[0].challenge.game.round
             const gameNodes = roundBets.map((bet) => {
                 const gameNode = <Game bet={bet} goal={goal} showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')} />;
                 currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
                 return (gameNode);
             });
-            return (<li key={round}>
-                    <span className="round-title">Round No: {round}</span>
-                    <ul className="round-games">{gameNodes}</ul>
-                </li>);
+            return (<li key={roundNum}>
+                <span className="round-title">Round No: {roundNum}</span>
+                <ul className="round-games">{gameNodes}</ul>
+            </li>);
         });
+        console.log(roundNode);
         return (<div>
             {tipper}
             <ul className="game-list" style={{marginTop: '30px'}}>{roundNode}</ul>
-        </div>);
+        </div>
+        );
     }
 
 }
