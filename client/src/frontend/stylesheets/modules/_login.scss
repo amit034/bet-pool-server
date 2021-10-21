@@ -30,6 +30,10 @@
   font-weight: 400;
   font-size: 14px;
   padding: 20px;
+  .error-message{
+    height: 23px;
+  }
+
   .login-button {
     font-family: 'Titillium web', sans-serif;
     background-color: white !important;
@@ -44,7 +48,28 @@
     font-style: normal;
     margin-left: 5px;
   }
-
+  .social-login-title{
+    overflow: hidden;
+    text-align: center;
+    margin-bottom: 2rem;
+    &:before, &:after{
+      background-color: #fff;
+      content: "";
+      display: inline-block;
+      height: 1px;
+      position: relative;
+      vertical-align: middle;
+      width: 50%;
+    }
+    &:before{
+      right: 0.5em;
+      margin-left: -50%;
+    }
+    &:after{
+      left: 0.5em;
+      margin-right: -50%;
+    }
+  }
   .login-header{
     padding-top: 20px;
     font-family: 'Titillium web', sans-serif;
@@ -77,50 +102,34 @@
       color: white !important;
     }
   }
+  .social-login-container{
+    height: 100%;
+    .social-button {
+      display: block;
+      padding: 0;
+      height: 40px;
+      background-color: white !important;
+      border-radius: 0px;
+      margin-bottom: 5px;
+      font-family: 'Titillium web', sans-serif;
+      font-weight: 700;
+      i {
+        color: inherit !important;
+      }
+    }
+    .facebook-button{
+      color: #3b5998;
+    }
+    .google-button{
+      color: #dd4b39;
+    }
+  }
 
-  .social-button {
-    display: block;
-    padding: 0;
-    width: 100px ;
-    height: 40px;
-    background-color: white !important;
-    border-radius: 0px;
-    margin-bottom: 5px;
-    font-family: 'Titillium web', sans-serif;
-    font-weight: 900;
-  }
-  .facebook-button{
-    color: #3b5998;
-  }
-  .google-button{
-    color: #dd4b39;
-  }
 }
 
 @media only screen and (max-width: 767px){
   #app .social-login-container{
     margin-top: 0 !important;
-    .social-login-title{
-      overflow: hidden;
-      text-align: center;
-      margin-bottom: 2rem;
-      &:before, &:after{
-        background-color: #fff;
-        content: "";
-        display: inline-block;
-        height: 1px;
-        position: relative;
-        vertical-align: middle;
-        width: 50%;
-      }
-      &:before{
-        right: 0.5em;
-        margin-left: -50%;
-      }
-      &:after{
-        left: 0.5em;
-        margin-right: -50%;
-      }
-    }
+    padding-top: 0px !important;
   }
 }

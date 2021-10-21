@@ -49,12 +49,8 @@ module.exports = {
             transaction});
     },
     async findOrCreate(data, {transaction}) {
-        const query  = {eventId: data.eventId};
-        if (data.id) {
-            query.id = data.id
-        }else {
-            query.fapiId = data.fapiId;
-        }
+        const {eventId, homeTeamId, awayTeamId} = data;
+        const query  = {eventId, homeTeamId, awayTeamId};
         const game = await Game.findOne({where: query, transaction});
         return !_.isNil(game) ? game : Game.create(_.assign({}, data, query), {transaction});
     },

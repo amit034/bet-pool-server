@@ -108,11 +108,12 @@ function handleGetParticipates(req, res) {
                 const bets = _.map(userBets, (bet) => {
                     const challenge = _.find(pool.challenges, {id: _.get(bet, 'challengeId', -1)});
                     if (_.isNil(challenge)) return null;
-                    const challengeFactor = _.get(challenge, 'factor', 1);
+                    const challengeFactor = _.get(challenge, 'factorId', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
                     const betModel = new Bet(bet);
                     const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
                     bet.medal = medal;
+                    bet.factor = challengeFactor
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                     bet.closed = !challenge.isOpen;
                     return bet;
@@ -121,7 +122,7 @@ function handleGetParticipates(req, res) {
                 const totals= _.reduce(closeBets, (total, bet) => {
                     total.score += bet.score;
                     if(bet.medal > 0){
-                        _.set(total.medals, bet.medal, _.get(total.medals, bet.medal, 0) + 1);
+                        _.set(total.medals, bet.medal, _.get(total.medals, bet.medal, 0) + (1 * bet.factor));
                     }
                     return total;
                 }, {score: 0, medals:{1: 0, 2: 0, 3: 0}});
@@ -172,7 +173,7 @@ function handleGetUserBets(req, res) {
                     }
                     const bet = betModel.toJSON();
                     const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                    const challengeFactor = _.get(challenge, 'factor', 1);
+                    const challengeFactor = _.get(challenge, 'factorId', 1);
                     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                     bet.medal = medal;

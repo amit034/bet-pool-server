@@ -19,3 +19,4 @@ npm-debug.log
 /client/node_modules_old/**
 /node_modules_old.**
 /node_modules_old/**
+/client/src/frontend/public/**

@@ -30,7 +30,7 @@ async function createAccountsFromEvent(eventId, {transaction}) {
 }
 
 async function createOrTeam({name, teamCode} = {}, {transaction}){
-    let team = await teamRepository.findOneByQuery(teamCode, {transaction})
+    let team = await teamRepository.findOneByQuery({code: teamCode}, {transaction})
     if (!team) {
         team = await teamRepository.createTeam({name, code: teamCode}, {transaction, ignoreDuplicates: true});
     }
@@ -41,18 +41,15 @@ async function createOrGetGame(details, {transaction}){
     const homeTeam = await createOrTeam(team1, {transaction});
     const awayTeam = await createOrTeam(team2, {transaction});
     const query = {eventId, homeTeamId: homeTeam.id, awayTeamId: awayTeam.id};
-    let game = await gameRepository.findGameByQuery(query, {transaction});
-    if (!game) {
-        game = await gameRepository.createGame(_.assign({}, query, {round, playAt, homeTeamScore, awayTeamScore}),  {transaction});
-    }
+    const game = await gameRepository.findOrCreate(_.assign({}, query, {round, playAt, homeTeamScore, awayTeamScore}),  {transaction});
     return game;
 }
 
-async function createOrGetChallenges(eventId,  {transaction}){
-    const games = await GameSql.findAll({where: {eventId}, include: [{model: TeamSql, as: 'team1'}, {model: TeamSql, as: 'team2'}], group: ['`team1`.`team_code`'], transaction});
+async function createOrGetChallenges(eventId, newEventId,  {transaction}){
+    const games = await GameSql.findAll({where: {eventId}, include: [{model: TeamSql, as: 'team1'}, {model: TeamSql, as: 'team2'}], group: ['`team1`.`team_code`', '`team2`.`team_code`'], transaction});
     const teams  = _.uniqBy(_.concat(_.map(games, 'team1'),_.map(games, 'team2')), 'teamCode');
     await Promise.all(_.map(teams, (team) => createOrTeam(team, {transaction})));
-    return Promise.all(_.map(games, (game) => createOrGetChallenge(game, {transaction})));
+    return Promise.all(_.map(games, (game) => createOrGetChallenge(_.assign(game, {eventId: newEventId}), {transaction})));
 }
 
 async function createOrGetChallenge(details, {transaction}){
@@ -82,11 +79,11 @@ module.exports = {
             if (!pool) {
                 pool = await poolRepository.createPool({ownerId: amit.userId, name: eventName}, {transaction});
             }
-            await poolRepository.addEvents(pool.id, [event], {transaction});
-            await poolRepository.addParticipates(pool.id, _.map(users, ({userId}) => {
-                return {userId, joined: true};
-            }), {transaction});
-            const challenges = await createOrGetChallenges(17, {transaction});
+            //await poolRepository.addEvents(pool.id, [event], {transaction});
+            // await poolRepository.setPa(pool.id, _.map(users, ({userId}) => {
+            //     return {userId, joined: true};
+            // }), {transaction});
+            const challenges = await createOrGetChallenges(17, event.id, {transaction});
             await poolRepository.addChallenges(pool.id, challenges, {transaction});
             const bets = await UserBets.findAll({
                 where: {eventId: 17},
