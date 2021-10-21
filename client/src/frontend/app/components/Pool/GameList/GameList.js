@@ -226,7 +226,6 @@ class GameList extends React.Component {
                 <ul className="round-games">{gameNodes}</ul>
             </li>);
         });
-        console.log(roundNode);
         return (<div>
             {tipper}
             <ul className="game-list" style={{marginTop: '30px'}}>{roundNode}</ul>
