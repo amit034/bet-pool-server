@@ -9,7 +9,7 @@ function findAllByQuery(query, {transaction} = {}){
     return Challenge.scope('game').findAll({where: query, transaction});
 }
 async function updateChallengeByQuery(query, data, {transaction} = {}) {
-    const searchQuery = _.assign({status: {[Op.ne]: 'FINISHED'}}, query);
+    const searchQuery = _.assign(query,{status: {[Op.ne]: 'FINISHED'}});
     const challenge = await findOneByQuery(searchQuery, {transaction});
     return challenge.update({
         score1: data.score1,

@@ -120,32 +120,34 @@ class LoginPage extends React.Component {
                         />
                     </Grid.Column>
                     <Grid.Column style={{ maxWidth: 450 }}  className={'social-login-container'}>
-                       <div className={'social-login-title'}><span>Or</span></div>
-                        <FacebookLogin
-                            appId="476316572540105"
-                            autoLoad={false}
-                            fields="name,email,picture,app_name"
+                       <Form size='large'>
+                            <p className='social-login-title'><spn>Or</spn></p>
+                            <FacebookLogin
+                                appId="476316572540105"
+                                autoLoad={false}
+                                fields="name,email,picture,app_name"
 
-                            render={renderProps => (
-                                <div className="field">
-                                    <Button fluid size='large' onClick={renderProps.onClick} className={'social-button facebook-button'}>
-                                        <Icon name='facebook' /> Login with Facebook
-                                    </Button>
-                                </div>
-                            )}
-                            callback={this.facebookResponse} />
-                        <GoogleLogin
-                            clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
-                            onSuccess={this.googleResponse}
-                            cssClass="social-login"
-                            render={renderProps => (
-                                <div className="field">
-                                    <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
-                                        <Icon name='google' /> Login with Google
-                                    </Button>
-                                </div>
-                            )}
-                        />
+                                render={renderProps => (
+                                    <div className="field login-input">
+                                        <Button fluid size='large' onClick={renderProps.onClick} className={'social-button facebook-button'}>
+                                            <Icon name='facebook' /> Login with Facebook
+                                        </Button>
+                                    </div>
+                                )}
+                                callback={this.facebookResponse} />
+                            <GoogleLogin
+                                clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                                onSuccess={this.googleResponse}
+                                cssClass="social-login"
+                                render={renderProps => (
+                                    <div className="field login-input">
+                                        <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
+                                            <Icon name='google' /> Login with Google
+                                        </Button>
+                                    </div>
+                                )}
+                            />
+                       </Form>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

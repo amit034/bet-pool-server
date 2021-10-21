@@ -84,6 +84,14 @@ var config = {
                 ]
             },
             {
+                test: /\.(wav|mp3)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[path][name].[ext]',
+                    publicPath: 'sounds',
+                }
+            },
+            {
                 test: /\.svg/,
                 use: 'svg-url-loader'
             },

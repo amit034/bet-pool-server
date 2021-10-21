@@ -26,20 +26,21 @@ module.exports = {
                        const match = _.find(matches, {id: game.fapiId});
                        if (match) {
                            const {status, utcDate: playAt, score: {fullTime: {homeTeam: homeTeamScore, awayTeam: awayTeamScore}}} = match;
-                           await game.update({playAt, homeTeamScore, awayTeamScore}, {transaction});
+                           const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
+                           await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
                            const challenge = await challengeRepository.updateChallengeByQuery({
                                    refName: 'Game',
                                    refId: game.id,
                                    type: TYPES.FULL_TIME
                                },
-                               {score1: homeTeamScore, score2: awayTeamScore}, {transaction});
-                           const data = challenge.toJSON();
-                           score1 += moment().minute() % 2 == 0;
-                           score2 += moment().minute() % 2 == 1;
-                           data.score1 = score1;
-                           data.score2 = score2;
-                           return io.in(_.map(pools, 'id').join(' ')).emit('updateChallenge', data);
+                               {score1: homeTeamScore, score2: awayTeamScore, status}, {transaction});
+                           if (changed){
+                               const data = challenge.toJSON();
+                               return io.in(_.map(pools, 'id').join(' ')).emit('updateChallenge', data);
+                           }
+
                        }
+
                        return Promise.resolve();
                    }));
                }))

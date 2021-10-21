@@ -16,8 +16,7 @@ const LoginForm = ({
       below must have a height of 100%.
     */}
         <Form size='large' action="/" onSubmit={onSubmit}>
-            {successMessage && <p className="success-message">{successMessage}</p>}
-            {errors.summary && <p className="error-message">{errors.summary}</p>}
+            <p className="error-message">{errors.summary}</p>
             <Form.Input fluid icon='user'
                         iconPosition='left'
                         name='email'
