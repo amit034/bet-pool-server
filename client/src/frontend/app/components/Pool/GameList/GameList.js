@@ -62,7 +62,6 @@ class GameList extends React.Component {
 
     }
     shouldComponentUpdate(nextProps, nextState){
-      //return !_.isEqual(_.get(nextProps, 'bets'), _.get(this.props, 'bets')); // equals() is your implementation
         return true;
     }
     
@@ -77,14 +76,6 @@ class GameList extends React.Component {
         const currentRound = _.get(currentBet, 'challenge.game.round', 1);
         const betsGroups = _.groupBy(betArray, 'challenge.game.round');
 
-        // const BetPad = ({focused}) => {
-        //     if (focused)
-        //     const betPadNodes = _.map(_.range(10), (score) => {
-        //         const className = classNames('bet-pad-score', {'bet-pad-score-selected': score === _.parseInt(currentScore)});
-        //         <span className={className} onClick={() => this.onBetChange(betId, betFieldName, score)}>{score}</span>
-        //     });
-        //     return (<div className="bet-pad">{betPadNodes}</div>)
-        // };
         const UserBet = ({participate, bet}) => {
             return (
                     <li className="user-bet-row" key={bet.challengeId}>
@@ -177,17 +168,6 @@ class GameList extends React.Component {
             return (<div className={className}>
                 <div className="team-bet game-body-column">
                     <div className="game-body-column-center">
-                        {/*<NumPad*/}
-                        {/*    onChange={(value) => {*/}
-                        {/*        this.props.onBetKeyChange(challengeId, betFieldName, value);*/}
-                        {/*        this.numpad.confirm(value);*/}
-                        {/*    }}*/}
-                        {/*    ref={this.numPad}*/}
-                        {/*    value={_.toString(teamBet)}*/}
-                        {/*    decimal={false}*/}
-                        {/*    disabled={closed? 'disabled' : ''}*/}
-                        {/*    negative={false}*/}
-                        {/*/>*/}
                         <input onFocus={this.handleFocus}
                             onChange={(e) => {
                             return this.onBetKeyChange(challengeId, betFieldName, e.target.value);

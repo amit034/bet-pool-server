@@ -47,7 +47,6 @@ class ViewOthers extends React.Component{
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                 <div className="game-hour">{moment(playAt).format('H:mm')}</div>
-                {/* <div className="game-more"></div> */}
             </div>
             <div className="game-body">
                 <TeamScore team={homeTeam}/>
@@ -60,17 +59,9 @@ class ViewOthers extends React.Component{
     const UserBet = ({participate, bet}) => {
     return (
             <li className="user-bet-row">
-                {/* <div className="user-bet-body"> */}
-                    <div className="user-bet-rank"> Rank:18 <span style={{color:'rgb(156 161 164)'}}>({participate.score}pts).</span> </div>
-                    {/* <div className="user-bet-side">
-                        <img className="user-bet-image" src={participate.picture} alt={participate.username} title={participate.username}/>
-                    </div> */}
-                    {/* <div className="user-bet-center"> */}
-                        <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
-                        <div className="user-bet-score"><span >{bet.score1} : {bet.score2}</span></div>
-                        {/* <div className="user-bet-score2">{bet.score2}</div> */}
-                    {/* </div>
-                </div> */}
+                    <div className="user-bet-rank"> Rank:18 <span style={{color:'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
+                    <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
+                    <div className="user-bet-score"><span >{bet.score1} : {bet.score2}</span></div>                    
             </li>);
     };
     return (

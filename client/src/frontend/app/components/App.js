@@ -24,24 +24,6 @@ class App extends React.Component {
             dispatch(updateChallenge(challenge))
         })
     }
-    componentDidMount(){
-        // const interval = setInterval(()=>this.fakeLiveGoal(),40000)
-    }
-    fakeLiveGoal() {
-        const num = Math.floor(Math.random()*10)
-        let fChallenge = {
-            factorId: 1,game: {
-            awayTeam: {code: "RBS",fapiId: 1877,flag: "https://crests.football-data.org/1877.svg",id: 316,name: "Red Bull",shortName: "Red Bull"},
-            awayTeamId: 316,awayTeamScore: 1,eventId: 85,factorId: 1,fapiId: null,
-            homeTeam: {code: "SEV",fapiId: 559,flag: "https://crests.football-data.org/559.svg",id: 300,name: "Sevilla",shortName: "Sevilla"},
-            homeTeamId: 300,homeTeamScore: 1,id: 124,isOpen: false,playAt: "2021-09-14T16:45:00.000Z",round: 2,status: "FINISHED"},
-            id: 124,isOpen: false,name: null,playAt: "2021-09-14T16:45:00.000Z",refId: 124,refName: "Game",score1: num,score2: 1,status: "FINISHED",type: "FULL_TIME"
-        }
-        this.props.dispatch(updateChallenge(fChallenge));
-        // setTimeout(() => {
-            // this.props.dispatch(clearGoalAnima())
-        // },3000)
-    }
 
     logout() {
         this.props.dispatch(logoutUser());

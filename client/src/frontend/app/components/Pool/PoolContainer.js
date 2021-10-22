@@ -34,18 +34,7 @@ class PoolContainer extends React.Component{
       const poolId = match.params.id;
       socket.emit('leavePool', poolId);
   }
-    // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.bets && (nextProps.bets !== this.props.bets)) {
-  //       this.setState({
-  //           updates: nextProps.bets
-  //       }, () => {
-  //           //this.props.dispatch(clearFocused());
-  //       });
-  //   }
-  // }
-   // shouldComponentUpdate(nextProps, nextState){
-   //    return !_.isEqual(_.get(nextProps, 'bets'), _.get(this.props, 'bets')) || !_.isEqual(this.state, nextState); // equals() is your implementation
-    // }
+
   onBetKetChange(challengeId, key, value){
         const bet = _.get(this.props.bets, challengeId);
         _.set(bet, key, value);
@@ -53,11 +42,9 @@ class PoolContainer extends React.Component{
 
   }
    onBetChange(challengeId, updatedBet){
-     //this.setState(_.set(this.state.updates, `${challengeId}.${key}`, _.toString(value)), () => {
         const bet = _.get(this.props.bets, challengeId);
         _.assign(bet, _.pick(updatedBet, ['score1', 'score2']));
         this.props.dispatch(updateUserBet(this.props.match.params.id , challengeId, bet))
-    // });
   }
   onShowOthers(challengeId){
       this.props.history.push(`/pools/${this.props.match.params.id}/challenges/${challengeId}/participates`);
@@ -71,8 +58,6 @@ class PoolContainer extends React.Component{
 
   render(){
     return (<div id="content" className="ui container">
-        {/*<a onClick={this.submitBets}>Submit</a>*/}
-        {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}/participates`)}>See Leaders</a>*/}
         <GameList poolId={this.props.match.params.id} onBetChange={this.onBetChange} onBetKeyChange={this.onBetKetChange} onShowOthers ={this.onShowOthers} onBetFocused={this.onBetFocused} />
         <BetPad focused={this.props.focused} onBetChange={this.onBetChange}/>
         <NavigationMenu  />

@@ -1,7 +1,6 @@
 .leader-list{
   text-align: center;
   padding:0;
-  // font-weight: 600;
   .leader-row {
     list-style: none;
     box-shadow: 0px 2px 0px 2px #000000;
@@ -17,12 +16,10 @@
         justify-self: center;
         align-self: center;
         font-size: 1.5em;
-        // font-weight: bold;
       }
       .leader-side {
         display:flex;
         padding: 5px;
-        // flex: 1;
         .leader-image {
           width: 2.285em;
           height: 2.285em;
