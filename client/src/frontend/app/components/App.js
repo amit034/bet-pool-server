@@ -25,11 +25,9 @@ class App extends React.Component {
         })
     }
     componentDidMount(){
-        console.log("did mount app.js");
         // const interval = setInterval(()=>this.fakeLiveGoal(),40000)
     }
     fakeLiveGoal() {
-        console.log("fake GOALL");
         const num = Math.floor(Math.random()*10)
         let fChallenge = {
             factorId: 1,game: {

@@ -24,7 +24,7 @@ class ViewOthers extends React.Component{
         return (<div><ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsrNode}</ul></div>);
     };
   const MatchResult = ({score1, score2, closed}) => {
-      console.log(score1,score2,closed);
+    //   console.log(score1,score2,closed);
       const className = classNames('match-tip-image circular teal icon link small fitted', {'users': closed, 'lightbulb': !closed});
       return (<div className="game-result">
           <div className="match-result">{score1} : {score2}</div>
