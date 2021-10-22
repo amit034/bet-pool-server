@@ -51,13 +51,9 @@ class LeadersContainer extends React.Component{
             </li>);
     };
     return (
-      <div id="content" class="ui container">
-        {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}`)}>Back to Bets</a>*/}
         <LeaderList
             participates={this.props.pools.participates}
         />
-        <NavigationMenu  />
-      </div>
     );
   }
 }

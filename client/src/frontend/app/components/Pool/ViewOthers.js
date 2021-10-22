@@ -70,13 +70,12 @@ class ViewOthers extends React.Component{
             </li>);
     };
     return (
-      <div id="content" class="ui container">
+      <div>
         {this.props.challenge ?  <ChallengeDetails challenge={this.props.challenge} /> : ''}
         <BetsList
             usersBets={this.props.usersBets}
             participates={this.props.participates}
         />
-        <NavigationMenu  />
       </div>
     );
   }
