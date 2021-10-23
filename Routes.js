@@ -65,7 +65,6 @@ function setup(app, handlers, authorisationPolicy) {
     // 404
     // Error handler
     app.use((err, req, res, next) => {
-        console.log(err);
         debug(err);
         switch(err.code) {
             case 401:

@@ -1,7 +1,10 @@
+@import '../spritesmith-generated/sprite';
+
 .game-list {
   font-family: 'Titillium web', sans-serif;
   text-align: center;
   padding:0;
+  list-style: none;
 
   .round-title {
     text-align: left;
@@ -12,7 +15,6 @@
     padding: 0;
 
     .game-row {
-      list-style: none;
       box-shadow: 2px 5px 0px 0px #000240;
       border: 1px solid $background-7;
       margin-bottom: 10px;
@@ -31,8 +33,6 @@
         letter-spacing: 0.2em;
       }
 
-      .game-side.main-event {}
-
       .game-center {
         flex: auto;
         display: flex;
@@ -48,6 +48,7 @@
           display: flex;
           margin-left: 7px;
           margin-right: 10px;
+          padding: 0px 5px;
           .match-tip {
             margin-bottom: 2px;
             flex: 6;
@@ -126,7 +127,8 @@
               display: -webkit-box;
               -webkit-line-clamp: 2; /* number of lines to show */
               -webkit-box-orient: vertical;
-              font-size: 10px;
+              font-size: 12px;
+              letter-spacing: 0.5px;
             }
           }
           .match-result{
@@ -164,7 +166,7 @@
             .team-bet {
               flex: 6;
               input {
-                width: 70px;
+                width: 60px;
                 height: 40px;
                 font-weight: 800;
                 font-size: 14px;
@@ -191,4 +193,4 @@
       }
     }
   }
-}
+} 

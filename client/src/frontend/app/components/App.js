@@ -3,7 +3,7 @@ import {io} from "socket.io-client"
 import {connect} from "react-redux";
 import {Menu, Icon ,Dropdown, Image} from 'semantic-ui-react'
 import {logoutUser ,getUserFromLocalStorage} from '../actions/auth';
-import {updateChallenge} from '../actions/pools';
+import {updateChallenge , clearGoalAnima} from '../actions/pools';
 import {Route, Switch, withRouter, Redirect, NavLink} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
@@ -24,6 +24,7 @@ class App extends React.Component {
             dispatch(updateChallenge(challenge))
         })
     }
+
     logout() {
         this.props.dispatch(logoutUser());
     }

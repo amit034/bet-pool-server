@@ -23,6 +23,7 @@ export const JOIN_TO_POOL_SUCCESS = 'JOIN_TO_POOL_SUCCESS';
 export const GET_CHALLENGE_PARTICIPATES_REQUEST = 'GET_CHALLENGE_PARTICIPATES_REQUEST';
 export const GET_CHALLENGE_PARTICIPATES_SUCCESS = 'GET_CHALLENGE_PARTICIPATES_SUCCESS';
 export const UPDATE_CHALLEGE_SUCCESS = 'UPDATE_CHALLEGE_SUCCESS';
+export const CLEAR_GOAL_ANIMA = 'CLEAR_GOAL_ANIMA';
 
 
 function requestUserPools(userId) {
@@ -31,6 +32,13 @@ function requestUserPools(userId) {
         isFetching: true,
         userId,
         pools: []
+    }
+}
+
+export function clearGoalAnima(){
+    return{
+        type: CLEAR_GOAL_ANIMA,
+        goal:null
     }
 }
 

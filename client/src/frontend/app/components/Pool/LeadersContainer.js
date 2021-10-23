@@ -15,6 +15,7 @@ class LeadersContainer extends React.Component{
   }
 
   render(){
+      console.log(this.props.pools.participates);
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
         const LeaderNode = _.map(leaders, (participate) => {
@@ -41,18 +42,17 @@ class LeadersContainer extends React.Component{
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
                     </div>
                     <div className="leader-center">
-                        <div className="leader-name">{participate.firstName}</div>
+                        <div className="leader-name">{participate.firstName} {participate.lastName}</div>
                         <div className="leader-medals">
                             {medals}
                         </div>
-                        <div className="leader-score">{participate.score}</div>
+                        <div className="leader-score-box"><span className="leader-score-numbers">{participate.score}</span></div>
                     </div>
                 </div>
             </li>);
     };
     return (
       <div id="content" class="ui container">
-        {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${this.props.match.params.id}`)}>Back to Bets</a>*/}
         <LeaderList
             participates={this.props.pools.participates}
         />
