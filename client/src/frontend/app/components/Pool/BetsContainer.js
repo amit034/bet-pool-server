@@ -1,13 +1,15 @@
 import React from 'react';
-import _ from 'lodash';
-import NavigationMenu from './NavigationMenu';
-import {withRouter} from 'react-router-dom';
-import {getPoolParticipates} from '../../actions/pools';
-import {connect} from 'react-redux';
-import classNames from 'classnames';
 import GameList from "./GameList/GameList";
-import React from "react";
+import {withRouter} from "react-router-dom";
+import {connect} from "react-redux";
 class BetsContainer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onShowOthers = this.onShowOthers.bind(this);
+    }
+    onShowOthers(challengeId){
+        this.props.history.push(`/pools/${this.props.match.params.id}/challenges/${challengeId}/participates`);
+    }
     render() {
         return (
             <GameList poolId={this.props.match.params.id}
@@ -18,3 +20,4 @@ class BetsContainer extends React.Component {
         );
     }
 }
+export default withRouter(connect(({pools}) => ({pools}))(BetsContainer));

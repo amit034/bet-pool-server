@@ -19,7 +19,6 @@ class PoolContainer extends React.Component{
       this.onBetChange = this.onBetChange.bind(this);
       this.onBetKetChange = this.onBetKetChange.bind(this);
       this.onBetFocused= this.onBetFocused.bind(this);
-      this.onShowOthers = this.onShowOthers.bind(this);
       this.state ={
           updates: {}
       }
@@ -63,9 +62,6 @@ class PoolContainer extends React.Component{
         this.props.dispatch(updateUserBet(this.props.match.params.id , challengeId, bet))
     // });
   }
-  onShowOthers(challengeId){
-      this.props.history.push(`/pools/${this.props.match.params.id}/challenges/${challengeId}/participates`);
-  }
   onBetFocused(e, betId, betFieldName){
       this.props.dispatch(setFocused(betId, e.target.value, e.target.offsetTop, betFieldName));
   }
@@ -74,11 +70,12 @@ class PoolContainer extends React.Component{
   }
 
   render(){
+      const {match} = this.props;
     return (<div id="content" className="ui container">
         <Switch>
             <Route path="/" component={BetsContainer} />
-            <ProtectedRoute path="/participates" component={LeadersContainer}/>
-            <ProtectedRoute path="/challenges/:challengeId/participates" component={ViewOthers} />
+            <ProtectedRoute path={`${match.path}/participates`} component={LeadersContainer}/>
+            <ProtectedRoute path={`${match.path}/challenges/:challengeId/participates`} component={ViewOthers} />
         </Switch>
 
         {/*<a onClick={this.submitBets}>Submit</a>*/}
