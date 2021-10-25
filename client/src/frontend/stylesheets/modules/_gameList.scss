@@ -10,8 +10,10 @@ font-size:16px
   list-style: none;
 
   .round-title {
-    text-align: left;
     display: block;
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 5px;
   }
 
   .round-games {
@@ -88,7 +90,7 @@ font-size:16px
               display: flex;
               align-items: center;
               justify-content: center;
-              margin-bottom: 6px;
+              margin-bottom: 16px;
               i {
                 font-size: 1em;
               }

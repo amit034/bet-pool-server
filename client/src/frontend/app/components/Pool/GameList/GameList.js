@@ -69,7 +69,7 @@ class GameList extends React.Component {
         const pagination= {
             el: ".swiper-pagination",
             type: "progressbar",
-          };
+        };
         const navigation= {
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
@@ -82,10 +82,10 @@ class GameList extends React.Component {
                 });
         const currentRound = _.get(currentBet, 'challenge.game.round', 1);
         const betsGroups = _.groupBy(betArray, 'challenge.game.round');
-
+            
         const UserBet = ({participate, bet}) => {
             return (
-                    <li className="user-bet-row" key={bet.challengeId}>
+                <li className="user-bet-row" key={bet.challengeId}>
                         <div className="user-bet-body">
                             <div className="user-bet-side">
                                 <img className="user-bet-image" src={participate.picture} alt={participate.username} title={participate.username}/>
@@ -192,8 +192,7 @@ class GameList extends React.Component {
         const roundNode = _.map(_.pickBy(betsGroups, (value, key) => key > 0), (roundBets, round) => {
             let currentDate = null;
             const gameNodes = roundBets.map((bet) => {
-                const gameNode = 
-                <Game bet={bet} showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')} />;
+                const gameNode = <Game bet={bet} showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')} />;
                 currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
                 return (gameNode);
             });
@@ -204,7 +203,7 @@ class GameList extends React.Component {
         });
         return (<div>
             {tipper}
-            <ul className="game-list" style={{marginTop: '30px'}}><Swiper  initialSlide={2} pagination={pagination} navigation={navigation} className="Swiper"> {roundNode} </Swiper></ul>
+            <ul className="game-list" style={{marginTop: '30px'}}><Swiper  initialSlide={2} className="Swiper"> {roundNode} </Swiper></ul>
         </div>);
     }
 
