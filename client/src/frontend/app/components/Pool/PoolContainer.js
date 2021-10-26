@@ -4,10 +4,11 @@ import _ from 'lodash';
 import {useHistory} from 'react-router-dom';
 import  {getUserBets, updateUserBet} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import GameList from './GameList/GameList';
 
 const PoolContainer = (props) => {
+    const bets = useSelector(state => state.pools.bets);
     const dispatch = useDispatch();
     let history = useHistory();
     useEffect(() => {
@@ -23,13 +24,13 @@ const PoolContainer = (props) => {
     }, [dispatch]);
 
     function onBetKetChange(challengeId, key, value) {
-        const bet = _.get(props.bets, challengeId);
+        const bet = _.get(bets, challengeId);
         _.set(bet, key, value);
         dispatch(updateUserBet(props.match.params.id, challengeId, bet));
     }
 
     function onBetChange(challengeId, updatedBet) {
-        const bet = _.get(props.bets, challengeId);
+        const bet = _.get(bets, challengeId);
         _.assign(bet, _.pick(updatedBet, ['score1', 'score2']));
         dispatch(updateUserBet(props.match.params.id, challengeId, bet));
     }
