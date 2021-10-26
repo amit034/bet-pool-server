@@ -128,7 +128,6 @@ const GameList = (props) => {
 
         return (
             <section>
-                {124 !== challengeId ? (
                     <li className="game-row" key={challengeId} data={challengeId}>
                         <div className={gameSideClassName}>
                             {factorId > 1 ? 'Main Event' : ''}
@@ -156,7 +155,7 @@ const GameList = (props) => {
                                            reverse={true}/>
                             </div>
                         </div>
-                    </li>) : (<div className={'login-page-bg'}></div>)}
+                    </li>}
             </section>)
     }
     const MatchResult = ({score1, score2}) => {
