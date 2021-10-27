@@ -13,6 +13,7 @@ SwiperCore.use([Pagination]);
 // import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
+    console.log(props,);
     const bets = useSelector(state => state.pools.bets);
     const goal = useSelector(state => state.pools.goal);
     const participates = useSelector(state => state.pools.participates);
@@ -51,18 +52,27 @@ const GameList = (props) => {
             props.onShowOthers(challengeId);
         }
     }
-
+    console.log(bets);
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
     const currentBet = _.find(betArray, (bet) => {
         return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
     });
     const currentRound = _.get(currentBet, 'challenge.game.round', 1);
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
-
-
-    useEffect(() => {
-
-    }, [currentRound]);
+    const [swiper, setSwiper] = useState(null);
+    // const [currRoundIdx,setRoundIdx] = useState(null)
+    console.log(Object.keys(betsGroups).length);
+    const currSlide = Object.keys(betsGroups).length-currentRound
+    const slideTo = (currSlide) => {
+        if(swiper){ 
+            console.log("swiper true");
+            swiper.slideTo(currSlide)
+        } else console.log("swiper false");
+    };
+     useEffect(() => {
+        console.log("hi");
+        slideTo(currSlide) 
+    },[bets]);
 
     const UserBet = ({participate, bet}) => {
         return (<li className="user-bet-row" key={bet.challengeId}>
@@ -215,7 +225,7 @@ const GameList = (props) => {
     });
     return (<div>
             {tipper}
-            <ul className="game-list" style={{marginTop: '30px'}}><Swiper  initialSlide={0} className="Swiper">{roundNode}</Swiper></ul>
+            <ul className="game-list" style={{marginTop: '30px'}}><Swiper  initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
         </div>
     );
 
