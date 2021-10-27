@@ -24,7 +24,7 @@ class ViewOthers extends React.Component{
         return (<div><ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsrNode}</ul></div>);
     };
   const MatchResult = ({score1, score2, closed}) => {
-    //   console.log(score1,score2,closed);
+    //   console.log(this.props);
       const className = classNames('match-tip-image circular teal icon link small fitted', {'users': closed, 'lightbulb': !closed});
       return (<div className="game-result">
           <div className="match-result">{score1} : {score2}</div>
@@ -42,15 +42,16 @@ class ViewOthers extends React.Component{
       </div>);
   };
     const ChallengeDetails = ({challenge}) => {
-        const {id: challengeId, result, game: {homeTeam, awayTeam}, playAt} = challenge;
-        return (<li className="challenge-row" key={challengeId}>
+        console.log(challenge);
+        const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
+        return (<li className="challenge-row" key={id}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                 <div className="game-hour">{moment(playAt).format('H:mm')}</div>
             </div>
             <div className="game-body">
                 <TeamScore team={homeTeam}/>
-                <MatchResult result={result} />
+                <MatchResult score1={score1} score2={score2} closed={closed} />
                 <TeamScore team={awayTeam} reverse={true} />
             </div>
 
