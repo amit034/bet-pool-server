@@ -8,12 +8,11 @@ import {Modal, Header, Button} from 'semantic-ui-react';
 import {getChallengeParticipates} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper.scss';
-import SwiperCore, {Pagination} from 'swiper';
-SwiperCore.use([Pagination]);
+// import SwiperCore, {Pagination} from 'swiper';
+// SwiperCore.use([Pagination]);
 // import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
-    console.log(props,);
     const bets = useSelector(state => state.pools.bets);
     const goal = useSelector(state => state.pools.goal);
     const participates = useSelector(state => state.pools.participates);

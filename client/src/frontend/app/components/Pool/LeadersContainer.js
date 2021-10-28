@@ -1,20 +1,23 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import classNames from 'classnames';
 import _ from 'lodash';
 import NavigationMenu from './NavigationMenu';
-import {withRouter} from 'react-router-dom';
 import {getPoolParticipates} from '../../actions/pools';
-import {connect} from 'react-redux';
-import classNames from 'classnames';
+import { Swiper, SwiperSlide } from "swiper/react";
+import 'swiper/swiper.scss';
+import SwiperCore, {Pagination} from 'swiper';
+SwiperCore.use([Pagination]);
 
-class LeadersContainer extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  componentDidMount(){
-      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
-  }
+const LeadersContainer = (props) => {
+    const participates = useSelector(state => state.pools.participates);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getPoolParticipates(props.match.params.id));
 
-  render(){
+  },[dispatch])
+
+
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
         const LeaderNode = _.map(leaders, (participate) => {
@@ -22,7 +25,7 @@ class LeadersContainer extends React.Component{
                 return -1 * (p.score * 1000000 + p.medals[3] * 10000 +  p.medals[2] * 100 + p.medals[1]);
             }) + 1}/>)
         });
-        return (<div><ul className="leader-list" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
+        return (<div><ul className="leader-list" style={{marginTop: '30px'}}><Swiper className="Swiper">{LeaderNode}</Swiper></ul></div>);
     };
     const Leader = ({participate, key, rank}) => {
 
@@ -53,12 +56,11 @@ class LeadersContainer extends React.Component{
     return (
       <div id="content" class="ui container">
         <LeaderList
-            participates={this.props.pools.participates}
+            participates={participates}
         />
         <NavigationMenu  />
       </div>
     );
   }
-}
 
-export default withRouter(connect(({pools}) => ({pools}))(LeadersContainer));
+  export default LeadersContainer;
