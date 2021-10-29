@@ -26,14 +26,7 @@ const LeadersContainer = (props) => {
             }) + 1}/>)
         });
 
-        const leaders2 = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['asc', 'asc', 'asc']);
-        const LeadersNode1 = _.map(leaders2, (participate) => {
-            return (<Leader participate={participate} key={participate.id} rank={_.sortedIndexBy(leaders2, participate, (p) => {
-                return -1 * (p.score * 1000000 + p.medals[3] * 10000 +  p.medals[2] * 100 + p.medals[1]);
-            }) + 1}/>)
-        });
-
-        return (<div><ul className="leader-list" style={{marginTop: '30px'}}><Swiper className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide>   <SwiperSlide>{LeadersNode1}</SwiperSlide></Swiper></ul></div>);
+        return (<div><ul className="leader-list" style={{marginTop: '30px'}}><Swiper className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide>   </Swiper></ul></div>);
     };
     const Leader = ({participate, rank}) => {
     const medals = _.map(_.forOwnRight(participate.medals), (medal, idx)=> {

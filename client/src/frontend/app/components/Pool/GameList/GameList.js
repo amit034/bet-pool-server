@@ -7,9 +7,10 @@ import moment from 'moment';
 import {Modal, Header, Button} from 'semantic-ui-react';
 import {getChallengeParticipates} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/swiper.scss';
-// import SwiperCore, {Pagination} from 'swiper';
-// SwiperCore.use([Pagination]);
+import 'swiper/swiper-bundle.css';
+// import "./styles.css";
+import SwiperCore, {Pagination} from 'swiper';
+SwiperCore.use([Pagination]);
 // import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
@@ -217,7 +218,9 @@ const GameList = (props) => {
     });
     return (<div>
             {tipper}
-            <ul className="game-list" style={{marginTop: '30px'}}><Swiper  initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
+            <ul className="game-list" style={{marginTop: '30px'}}><Swiper pagination={{
+  "dynamicBullets": true
+}} initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
         </div>
     );
 
