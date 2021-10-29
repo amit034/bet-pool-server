@@ -2,6 +2,9 @@
 import _ from 'lodash';
 
 export function getUsersRanking(participates) {
+    if(_.isEmpty(participates)) {
+        return {};
+    }
     const [first, ...others] = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
     const {ranking} = _.reduce(others, (agg, participate) => {
         if (!_.isEqual(participate.medals, agg.medals)) {
