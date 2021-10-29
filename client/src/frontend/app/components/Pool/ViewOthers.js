@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import NavigationMenu from './NavigationMenu';
 import {getChallengeParticipates, getPoolParticipates} from '../../actions/pools';
-import {getUsersRanking} from '../../utils';
+import {getParticipatesWithRank} from '../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import classNames from 'classnames';
 
@@ -56,14 +56,15 @@ const ViewOthers = (props) => {
     const UserBet = ({participate, bet}) => {
         return (
             <li className="user-bet-row">
-                <div className="user-bet-rank"> Rank: {_.get(userRanking, participate.userId)} <span
+                <div className="user-bet-rank"> Rank: {participate.rank} <span
                     style={{color: 'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
                 <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
                 <div className="user-bet-score"><span>{bet.score1} : {bet.score2}</span></div>
             </li>);
     };
+
     const BetsList = ({usersBets, participates}) => {
-        const userBetsNode = _.map(_.orderBy(participates, 'score', 'desc'), (participate) => {
+        const userBetsNode = _.map(_.orderBy(participates, 'rank'), (participate) => {
             return (<UserBet participate={participate} key={participate.userId}
                              bet={_.find(usersBets, {userId: participate.userId}) || {}}/>)
         });
@@ -74,13 +75,13 @@ const ViewOthers = (props) => {
     const participates = useSelector(state => state.pools.participates);
     const otherBets = useSelector(state => state.pools.otherBets);
     const {challenge, usersBets} = otherBets;
-    const userRanking = getUsersRanking(participates);
+    const participatesWithRank = getParticipatesWithRank(participates);
     return (
         <div id="content" className="ui container">
             {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
             <BetsList
                 usersBets={usersBets}
-                participates={participates}
+                participates={participatesWithRank}
             />
             <NavigationMenu/>
         </div>

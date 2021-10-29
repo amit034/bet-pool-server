@@ -1,15 +1,18 @@
 'use strict';
 import _ from 'lodash';
 
-export function getUsersRanking(participates) {
-    const [first, ...others] = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
-    const {ranking} = _.reduce(others, (agg, participate) => {
+export function getParticipatesWithRank(participates) {
+    if(_.isEmpty(participates)) {
+        return {};
+    }
+    const [first, ...others] = _.orderBy(participates, ['score', 'medals.3', 'medals.2', 'medals.1'], ['desc', 'desc', 'desc', 'desc']);
+    const {participatesWithRank} = _.reduce(others, (agg, participate) => {
         if (!_.isEqual(participate.medals, agg.medals)) {
-            agg.pos++;
+            agg.rank++;
             agg.medals = participate.medals;
         }
-        agg.ranking[participate.userId] = agg.pos;
+        agg.participatesWithRank.push(_.assign(participate, {rank: agg.rank}));
         return agg;
-    }, {ranking: {[first.userId]: 1}, pos: 1, medals: first.medals});
-    return ranking;
+    }, {participatesWithRank: [_.assign({}, first, {rank: 1})], rank: 1, medals: first.medals});
+    return participatesWithRank;
 }
