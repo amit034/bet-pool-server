@@ -16,3 +16,4 @@ export function getParticipatesWithRank(participates) {
     }, {participatesWithRank: [_.assign({}, first, {rank: 1})], rank: 1, medals: first.medals});
     return participatesWithRank;
 }
+
