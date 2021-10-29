@@ -1,46 +1,42 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import NavigationMenu from './NavigationMenu';
-import {withRouter} from 'react-router-dom';
 import {getChallengeParticipates, getPoolParticipates} from '../../actions/pools';
-import {connect} from 'react-redux';
+import {getUsersRanking} from '../../utils';
+import {useDispatch, useSelector} from 'react-redux';
 import classNames from 'classnames';
 
-class ViewOthers extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  componentDidMount(){
-      this.props.dispatch(getChallengeParticipates(this.props.match.params.id, this.props.match.params.challengeId));
-      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
-  }
+const ViewOthers = (props) => {
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getChallengeParticipates(props.match.params.id, props.match.params.challengeId));
+        dispatch(getPoolParticipates(props.match.params.id));
+    }, [dispatch]);
 
-  render(){
-    const BetsList = ({usersBets, participates}) => {
-        const userBetsrNode = _.map( _.orderBy(participates, 'score', 'desc'), (participate) => {
-            return (<UserBet participate={participate} key={participate.userId} bet={_.find(usersBets, {userId: participate.userId}) || {}} />)
+    const MatchResult = ({score1, score2, closed}) => {
+    //   console.log(score1,score2,closed);
+        const className = classNames('match-tip-image circular teal icon link small fitted', {
+            'users': closed,
+            'lightbulb': !closed
         });
-        return (<div><ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsrNode}</ul></div>);
+        return (<div className="game-result">
+            <div className="match-result">
+                {score1} : {score2}
+            </div>
+        </div>);
     };
-  const MatchResult = ({score1, score2, closed}) => {
-    //   console.log(this.props);
-      const className = classNames('match-tip-image circular teal icon link small fitted', {'users': closed, 'lightbulb': !closed});
-      return (<div className="game-result">
-          <div className="match-result">{score1} : {score2}</div>
-          </div>);
-  };
-  const TeamScore = ({team: {flag, name}, reverse}) => {
-      const className = classNames('team-score', {'team-reverse': reverse});
-      return (<div className={className}>
-          <div className="team-details">
-              <div className="team-flag">
-                <img className="team-image" src={flag} alt={name} title={name} />
-              </div>
-              <span className="team-name">{name}</span>
-          </div>
-      </div>);
-  };
+    const TeamScore = ({team: {flag, name}, reverse}) => {
+        const className = classNames('team-score', {'team-reverse': reverse});
+        return (<div className={className}>
+            <div className="team-details">
+                <div className="team-flag">
+                    <img className="team-image" src={flag} alt={name} title={name}/>
+                </div>
+                <span className="team-name">{name}</span>
+            </div>
+        </div>);
+    };
     const ChallengeDetails = ({challenge}) => {
         console.log(challenge);
         const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
@@ -52,32 +48,43 @@ class ViewOthers extends React.Component{
             <div className="game-body">
                 <TeamScore team={homeTeam}/>
                 <MatchResult score1={score1} score2={score2} closed={closed} />
-                <TeamScore team={awayTeam} reverse={true} />
+                <TeamScore team={awayTeam} reverse={true}/>
             </div>
 
         </li>);
     };
+
     const UserBet = ({participate, bet}) => {
-    return (
+        return (
             <li className="user-bet-row">
-                    <div className="user-bet-rank"> Rank:18 <span style={{color:'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
-                    <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
-                    <div className="user-bet-score"><span >{bet.score1} : {bet.score2}</span></div>                    
+                <div className="user-bet-rank"> Rank: {_.get(userRanking, participate.userId)} <span
+                    style={{color: 'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
+                <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
+                <div className="user-bet-score"><span>{bet.score1} : {bet.score2}</span></div>
             </li>);
     };
+    const BetsList = ({usersBets, participates}) => {
+        const userBetsNode = _.map(_.orderBy(participates, 'score', 'desc'), (participate) => {
+            return (<UserBet participate={participate} key={participate.userId}
+                             bet={_.find(usersBets, {userId: participate.userId}) || {}}/>)
+        });
+        return (<div>
+            <ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsNode}</ul>
+        </div>);
+    };
+    const participates = useSelector(state => state.pools.participates);
+    const otherBets = useSelector(state => state.pools.otherBets);
+    const {challenge, usersBets} = otherBets;
+    const userRanking = getUsersRanking(participates);
     return (
-      <div id="content" className="ui container">
-        {this.props.challenge ?  <ChallengeDetails challenge={this.props.challenge} /> : ''}
-        <BetsList
-            usersBets={this.props.usersBets}
-            participates={this.props.participates}
-        />
-        <NavigationMenu  />
-      </div>
+        <div id="content" className="ui container">
+            {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
+            <BetsList
+                usersBets={usersBets}
+                participates={participates}
+            />
+            <NavigationMenu/>
+        </div>
     );
-  }
 }
-
-export default withRouter(connect(({pools: {participates, otherBets : {challenge, usersBets}}}) => {
-    return {challenge, usersBets, participates}
-})(ViewOthers));
+export default ViewOthers;
