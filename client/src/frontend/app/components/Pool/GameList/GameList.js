@@ -51,7 +51,6 @@ const GameList = (props) => {
             props.onShowOthers(challengeId);
         }
     }
-    console.log(bets);
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
     const currentBet = _.find(betArray, (bet) => {
         return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
@@ -60,16 +59,11 @@ const GameList = (props) => {
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
     const [swiper, setSwiper] = useState(null);
     // const [currRoundIdx,setRoundIdx] = useState(null)
-    console.log(Object.keys(betsGroups).length);
     const currSlide = Object.keys(betsGroups).length-currentRound
     const slideTo = (currSlide) => {
-        if(swiper){ 
-            console.log("swiper true");
-            swiper.slideTo(currSlide)
-        } else console.log("swiper false");
+        if(swiper){swiper.slideTo(currSlide)}
     };
      useEffect(() => {
-        console.log("hi");
         slideTo(currSlide) 
     },[bets]);
 
@@ -128,10 +122,9 @@ const GameList = (props) => {
     };
     const Game = ({bet, showDay, goal}) => {
         const {
-            score1, score2, score, medal, challenge: {
-                id: challengeId, isOpen, score1: c_score1, score2: c_score2,
-                game: {homeTeam, awayTeam}, playAt, factorId
-            }
+            score1, score2, score, medal, 
+            challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
+                game: {homeTeam, awayTeam}, playAt, factorId}
         } = bet;
         const gameSideClassName = classNames('game-side', {'main-event': factorId > 1});
         const className = classNames('match-tip-image circular teal icon link small fitted', {
@@ -140,8 +133,8 @@ const GameList = (props) => {
         });
 
         return (
-            <section>
-                    <li className="game-row" key={challengeId} data={challengeId}>
+            <section key={challengeId}>
+                    <li className="game-row"  data={challengeId}>
                         <div className={gameSideClassName}>
                             {factorId > 1 ? 'Main Event' : ''}
                         </div>

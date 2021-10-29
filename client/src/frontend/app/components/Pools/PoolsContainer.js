@@ -1,51 +1,37 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import moment from 'moment';
-import {withRouter} from 'react-router-dom';
+import _ from 'lodash';
 import {getUserPools, joinPool} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
-import { Button, Form, Grid, Header, Image, Message, Segment, Col } from 'semantic-ui-react'
 import {getUserFromLocalStorage} from '../../actions/auth';
-import {connect} from 'react-redux';
 
-class PoolsContainer extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  // Lifecycle method
+const PoolsContainer = (props) => {
+  const userPools = useSelector(state => state.pools.pools);
+  const auth = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getUserPools());
+  },[dispatch])
 
-  componentDidMount(){
-      this.props.dispatch(getUserPools());
-  }
-
-  // addTodo(val){
-  //   // Assemble data
-  //   const todo = {text: val};
-  //   // Update data
-  //   axios.post(this.apiUrl, todo)
-  //      .then((res) => {
-  //         this.state.data.push(res.data);
-  //         this.setState({data: this.state.data});
-  //      });
-  // }
-  // Handle remove
-  handleLeave(id){
+  function handleLeave(id) {
     // Filter all todos except the one to be removed
     const remainder = this.state.data.filter((pool) => {
       if(pool.id !== id) return pool;
     });
-    // Update state with filter
+    
     axios.delete(this.apiUrl+'/'+id)
       .then((res) => {
         this.setState({data: remainder});
       })
   }
-  handleJoin(id){
-      this.props.dispatch(joinPool(id), () => this.handleEnter(id));
+  function handleJoin(id){
+      props.dispatch(joinPool(id), () => handleEnter(id));
   }
-  handleEnter(id){
-      this.props.history.push(`/pools/${id}?active=true`);
+  function handleEnter(id){
+      props.history.push(`/pools/${id}?active=true`);
   }
-  render(){
+  
     const Title = ({poolCount}) => {
         return (
           <div>
@@ -93,63 +79,20 @@ class PoolsContainer extends React.Component{
                 <div className='pool-right-detail-value'>{moment(pool.lastCheckIn).format('DD/MM/YY hh:mm')}</div>
             </div>
 
-            {/*<div className="pool-header">*/}
-            {/*</div>*/}
-            {/*<div className="pool-body">*/}
-            {/*    <div className="pool-side">*/}
-            {/*        <img  className="pool-image" src={pool.image}/>*/}
-            {/*    </div>*/}
-            {/*    <div className="pool-center">*/}
-            {/*        <div>*/}
-            {/*            <div className="pool-title">{pool.name}</div>*/}
-            {/*            <div className="pool-buy-in">*/}
-            {/*                <span>{pool.buyIn}&#8362;</span>*/}
-            {/*                <div className="pool-last-check-in">*/}
-            {/*                    <label>Check-in DeadLine: </label>*/}
-            {/*                    <span>{moment(pool.lastCheckIn).format('DD/MM/YY hh:mm')}</span>*/}
-            {/*                </div>*/}
-            {/*            </div>*/}
-            {/*        </div>*/}
-            {/*        <div>*/}
-            {/*            <div className="pool-players">*/}
-            {/*                <label>Players: </label>*/}
-            {/*                <span>{_.size(pool.participates)}</span>*/}
-            {/*            </div>*/}
-            {/*            <div className="pool-pot">*/}
-            {/*                <label>Pot: </label>*/}
-            {/*                <span>{pool.pot}&#8362;</span>*/}
-            {/*            </div>*/}
-            {/*            <div className="pool-first-price">*/}
-            {/*                <label>First Price: </label>*/}
-            {/*                <span>{_.first(pool.prices)}&#8362;</span>*/}
-            {/*            </div>*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
-            {/*<div className="pool-footer">*/}
-            {/*    <div className="pool-action"><a onClick={() => { return actionObj.action(pool.id)}}>{actionObj.name}</a></div>*/}
-            {/*</div>*/}
-            {/*<a href="#" className="list-group-item" onClick={() =>  this.props.history.push(`/pools/${pool.id}`)}>{pool.name}</a>*/}
         </li>);
         };
     return (
-      <div id="content" class="ui container">
-        {/*<TodoForm addTodo={this.addTodo.bind(this)}/>*/}
-        {/*<a className="list-group" style={{marginTop: '30px'}} onClick={() =>  this.props.history.push('/newPool')}>AddPool</a>*/}
+      <div id="content" className="ui container">
         <PoolList
-          pools={this.props.pools}
-          auth={this.props.auth}
-          leave={this.handleLeave.bind(this)}
-          join={this.handleJoin.bind(this)}
-          enter={this.handleEnter.bind(this)}
+          pools={userPools}
+          auth={auth}
+          leave={handleLeave.bind(this)}
+          join={handleJoin.bind(this)}
+          enter={handleEnter.bind(this)}
         />
         <NavigationMenu  />
       </div>
     );
   }
-}
-function mapStateToProps({pools: {pools}, auth}) {
-    return {auth, pools};
-}
 
-export default withRouter(connect((mapStateToProps))(PoolsContainer));
+export default PoolsContainer;
