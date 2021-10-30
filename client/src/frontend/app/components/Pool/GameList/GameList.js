@@ -60,12 +60,11 @@ const GameList = (props) => {
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
     const [swiper, setSwiper] = useState(null);
     // const [currRoundIdx,setRoundIdx] = useState(null)
-    const currSlide = Object.keys(betsGroups).length-currentRound
-    const slideTo = (currSlide) => {
-        if(swiper){swiper.slideTo(currSlide)}
-    };
+    const currSlide = Object.keys(betsGroups).length-currentRound;
      useEffect(() => {
-        slideTo(currSlide) 
+         if(swiper){
+             swiper.slideTo(currSlide);
+         }
     },[bets]);
 
     const UserBet = ({participate, bet}) => {
@@ -123,7 +122,7 @@ const GameList = (props) => {
     };
     const Game = ({bet, showDay, goal}) => {
         const {
-            score1, score2, score, medal, 
+            score1, score2, score, medal,
             challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
                 game: {homeTeam, awayTeam}, playAt, factorId}
         } = bet;
@@ -211,16 +210,18 @@ const GameList = (props) => {
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
         });
-        return (<SwiperSlide><li key={roundNum}>
+        return (<SwiperSlide><div key={roundNum}>
             <span className="round-title">Round No: {roundNum}</span>
             <ul className="round-games">{gameNodes}</ul>
-        </li></SwiperSlide>);
+        </div></SwiperSlide>);
     });
     return (<div>
             {tipper}
-            <ul className="game-list" style={{marginTop: '30px'}}><Swiper pagination={{
-  "dynamicBullets": true
-}} initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
+            <Swiper pagination={{ "dynamicBullets": true}} initialSlide={0} onSwiper={setSwiper}
+                    className="Swiper game-list"
+                    style={{marginTop: '30px'}}>
+                {roundNode}
+            </Swiper>
         </div>
     );
 
