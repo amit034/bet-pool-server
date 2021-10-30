@@ -7,7 +7,6 @@ const jobs = require('./jobs');
 const bodyParser = require('body-parser');
 const errorHandler = require('errorhandler');
 const methodOverride = require('method-override');
-const morgan = require('morgan');
 const debug = require('debug')('dev:server');
 const fs = require('fs');
 const securityPolicy = require('./securityPolicy');
@@ -113,7 +112,7 @@ exports.start = () => {
         });
 
     });
-    //jobs.start(io);
+    jobs.start(io);
 
 };
 
