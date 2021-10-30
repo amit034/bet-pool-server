@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Header, Button} from 'semantic-ui-react';
+import {getParticipatesWithRank} from '../../../utils';
 import {getChallengeParticipates} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
@@ -20,6 +21,7 @@ const GameList = (props) => {
     const otherBets = useSelector(state => state.pools.otherBets);
     const {usersBets} = otherBets;
     const [tipperOpen, setTipperOpen] = useState(false);
+    const [othersModal, setOthersOpen] = useState(false);
     const dispatch = useDispatch();
 
     function handleTipperOpen() {
@@ -43,13 +45,14 @@ const GameList = (props) => {
             el.select();
         }, 0);
     }
-    function onMatchClick(challengeId, close) {
+    function onMatchClick(challenge, close) {
         if (!close) {
             handleTipperOpen();
-            dispatch(getChallengeParticipates(props.poolId, challengeId));
+            dispatch(getChallengeParticipates(props.poolId, challenge.challengeId));
 
         } else {
-            props.onShowOthers(challengeId);
+            // props.onShowOthers(challengeId);
+            setOthersOpen(true);
         }
     }
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
@@ -59,8 +62,8 @@ const GameList = (props) => {
     const currentRound = _.get(currentBet, 'challenge.game.round', 1);
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
     const [swiper, setSwiper] = useState(null);
-    // const [currRoundIdx,setRoundIdx] = useState(null)
-    const currSlide = Object.keys(betsGroups).length-currentRound
+    let currSlide = 0
+    currSlide = Object.keys(betsGroups).length-currentRound
     const slideTo = (currSlide) => {
         if(swiper){swiper.slideTo(currSlide)}
     };
@@ -121,7 +124,36 @@ const GameList = (props) => {
             <div className="bet-score-medal"><i className={className}></i></div>
         </div>
     };
+    const BetsList = ({usersBets, participates}) => {
+        const userBetsNode = _.map(_.orderBy(participates, 'rank'), (participate) => {
+            return (<UserBet participate={participate} key={participate.userId}
+                             bet={_.find(usersBets, {userId: participate.userId}) || {}}/>)
+        });
+        return (<div>
+            <ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsNode}</ul>
+        </div>);
+    };
+    const ChallengeDetails = ({challenge}) => {
+        console.log(challenge);
+        const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
+        return (<li className="challenge-row" key={id}>
+            <div className="game-title">
+                <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
+                <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+            </div>
+            <div className="game-body">
+                <TeamScore team={homeTeam}/>
+                <MatchResult score1={score1} score2={score2} closed={closed} />
+                <TeamScore team={awayTeam} reverse={true}/>
+            </div>
+
+        </li>);
+    };
+
+    
+    let ViewOthersModal = null
     const Game = ({bet, showDay, goal}) => {
+        const {challenge} = bet
         const {
             score1, score2, score, medal, 
             challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
@@ -132,6 +164,19 @@ const GameList = (props) => {
             'users': !isOpen,
             'lightbulb': isOpen
         });
+        const participatesWithRank = getParticipatesWithRank(participates);
+        ViewOthersModal =  (<Modal closeIcon
+            open={othersModal}>      
+                <Modal.Content>
+                <ChallengeDetails challenge={challenge}/>
+                <BetsList
+                    usersBets={usersBets}
+                    participates={participatesWithRank}
+                />
+                </Modal.Content>
+            </Modal>
+        )
+        
 
         return (
             <section key={challengeId}>
@@ -143,7 +188,7 @@ const GameList = (props) => {
                             <div className="game-title">
                                 <div className="match-tip">
                                     <i className={className}
-                                       onClick={() => onMatchClick(challengeId, !isOpen)}></i>
+                                       onClick={() => onMatchClick(challenge, !isOpen)}></i>
                                     {/* <i className={className} onClick={() => this.onAnimation()}></i> */}
                                 </div>
                                 {!isOpen ? <Medal score={score} medal={medal}/> : ''}
@@ -195,6 +240,7 @@ const GameList = (props) => {
         </div>);
     };
 
+    
     let newArr = [];
     _.forEachRight(betsGroups, function (roundBets) {
             newArr.push(roundBets)
@@ -218,9 +264,10 @@ const GameList = (props) => {
     });
     return (<div>
             {tipper}
+            {ViewOthersModal}
             <ul className="game-list" style={{marginTop: '30px'}}><Swiper pagination={{
   "dynamicBullets": true
-}} initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
+}} initialSlide={currSlide} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
         </div>
     );
 
