@@ -10,8 +10,8 @@ import classNames from 'classnames';
 const ViewOthers = (props) => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(getChallengeParticipates(props.match.params.id, props.match.params.challengeId));
-        dispatch(getPoolParticipates(props.match.params.id));
+        // dispatch(getChallengeParticipates(props.poolId, props.challengeId));
+        // dispatch(getPoolParticipates(props.poolId));
     }, [dispatch]);
 
     const MatchResult = ({score1, score2, closed}) => {
@@ -83,7 +83,6 @@ const ViewOthers = (props) => {
                 usersBets={usersBets}
                 participates={participatesWithRank}
             />
-            <NavigationMenu/>
         </div>
     );
 }

@@ -77,7 +77,6 @@ class App extends React.Component {
             }
             <Switch>
                 <ProtectedRoute path="/pools/:id/participates" component={LeadersContainer} isAuthenticated={isAuthenticated}/>
-                <ProtectedRoute path="/pools/:id/challenges/:challengeId/participates" component={ViewOthers} isAuthenticated={isAuthenticated}/>
                 <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated} socket={socket}/>
                 <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated}/>
                 <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={isAuthenticated}/>
