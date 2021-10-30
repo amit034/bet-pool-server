@@ -63,6 +63,9 @@ module.exports = {
         if(game) {
             return game.update({score1, score2, status}, {transaction});
         }
-        return Promise.resolve()
+        return Promise.resolve();
+    },
+    createAll(records ,{transaction}) {
+        return Game.bulkCreate(records, {transaction, ignoreDuplicates: true});
     }
 };

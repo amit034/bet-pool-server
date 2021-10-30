@@ -54,7 +54,7 @@ function handleCreatePoolRequest(req, res) {
                 res.status(500).send({
                     error: err.message
                 });
-            }).done()
+            }).done();
     } else {
         logger.log('info', 'Bad request from ' +
             req.connection.remoteAddress + '. Message: UserId is required.');
@@ -71,9 +71,9 @@ function handleAddGames(req, res) {
 
     repository.findById(poolId)
         .then(function (pool) {
-            if (userId != pool.owner.id) {
+            if (userId !== pool.owner.id) {
                 res.status(403).send({error: "you are not the owner of the pool"});
-                return Q.reject({error: "you are not the owner of the pool", code: 403})
+                return Q.reject({error: "you are not the owner of the pool", code: 403});
             }
             return addGamesToPool(pool, gameIds, req);
         }).then(function (docs) {
@@ -85,13 +85,13 @@ function handleAddGames(req, res) {
         res.status(500).send({
             error: err.message
         });
-    }).done()
+    }).done();
 }
 
 function handleGetParticipates(req, res) {
     const poolId = req.params.poolId || null;
     const challengeId = req.query.challengeId || null;
-    const betsPromise = challengeId ? betRepository.findByChallengeId(challengeId) : betRepository.findUsersBetsByPoolId(poolId);
+    const betsPromise = challengeId ? betRepository.findByChallengeId(challengeId, {}) : betRepository.findUsersBetsByPoolId(poolId);
     return Promise.all([repository.findById(poolId), betsPromise])
         .then(([poolModel, usersBets]) => {
             return getPopulatePoolChallenges(poolModel, false)
@@ -101,35 +101,43 @@ function handleGetParticipates(req, res) {
                     return [pool, _.map(usersBets, bet => bet.toJSON())];
                 });
         }).then(([pool, usersBets]) => {
+            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+            const challengeRounds = _.groupBy(pool.challenges, c => c.game.round);
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
                 _.assign(participate, _.pick(participateModel.user, ['userId', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
-                const userBets = _.filter(usersBets, (bet) => _.get(bet, 'userId') === participate.userId);
-                const bets = _.map(userBets, (bet) => {
-                    const challenge = _.find(pool.challenges, {id: _.get(bet, 'challengeId', -1)});
-                    if (_.isNil(challenge)) return null;
-                    const challengeFactor = _.get(challenge, 'factorId', 1);
-                    const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-                    const betModel = new Bet(bet);
-                    const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                    bet.medal = medal;
-                    bet.factor = challengeFactor
-                    bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
-                    bet.closed = !challenge.isOpen;
-                    return bet;
-                });
-                const closeBets = _.filter(bets, 'closed');
-                const totals= _.reduce(closeBets, (total, bet) => {
-                    total.score += bet.score;
-                    if(bet.medal > 0){
-                        _.set(total.medals, bet.medal, _.get(total.medals, bet.medal, 0) + (1 * bet.factor));
-                    }
-                    return total;
-                }, {score: 0, medals:{1: 0, 2: 0, 3: 0}});
-                participate.score = totals.score;
-                participate.medals = totals.medals;
-                participate.bets = closeBets;
+                const userBets = _.filter(usersBets, {userId: participate.userId});
+                const challengeBets = _.keyBy(userBets, 'challengeId');
+                const poolScore = _.reduce(challengeRounds, (poolScore, challenges) => {
+                    const round = _.reduce(challenges, (roundScore, challenge) => {
+                        const bet = challengeBets[challenge.id];
+                        if(bet) {
+                            const betModel = new Bet(bet);
+                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
+                            const challengeFactor = _.get(challenge, 'factorId', 1);
+                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+                            bet.closed = !challenge.isOpen;
+                            bet.factor = challengeFactor;
+                            bet.medal = medal;
+                            if(bet.medal){
+                                roundScore.score += bet.score;
+                                _.set(roundScore.medals, bet.medal, _.get(roundScore.medals, bet.medal, 0) + (1 * bet.factor));
+                            }
+                            if (bet.closed){
+                                roundScore.bets.push(bet);
+                            }
+                        }
+                        return roundScore;
 
+                    }, {score: 0, medals:{1: 0, 2: 0, 3: 0}, bets: []});
+                    poolScore.score += round.score;
+                    _.forEach(round.medals, (count, medal) => {
+                        poolScore.medals[medal] += count;
+                    });
+                    poolScore.rounds.push(round);
+                    return poolScore;
+                }, {score: 0, medals:{1: 0, 2: 0, 3: 0}, rounds: []});
+                _.assign(participate, poolScore);
                 return participate;
             });
             return res.send(participates);
@@ -154,7 +162,7 @@ function handleGetUserBets(req, res) {
     ]).then(([account, pool, userBets]) => {
         if (_.isNull(account) || _.isNull(pool)) {
             return res.status(400).send({
-                error: err.message
+                error: 'missing account'
             });
         }
         return getPopulatePoolChallenges(pool)
@@ -182,7 +190,7 @@ function handleGetUserBets(req, res) {
                     return bet;
                 });
                 if (!req.requestForMe) {
-                    bets = _.reject(bets, (bet) => ({closed: false}));
+                    bets = _.reject(bets, {closed: false});
                 }
                 return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
             });
@@ -225,7 +233,7 @@ function handleAddEvents(req, res) {
 
             const deferred = Q.defer();
             if (!pool.owner.equals(userId)) {
-                return Q.reject({error: "you are not the owner of the pool", code: 403})
+                return Q.reject({error: "you are not the owner of the pool", code: 403});
             }
             logger.log('info', 'found Pool' + pool._id + req.connection.remoteAddress + '.');
             poolObj = pool;
@@ -250,7 +258,7 @@ function handleAddEvents(req, res) {
                 '. Stack trace: ' + err.stack);
             return res.status(500).send({error: err.message});
         })
-        .done()
+        .done();
 }
 
 function handleJoinToPool(req, res) {
@@ -286,7 +294,7 @@ function handleAddParticipates(req, res) {
     }).then(function (docs) {
         return res.status(201).send({"addedParticipates": docs});
     }).catch(function (err) {
-        if (err && err.code != 403) {
+        if (err && err.code !== 403) {
             logger.log('error', 'An error has occurred while processing a request to add participates ' +
                 'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
@@ -318,22 +326,22 @@ async function handleGetUserPools(req, res) {
     }
 }
 
-function handleUpdatePoolRequest(req, res) {
-    const gameIds = req.body.games || [];
-    const eventsIds = req.body.events || [];
-    const inviteesIds = req.body.invitees || [];
-    const poolId = req.params.poolId || null;
-
-    return repository.findById(poolId).then(function (pool) {
-        return Promise.all([addGamesToPool(pool, gameIds, req), addEventsToPool(pool, eventsIds, req), addParticipatesToPool(pool, inviteesIds, false, req)]).then(function (promises) {
-            return res.status(201).send({"addedGames": promises[0], "addedEvents": promises[1]});
-        }).catch(function (err) {
-            res.status(500).send({
-                error: err.message
-            });
-        })
-    })
-}
+// function handleUpdatePoolRequest(req, res) {
+//     const gameIds = req.body.games || [];
+//     const eventsIds = req.body.events || [];
+//     const inviteesIds = req.body.invitees || [];
+//     const poolId = req.params.poolId || null;
+//
+//     return repository.findById(poolId).then(function (pool) {
+//         return Promise.all([addGamesToPool(pool, gameIds, req), addEventsToPool(pool, eventsIds, req), addParticipatesToPool(pool, inviteesIds, false, req)]).then(function (promises) {
+//             return res.status(201).send({"addedGames": promises[0], "addedEvents": promises[1]});
+//         }).catch(function (err) {
+//             res.status(500).send({
+//                 error: err.message
+//             });
+//         });
+//     });
+// }
 
 function addGamesToPool(pool, gamesIds, req) {
     return gameRepository.findActiveGameByIds(gamesIds)
@@ -386,7 +394,7 @@ function addEventsToPool(pool, eventsIds, req) {
                                 'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
                             return Promise.reject(err);
                         }
-                    )
+                    );
             } else {
                 logger.log('info', 'event not found or not active ' + eventsIds + ', no ' +
                     'such id exists. Request from address ' + req.connection.remoteAddress + '.');
