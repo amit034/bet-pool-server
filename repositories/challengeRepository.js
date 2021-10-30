@@ -33,6 +33,9 @@ module.exports = {
     updateChallengeById(id, challenge, {transaction} = {}) {
         return updateChallengeByQuery({id}, challenge, {transaction})
     },
+    createAll(records ,{transaction}) {
+        return Challenge.bulkCreate(records, {transaction, ignoreDuplicates: true});
+    },
     updateChallengeByQuery
 };
 

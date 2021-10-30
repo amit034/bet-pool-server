@@ -1,5 +1,4 @@
 'use strict';
-const _ = require('lodash');
 module.exports = function (sequelize, DataTypes) {
     const {STRING, INTEGER} = DataTypes;
     const Model = sequelize.define('Team', {
@@ -15,9 +14,6 @@ module.exports = function (sequelize, DataTypes) {
         engine: 'InnoDB',
         charset: 'utf8'
     });
-    Model.associate = function (models) {
-
-    };
     return Model;
-}
+};
 
