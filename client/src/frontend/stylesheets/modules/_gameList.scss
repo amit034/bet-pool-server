@@ -1,5 +1,8 @@
 @import '../spritesmith-generated/sprite';
 
+.listSwiper{
+font-size:16px
+}
 .game-list {
   font-family: 'Titillium web', sans-serif;
   text-align: center;
@@ -7,15 +10,17 @@
   list-style: none;
 
   .round-title {
-    text-align: left;
     display: block;
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 5px;
   }
 
   .round-games {
     padding: 0;
 
     .game-row {
-      box-shadow: 2px 5px 0px 0px #000240;
+      box-shadow:0px 3px 0px 0px #000000;
       border: 1px solid $background-7;
       margin-bottom: 10px;
       height: 110px;
@@ -31,6 +36,7 @@
         padding: 5px 5px 5px 0px;
         font-weight: 600;
         letter-spacing: 0.2em;
+        box-shadow:-1px 0px 0px 0px #000000;
       }
 
       .game-center {
@@ -84,7 +90,7 @@
               display: flex;
               align-items: center;
               justify-content: center;
-              margin-bottom: 6px;
+              margin-bottom: 16px;
               i {
                 font-size: 1em;
               }

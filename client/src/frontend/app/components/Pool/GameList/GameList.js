@@ -6,6 +6,11 @@ import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Header, Button} from 'semantic-ui-react';
 import {getChallengeParticipates} from '../../../actions/pools';
+import { Swiper, SwiperSlide } from "swiper/react";
+import 'swiper/swiper-bundle.css';
+// import "./styles.css";
+import SwiperCore, {Pagination} from 'swiper';
+SwiperCore.use([Pagination]);
 // import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
@@ -47,18 +52,21 @@ const GameList = (props) => {
             props.onShowOthers(challengeId);
         }
     }
-
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
     const currentBet = _.find(betArray, (bet) => {
         return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
     });
     const currentRound = _.get(currentBet, 'challenge.game.round', 1);
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
-
-
-    useEffect(() => {
-
-    }, [currentRound]);
+    const [swiper, setSwiper] = useState(null);
+    // const [currRoundIdx,setRoundIdx] = useState(null)
+    const currSlide = Object.keys(betsGroups).length-currentRound
+    const slideTo = (currSlide) => {
+        if(swiper){swiper.slideTo(currSlide)}
+    };
+     useEffect(() => {
+        slideTo(currSlide) 
+    },[bets]);
 
     const UserBet = ({participate, bet}) => {
         return (<li className="user-bet-row" key={bet.challengeId}>
@@ -115,10 +123,9 @@ const GameList = (props) => {
     };
     const Game = ({bet, showDay, goal}) => {
         const {
-            score1, score2, score, medal, challenge: {
-                id: challengeId, isOpen, score1: c_score1, score2: c_score2,
-                game: {homeTeam, awayTeam}, playAt, factorId
-            }
+            score1, score2, score, medal, 
+            challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
+                game: {homeTeam, awayTeam}, playAt, factorId}
         } = bet;
         const gameSideClassName = classNames('game-side', {'main-event': factorId > 1});
         const className = classNames('match-tip-image circular teal icon link small fitted', {
@@ -127,8 +134,8 @@ const GameList = (props) => {
         });
 
         return (
-            <section>
-                    <li className="game-row" key={challengeId} data={challengeId}>
+            <section key={challengeId}>
+                    <li className="game-row"  data={challengeId}>
                         <div className={gameSideClassName}>
                             {factorId > 1 ? 'Main Event' : ''}
                         </div>
@@ -204,14 +211,16 @@ const GameList = (props) => {
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
         });
-        return (<li key={roundNum}>
+        return (<SwiperSlide><li key={roundNum}>
             <span className="round-title">Round No: {roundNum}</span>
             <ul className="round-games">{gameNodes}</ul>
-        </li>);
+        </li></SwiperSlide>);
     });
     return (<div>
             {tipper}
-            <ul className="game-list" style={{marginTop: '30px'}}>{roundNode}</ul>
+            <ul className="game-list" style={{marginTop: '30px'}}><Swiper pagination={{
+  "dynamicBullets": true
+}} initialSlide={0} onSwiper={setSwiper} className="Swiper">{roundNode}</Swiper></ul>
         </div>
     );
 

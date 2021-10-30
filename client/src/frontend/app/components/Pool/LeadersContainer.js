@@ -1,42 +1,44 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import classNames from 'classnames';
 import _ from 'lodash';
 import NavigationMenu from './NavigationMenu';
-import {withRouter} from 'react-router-dom';
 import {getPoolParticipates} from '../../actions/pools';
-import {connect} from 'react-redux';
-import classNames from 'classnames';
+import { Swiper, SwiperSlide } from "swiper/react";
+import 'swiper/swiper.scss';
+import SwiperCore, {Pagination} from 'swiper';
+SwiperCore.use([Pagination]);
 
-class LeadersContainer extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  componentDidMount(){
-      this.props.dispatch(getPoolParticipates(this.props.match.params.id));
-  }
+const LeadersContainer = (props) => {
+    const participates = useSelector(state => state.pools.participates);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getPoolParticipates(props.match.params.id));
 
-  render(){
-      console.log(this.props.pools.participates);
+  },[dispatch])
+
+
     const LeaderList = ({participates}) => {
         const leaders = _.orderBy(participates, ['score', 'medals.3', 'medals.2'], ['desc', 'desc', 'desc']);
-        const LeaderNode = _.map(leaders, (participate) => {
+        const AllTimeLeadersNode = _.map(leaders, (participate) => {
             return (<Leader participate={participate} key={participate.id} rank={_.sortedIndexBy(leaders, participate, (p) => {
                 return -1 * (p.score * 1000000 + p.medals[3] * 10000 +  p.medals[2] * 100 + p.medals[1]);
             }) + 1}/>)
         });
-        return (<div><ul className="leader-list" style={{marginTop: '30px'}}>{LeaderNode}</ul></div>);
-    };
-    const Leader = ({participate, key, rank}) => {
 
+        return (<div><ul className="leader-list" style={{marginTop: '30px'}}><Swiper className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide>   </Swiper></ul></div>);
+    };
+    const Leader = ({participate, rank}) => {
     const medals = _.map(_.forOwnRight(participate.medals), (medal, idx)=> {
         const className = classNames('icon star large fitted', {'bronze-medal': idx === "1", 'sliver-medal': idx === "2", 'gold-medal': idx === "3"});
-        return (<div className="leader-medal">
+        return (<div key={idx} className="leader-medal">
             <i className={className}></i>
             <div className="medal-badge">{medal}</div>
         </div>);
     }) ;
     return (
-            <li className="leader-row" key={key}>
-                <div className="leader-body">
+            <li key={participate.userId} className="leader-row" >
+                <div  className="leader-body">
                     <div className="leader-rank"> {rank}. </div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username} title={participate.username}/>
@@ -52,14 +54,13 @@ class LeadersContainer extends React.Component{
             </li>);
     };
     return (
-      <div id="content" class="ui container">
+      <div id="content" className="ui container">
         <LeaderList
-            participates={this.props.pools.participates}
+            participates={participates}
         />
         <NavigationMenu  />
       </div>
     );
   }
-}
 
-export default withRouter(connect(({pools}) => ({pools}))(LeadersContainer));
+  export default LeadersContainer;

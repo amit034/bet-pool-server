@@ -96,7 +96,7 @@ var config = {
                 use: 'svg-url-loader'
             },
             {
-                test: /\.scss$/,
+                test: /\.(sa|sc|c)ss$/,
                 use: [
                     {loader: "style-loader"},
                     {loader: "css-loader" },

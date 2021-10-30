@@ -15,7 +15,6 @@ const ViewOthers = (props) => {
     }, [dispatch]);
 
     const MatchResult = ({score1, score2, closed}) => {
-        //   console.log(score1,score2,closed);
         const className = classNames('match-tip-image circular teal icon link small fitted', {
             'users': closed,
             'lightbulb': !closed
@@ -38,16 +37,17 @@ const ViewOthers = (props) => {
         </div>);
     };
     const ChallengeDetails = ({challenge}) => {
-        const {id: challengeId, result, game: {homeTeam, awayTeam}, playAt} = challenge;
-        return (<li className="challenge-row" key={challengeId}>
+        console.log(challenge);
+        const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
+        return (<li className="challenge-row" key={id}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                 <div className="game-hour">{moment(playAt).format('H:mm')}</div>
             </div>
             <div className="game-body">
                 <TeamScore team={homeTeam}/>
-                <MatchResult result={result}/>
-                <TeamScore team={awayTeam} reverse={true}/>
+                <MatchResult score1={score1} score2={score2} closed={closed} />
+                <TeamScore team={awayTeam} reverse={true} />
             </div>
 
         </li>);
