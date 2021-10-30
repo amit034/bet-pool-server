@@ -155,7 +155,7 @@ const GameList = (props) => {
                                            reverse={true}/>
                             </div>
                         </div>
-                    </li>}
+                    </li>
             </section>)
     }
     const MatchResult = ({score1, score2}) => {
