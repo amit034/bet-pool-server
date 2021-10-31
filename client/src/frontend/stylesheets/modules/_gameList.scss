@@ -156,8 +156,8 @@ font-size:16px
                 border-radius: 36px;
                 height: 36px;
                 width: 36px;
-                background-color: #EEE;
-                padding: 5px;
+                background-color: #fff;
+                padding: 7px;
                 opacity: 0.8;
                 img{
                   width: 100%;
@@ -178,7 +178,7 @@ font-size:16px
                 font-size: 14px;
                 text-align: center;
                 border-radius: 9px;
-                background-color: rgba(239,239,239,0.7);
+                background-color: $background-8
               }
             }
           }
