@@ -12,7 +12,6 @@ import 'swiper/swiper-bundle.css';
 import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "../ViewOthers";
 SwiperCore.use([Pagination]);
-// import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
     const bets = useSelector(state => state.pools.bets);
@@ -121,7 +120,8 @@ const GameList = (props) => {
         </Modal>
     );
     const ViewOthersModal =  (<Modal
-            className='fullscreen'
+            // className='fullscreen' style={{}}
+            style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
             open={viewOthersOpen && !props.isFetching}
             closeIcon
             dimmer="blurring"
@@ -240,7 +240,7 @@ const GameList = (props) => {
     return (<div>
             {tipper}
             {ViewOthersModal}
-            <Swiper pagination={{ "dynamicBullets": true}} initialSlide={0} onSwiper={setSwiper}
+            <Swiper pagination={{ "dynamicBullets": true}}  onSwiper={setSwiper}
                     className="Swiper game-list"
                     style={{marginTop: '30px'}}>
                 {roundNode}

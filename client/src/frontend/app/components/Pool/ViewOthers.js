@@ -6,6 +6,7 @@ import {getChallengeParticipates, getPoolParticipates} from '../../actions/pools
 import {getParticipatesWithRank} from '../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import classNames from 'classnames';
+import {Modal} from 'semantic-ui-react';
 
 const ViewOthers = (props) => {
     const dispatch = useDispatch();
@@ -39,7 +40,7 @@ const ViewOthers = (props) => {
     const ChallengeDetails = ({challenge}) => {
         console.log(challenge);
         const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
-        return (<li className="challenge-row" key={id}>
+        return (<Modal.Header><li className="challenge-row" key={id}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                 <div className="game-hour">{moment(playAt).format('H:mm')}</div>
@@ -50,7 +51,7 @@ const ViewOthers = (props) => {
                 <TeamScore team={awayTeam} reverse={true} />
             </div>
 
-        </li>);
+        </li></Modal.Header>);
     };
 
     const UserBet = ({participate, bet}) => {
@@ -68,16 +69,16 @@ const ViewOthers = (props) => {
             return (<UserBet participate={participate} key={participate.userId}
                              bet={_.find(usersBets, {userId: participate.userId}) || {}}/>)
         });
-        return (<div>
-            <ul className="users-bets-list" style={{marginTop: '30px'}}>{userBetsNode}</ul>
-        </div>);
+        return (<Modal.Content image scrolling style={{maxHeight: "60vh", marginTop: "25px"}}>
+            <ul className="users-bets-list" >{userBetsNode}</ul>
+            </Modal.Content>);
     };
     const participates = useSelector(state => state.pools.participates);
     const otherBets = useSelector(state => state.pools.otherBets);
     const {challenge, usersBets} = otherBets;
     const participatesWithRank = getParticipatesWithRank(participates);
     return (
-        <div id="content" className="ui container">
+        <div id="content" style={{margin: "35px 8px 8px 8px"}} >
             {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
             <BetsList
                 usersBets={usersBets}
