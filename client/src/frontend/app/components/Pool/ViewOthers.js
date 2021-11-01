@@ -21,9 +21,7 @@ const ViewOthers = (props) => {
             'lightbulb': !closed
         });
         return (<div className="game-result">
-            <div className="match-result">
                 {score1} : {score2}
-            </div>
         </div>);
     };
     const TeamScore = ({team: {flag, name}, reverse}) => {
