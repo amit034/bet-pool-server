@@ -5,13 +5,13 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Header, Button} from 'semantic-ui-react';
-import {getChallengeParticipates} from '../../../actions/pools';
+import {getChallengeParticipates, getPoolParticipates} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
 // import "./styles.css";
 import SwiperCore, {Pagination} from 'swiper';
+import ViewOthers from "../ViewOthers";
 SwiperCore.use([Pagination]);
-// import FootballNet from '../../../../images/spritesmith-generated/sprite.png'
 
 const GameList = (props) => {
     const bets = useSelector(state => state.pools.bets);
@@ -20,6 +20,7 @@ const GameList = (props) => {
     const otherBets = useSelector(state => state.pools.otherBets);
     const {usersBets} = otherBets;
     const [tipperOpen, setTipperOpen] = useState(false);
+    const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const dispatch = useDispatch();
 
     function handleTipperOpen() {
@@ -28,6 +29,14 @@ const GameList = (props) => {
 
     function handleTipperClose() {
         setTipperOpen(false);
+    }
+
+    function handleViewOthersOpen() {
+        setViewOthersOpen(true);
+    }
+
+    function handleViewOthersClose() {
+        setViewOthersOpen(false);
     }
 
     function clickOnBetKeyChange(challengeId, betFieldName, score) {
@@ -49,7 +58,9 @@ const GameList = (props) => {
             dispatch(getChallengeParticipates(props.poolId, challengeId));
 
         } else {
-            props.onShowOthers(challengeId);
+            handleViewOthersOpen();
+            dispatch(getChallengeParticipates(props.poolId, challengeId));
+            dispatch(getPoolParticipates(props.poolId));
         }
     }
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
@@ -108,6 +119,17 @@ const GameList = (props) => {
             </Modal.Content>
         </Modal>
     );
+    const ViewOthersModal =  (<Modal
+            // className='fullscreen' style={{}}
+            style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
+            open={viewOthersOpen && !props.isFetching}
+            closeIcon
+            dimmer="blurring"
+            onClose={handleViewOthersClose}
+            size='small'
+        >
+            <ViewOthers/>
+        </Modal>)
     const Medal = ({score, medal}) => {
         const className = classNames('icon star large fitted', {
             'outline': medal === 0,
@@ -217,7 +239,8 @@ const GameList = (props) => {
     });
     return (<div>
             {tipper}
-            <Swiper pagination={{ "dynamicBullets": true}} initialSlide={0} onSwiper={setSwiper}
+            {ViewOthersModal}
+            <Swiper pagination={{ "dynamicBullets": true}}  onSwiper={setSwiper}
                     className="Swiper game-list"
                     style={{marginTop: '30px'}}>
                 {roundNode}
