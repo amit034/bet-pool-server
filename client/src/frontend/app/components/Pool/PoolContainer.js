@@ -1,29 +1,33 @@
 'use strict';
 import React, {useEffect} from 'react';
 import _ from 'lodash';
+import {io} from "socket.io-client";
 import {useHistory, Route, useRouteMatch} from 'react-router-dom';
-import {getPoolParticipates, getUserBets, updateUserBet} from '../../actions/pools';
+import {getPoolParticipates, getUserBets, updateChallenge, updateUserBet} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import GameList from './GameList/GameList';
 import LeadersContainer from './LeadersContainer';
 const PoolContainer = (props) => {
-    const bets = useSelector(state => state.pools.bets);
+    //const bets = useSelector(state => state.pools.bets);
     const dispatch = useDispatch();
     let history = useHistory();
-    const {url} = useRouteMatch();
+    const match = useRouteMatch();
+    const poolId = match.params.id;
+
     useEffect(() => {
-        const {match, socket} = props;
-        const poolId = match.params.id;
+        const socket = io();
+        socket.on('updateChallenge',(challenge)=>{
+            dispatch(updateChallenge(challenge));
+        });
         dispatch(getUserBets(poolId));
         dispatch(getPoolParticipates(poolId));
         socket.emit('joinPool', poolId);
         return () => {
-            const {match, socket} = props;
-            const poolId = match.params.id;
+            const {socket} = props;
             socket.emit('leavePool', poolId);
         };
-    }, [dispatch]);
+    }, []);
 
     function onBetKeyChange(challengeId, key, value) {
         const bet = _.get(bets, challengeId);
@@ -43,7 +47,7 @@ const PoolContainer = (props) => {
 
     return (<div id="content" className="ui container">
              <Route path={`${props.match.path}/participates`} component={LeadersContainer}/>
-             <Route path={`${props.match.path}`} component={() => <GameList onBetKeyChange={onBetKeyChange} onBetChange={onBetChange} onShowOthers={onShowOthers} />}/>
+             <Route path={`${props.match.path}`} component={() => <GameList poolId={poolId} onBetKeyChange={onBetKeyChange} onBetChange={onBetChange} onShowOthers={onShowOthers} />}/>
             <NavigationMenu/>
             </div>);
 }

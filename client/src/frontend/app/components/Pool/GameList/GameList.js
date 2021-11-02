@@ -16,8 +16,10 @@ SwiperCore.use([Pagination]);
 const GameList = (props) => {
     const bets = useSelector(state => state.pools.bets);
     const goal = useSelector(state => state.pools.goal);
+    const poolId = props.poolId;
     const participates = useSelector(state => state.pools.participates);
     const otherBets = useSelector(state => state.pools.otherBets);
+    const isFetching = useSelector(state => state.pools.isFetching);
     const {usersBets} = otherBets;
     const [tipperOpen, setTipperOpen] = useState(false);
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
@@ -55,12 +57,12 @@ const GameList = (props) => {
     function onMatchClick(challengeId, close) {
         if (!close) {
             handleTipperOpen();
-            dispatch(getChallengeParticipates(props.poolId, challengeId));
+            dispatch(getChallengeParticipates(poolId, challengeId));
 
         } else {
             handleViewOthersOpen();
-            dispatch(getChallengeParticipates(props.poolId, challengeId));
-            dispatch(getPoolParticipates(props.poolId));
+            dispatch(getChallengeParticipates(poolId, challengeId));
+            dispatch(getPoolParticipates(poolId));
         }
     }
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
@@ -102,7 +104,7 @@ const GameList = (props) => {
     };
     const tipper = (<Modal
             className='challenge-tip'
-            open={tipperOpen && !props.isFetching}
+            open={tipperOpen && !isFetching}
             closeIcon
             dimmer="blurring"
             onClose={handleTipperClose}
@@ -122,7 +124,7 @@ const GameList = (props) => {
     const ViewOthersModal =  (<Modal
             // className='fullscreen' style={{}}
             style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
-            open={viewOthersOpen && !props.isFetching}
+            open={viewOthersOpen && !isFetching}
             closeIcon
             dimmer="blurring"
             onClose={handleViewOthersClose}
@@ -156,7 +158,7 @@ const GameList = (props) => {
 
         return (
             <section key={challengeId}>
-                    <li className="game-row"  data={challengeId}>
+                    <li className="game-row" data={challengeId}>
                         <div className={gameSideClassName}>
                             {factorId > 1 ? 'Main Event' : ''}
                         </div>
@@ -232,7 +234,7 @@ const GameList = (props) => {
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
         });
-        return (<SwiperSlide><div key={roundNum}>
+        return (<SwiperSlide key={roundNum}><div>
             <span className="round-title">Round No: {roundNum}</span>
             <ul className="round-games">{gameNodes}</ul>
         </div></SwiperSlide>);
