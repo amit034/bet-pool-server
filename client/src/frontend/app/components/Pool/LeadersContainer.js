@@ -58,7 +58,6 @@ const LeadersContainer = (props) => {
         <LeaderList
             participates={participates}
         />
-        <NavigationMenu  />
       </div>
     );
   }
