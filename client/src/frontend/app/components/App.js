@@ -1,17 +1,15 @@
 import React from 'react';
 import {io} from "socket.io-client";
 import {connect} from "react-redux";
-import {Menu, Icon ,Dropdown, Image} from 'semantic-ui-react'
+import {Menu, Icon ,Dropdown, Image} from 'semantic-ui-react';
 import {logoutUser ,getUserFromLocalStorage} from '../actions/auth';
-import {updateChallenge , clearGoalAnima} from '../actions/pools';
+import {updateChallenge} from '../actions/pools';
 import {Route, Switch, withRouter, Redirect, NavLink} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
 import RegistrationPage from "./Auth/RegistrationPage";
 import PoolContainer from './Pool/PoolContainer';
 import PoolsContainer from './Pools/PoolsContainer';
-import LeadersContainer from './Pool/LeadersContainer'
-import ViewOthers from './Pool/ViewOthers';
 import NewPool from './Pools/NewPool';
 let socket;
 class App extends React.Component {

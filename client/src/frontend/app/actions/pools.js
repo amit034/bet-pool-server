@@ -1,6 +1,7 @@
 import axios from 'axios';
 import _ from 'lodash';
-import {authError, authHeader, getUserFromLocalStorage} from './auth'
+import { history } from '../index';
+import {authError, authHeader, getUserFromLocalStorage} from './auth';
 
 export const GET_USER_POOLS_REQUEST = 'GET_USER_POOLS_REQUEST';
 export const GET_USER_POOLS_SUCCESS = 'GET_USER_POOLS_SUCCESS';
@@ -32,14 +33,14 @@ function requestUserPools(userId) {
         isFetching: true,
         userId,
         pools: []
-    }
+    };
 }
 
 export function clearGoalAnima(){
     return{
         type: CLEAR_GOAL_ANIMA,
         goal:null
-    }
+    };
 }
 
 export function updateChallenge(challenge) {
@@ -47,7 +48,7 @@ export function updateChallenge(challenge) {
         type: UPDATE_CHALLEGE_SUCCESS,
         isFetching: false,
         challenge
-    }
+    };
 }
 
 function receiveUserPools(userId, pools) {
@@ -56,7 +57,7 @@ function receiveUserPools(userId, pools) {
         isFetching: false,
         userId,
         pools
-    }
+    };
 }
 
 function getUserPoolsFail(message) {
@@ -65,7 +66,7 @@ function getUserPoolsFail(message) {
         isFetching: false,
         pools: [],
         message
-    }
+    };
 }
 
 function requestPoolGames(poolId) {
@@ -74,7 +75,7 @@ function requestPoolGames(poolId) {
         isFetching: true,
         poolId,
         games: []
-    }
+    };
 }
 
 function receivePoolGames(poolId, games) {
@@ -83,7 +84,7 @@ function receivePoolGames(poolId, games) {
         isFetching: false,
         poolId,
         games
-    }
+    };
 }
 
 function getPoolGamesFail(poolId, message) {
@@ -93,7 +94,7 @@ function getPoolGamesFail(poolId, message) {
         poolId,
         games: [],
         message
-    }
+    };
 }
 
 function requestUserBets(userId, poolId) {
@@ -103,7 +104,7 @@ function requestUserBets(userId, poolId) {
         poolId,
         userId,
         bets: []
-    }
+    };
 }
 
 function receiveUserBets(userId, poolId, bets) {
@@ -113,7 +114,7 @@ function receiveUserBets(userId, poolId, bets) {
         poolId,
         userId,
         bets: bets
-    }
+    };
 }
 
 function getUserBetsFail(userId, poolId, message) {
@@ -124,7 +125,7 @@ function getUserBetsFail(userId, poolId, message) {
         userId,
         bets: [],
         message
-    }
+    };
 }
 
 function postUserBets(userId, poolId) {
@@ -133,7 +134,7 @@ function postUserBets(userId, poolId) {
         isFetching: true,
         poolId,
         userId
-    }
+    };
 }
 
 function postUserBet(userId, poolId) {
@@ -142,7 +143,7 @@ function postUserBet(userId, poolId) {
         isFetching: true,
         poolId,
         userId
-    }
+    };
 }
 
 function userBetsUpdated(userId, poolId, bets) {
@@ -152,7 +153,7 @@ function userBetsUpdated(userId, poolId, bets) {
         bets,
         poolId,
         userId
-    }
+    };
 }
 
 function userBetUpdated(userId, poolId, challengeId, bet) {
@@ -173,7 +174,7 @@ function postUserBetsFail(userId, poolId, message) {
         poolId,
         userId,
         message
-    }
+    };
 }
 
 function postUserBetFail(userId, poolId, message) {
@@ -183,7 +184,7 @@ function postUserBetFail(userId, poolId, message) {
         poolId,
         userId,
         message
-    }
+    };
 }
 function requestPoolParticipates(userId, poolId){
     return {
@@ -191,7 +192,7 @@ function requestPoolParticipates(userId, poolId){
         isFetching: true,
         poolId,
         userId,
-    }
+    };
 }
 function requestChallengeParticipates(userId, poolId){
     return {
@@ -199,7 +200,7 @@ function requestChallengeParticipates(userId, poolId){
            isFetching: true,
            poolId,
            userId,
-       }
+       };
 }
 function receiveJoinToPool(userId, poolId, pool, participates) {
     return {
@@ -209,7 +210,7 @@ function receiveJoinToPool(userId, poolId, pool, participates) {
         pool,
         userId,
         participates: participates
-    }
+    };
 }
 function receiveParticipates(userId, poolId, participates) {
     return {
@@ -218,7 +219,7 @@ function receiveParticipates(userId, poolId, participates) {
         poolId,
         userId,
         participates: participates
-    }
+    };
 }
 
 function receiveChallengeParticipates(poolId, {challenge, usersBets}) {
@@ -228,7 +229,7 @@ function receiveChallengeParticipates(poolId, {challenge, usersBets}) {
         poolId,
         challenge,
         usersBets
-    }
+    };
 }
 export function getPoolGames(poolId, userId) {
     return dispatch => {
@@ -238,13 +239,15 @@ export function getPoolGames(poolId, userId) {
         return axios.get(`/api/${userId}/pools/${poolId}/games`, {headers: authHeader()})
             .then((response) => {
                 const games = response.data;
-                dispatch(receivePoolGames(poolId, games))
+                dispatch(receivePoolGames(poolId, games));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
                 dispatch(getPoolGamesFail(err.message));
             });
-    }
+    };
 }
 
 export function getUserPools(userId) {
@@ -255,13 +258,15 @@ export function getUserPools(userId) {
         return axios.get(`/api/${userId}/pools`, {headers: authHeader()})
             .then((response) => {
                 const pools = response.data;
-                dispatch(receiveUserPools(userId, pools))
+                dispatch(receiveUserPools(userId, pools));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
                 dispatch(getUserPoolsFail(err.message));
             });
-    }
+    };
 }
 
 export function getUserBets(poolId, userId) {
@@ -272,13 +277,15 @@ export function getUserBets(poolId, userId) {
         return axios.get(`/api/${userId}/pools/${poolId}/bets`, {headers: authHeader()})
             .then((response) => {
                 const bets = response.data;
-                dispatch(receiveUserBets(userId, poolId, bets))
+                dispatch(receiveUserBets(userId, poolId, bets));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
                 dispatch(getUserBetsFail(err.message));
             });
-    }
+    };
 }
 
 export function updateUserBets(poolId, bets, userId) {
@@ -288,13 +295,15 @@ export function updateUserBets(poolId, bets, userId) {
         return axios.post(`/api/${userId}/pools/${poolId}/bets`, bets, {headers: authHeader()})
             .then((response) => {
                 const bets = response.data;
-                dispatch(userBetsUpdated(userId, poolId, bets))
+                dispatch(userBetsUpdated(userId, poolId, bets));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
                 dispatch(postUserBetsFail(err.message));
             });
-    }
+    };
 }
 
 
@@ -305,13 +314,15 @@ export function updateUserBet(poolId, challengeId, bet, userId) {
         return axios.post(`/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
             .then((response) => {
                 const bet = response.data;
-                dispatch(userBetUpdated(userId, poolId, challengeId, bet))
+                dispatch(userBetUpdated(userId, poolId, challengeId, bet));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
                 dispatch(postUserBetFail(err.message));
             });
-    }
+    };
 }
 
 export function joinPool(poolId) {
@@ -320,12 +331,14 @@ export function joinPool(poolId) {
         return axios.post(`/api/${userId}/pools/${poolId}/join`, null, {headers: authHeader()})
             .then((response) => {
                 const participate = response.data;
-                dispatch(receiveJoinToPool(userId, poolId, pool, participate))
+                dispatch(receiveJoinToPool(userId, poolId, null, participate));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
             });
-    }
+    };
 }
 
 export function getPoolParticipates(poolId) {
@@ -335,12 +348,14 @@ export function getPoolParticipates(poolId) {
         return axios.get(`/api/${userId}/pools/${poolId}/participates`, {headers: authHeader()})
         .then((response) => {
             const participate = response.data;
-            dispatch(receiveParticipates(userId, poolId, participate))
+            dispatch(receiveParticipates(userId, poolId, participate));
         }).catch((err) => {
             const authErr = authError(err);
-            if (!_.isEmpty(authErr)) dispatch(authErr);
+            if (!_.isEmpty(authErr)){
+                dispatch(authErr);
+            }
         });
-    }
+    };
 }
 
 export function getChallengeParticipates(poolId, challengeId, userId) {
@@ -350,10 +365,12 @@ export function getChallengeParticipates(poolId, challengeId, userId) {
         return axios.get(`/api/${userId}/pools/${poolId}/challenges/${challengeId}`, {headers: authHeader()})
             .then((response) => {
                 const {challenge, usersBets} = response.data;
-                dispatch(receiveChallengeParticipates(poolId, {challenge, usersBets}))
+                dispatch(receiveChallengeParticipates(poolId, {challenge, usersBets}));
             }).catch((err) => {
                 const authErr = authError(err);
-                if (!_.isEmpty(authErr)) dispatch(authErr);
+                if (!_.isEmpty(authErr)){
+                    dispatch(authErr);
+                }
             });
-    }
+    };
 }

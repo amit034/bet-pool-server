@@ -8,13 +8,22 @@
   height: 100%;
   .ui.inverted.top-menu {
     background-color: $background-1 !important;
-    .item{
+    .header{
+      color: $title-1 !important;
+    }
+    .menu>.item{
       color: $title-1 !important;
       font-size: 1.1em;
       font-weight:600;
     }
     .item:before{
       background: none;
+    }
+    :hover, .active.item {
+      background-color: $background-1 !important;
+    }
+    .menu {
+      background-color: $background-1 !important;
     }
   }
 
@@ -23,10 +32,11 @@
   .swiper-pagination{
     width: 100% !important;
     position: fixed;
-    bottom: 36px;
+    bottom: 40px;
     top: auto;
     left: 50%;
     background: #0C4262;
+    padding: 8px 0px 4px 0px;
   }
 }
 .ui#content{

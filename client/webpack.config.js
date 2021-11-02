@@ -5,7 +5,7 @@ var fs = require('fs');
 const context = path.resolve(__dirname, 'src/frontend');
 var BUILD_DIR = path.resolve(__dirname, 'src/frontend/public');
 var APP_DIR = path.resolve(__dirname, 'src/frontend/app');
-const srcPath = path.join(__dirname, 'src', 'frontend', 'app', 'index.jsx');
+const srcPath = path.join(__dirname, 'src', 'frontend', 'app', 'index.js');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const SpritesmithPlugin = require('webpack-spritesmith');
 

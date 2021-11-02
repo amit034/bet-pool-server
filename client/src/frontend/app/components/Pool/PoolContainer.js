@@ -2,7 +2,7 @@
 import React, {useEffect} from 'react';
 import _ from 'lodash';
 import {useHistory, Route, useRouteMatch} from 'react-router-dom';
-import  {getUserBets, updateUserBet} from '../../actions/pools';
+import {getPoolParticipates, getUserBets, updateUserBet} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {useDispatch, useSelector} from 'react-redux';
 import GameList from './GameList/GameList';
@@ -16,6 +16,7 @@ const PoolContainer = (props) => {
         const {match, socket} = props;
         const poolId = match.params.id;
         dispatch(getUserBets(poolId));
+        dispatch(getPoolParticipates(poolId));
         socket.emit('joinPool', poolId);
         return () => {
             const {match, socket} = props;
@@ -24,7 +25,7 @@ const PoolContainer = (props) => {
         };
     }, [dispatch]);
 
-    function onBetKetChange(challengeId, key, value) {
+    function onBetKeyChange(challengeId, key, value) {
         const bet = _.get(bets, challengeId);
         _.set(bet, key, value);
         dispatch(updateUserBet(props.match.params.id, challengeId, bet));
@@ -42,8 +43,8 @@ const PoolContainer = (props) => {
 
     return (<div id="content" className="ui container">
              <Route path={`${props.match.path}/participates`} component={LeadersContainer}/>
-            <Route path={`${props.match.path}`} component={GameList}/>
-        <NavigationMenu/>
-    </div>);
+             <Route path={`${props.match.path}`} component={() => <GameList onBetKeyChange={onBetKeyChange} onBetChange={onBetChange} onShowOthers={onShowOthers} />}/>
+            <NavigationMenu/>
+            </div>);
 }
 export default PoolContainer;
