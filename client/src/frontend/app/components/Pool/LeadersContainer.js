@@ -16,12 +16,31 @@ const LeadersContainer = () => {
     const LeaderList = ({participates}) => {
         const leaders = getParticipatesWithRank(participates);
         const AllTimeLeadersNode = _.map(leaders, (participate) => {
-            return (<Leader participate={participate} rank={participate.rank} />);
+            return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
         });
+        const numberOfRounds = participates[0] ? participates[0].rounds.length : 0;
+        console.log('numberOfRounds: ', numberOfRounds);
 
+
+        let allRoundsLeadersNode = [];
+        for (let i = 0; i < numberOfRounds; i++) {
+            const roundParticipates = [];
+            _.forEach(participates, (participate) => {
+                let roundParaticipate = {
+                    ...participate,
+                    score: participate.rounds[i].score, medals: participate.rounds[i].medals
+                };
+                roundParticipates.push(roundParaticipate);
+            });
+            const roundLeaders = getParticipatesWithRank(roundParticipates);
+            const roundLeaderNode = _.map(roundLeaders, (participate) => {
+                return (<Leader participate={participate} rank={participate.rank} />);
+            });
+            allRoundsLeadersNode.push(<SwiperSlide>{roundLeaderNode}</SwiperSlide>);
+        }
         return (<div>
             <ul className="leader-list" style={{marginTop: '30px'}}><Swiper
-                className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide> </Swiper></ul>
+                className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide> {allRoundsLeadersNode} </Swiper></ul>
         </div>);
     };
     const Leader = ({participate, rank}) => {
@@ -42,7 +61,7 @@ const LeadersContainer = () => {
                     <div className="leader-rank"> {rank}.</div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username}
-                             title={participate.username}/>
+                            title={participate.username}/>
                     </div>
                     <div className="leader-center">
                         <div className="leader-name">{participate.firstName} {participate.lastName}</div>
@@ -57,7 +76,7 @@ const LeadersContainer = () => {
     };
     return (
         <div id="content" className="ui container">
-            <LeaderList
+            <LeaderList 
                 participates={participates}
             />
         </div>
