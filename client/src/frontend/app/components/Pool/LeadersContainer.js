@@ -19,28 +19,27 @@ const LeadersContainer = () => {
             return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
         });
         const numberOfRounds = participates[0] ? participates[0].rounds.length : 0;
-        console.log('numberOfRounds: ', numberOfRounds);
-
-
+        
+        console.log(participates);
         let allRoundsLeadersNode = [];
-        for (let i = 0; i < numberOfRounds; i++) {
+        for (let i = numberOfRounds; i > 0 ; i--) {
             const roundParticipates = [];
             _.forEach(participates, (participate) => {
                 let roundParaticipate = {
                     ...participate,
-                    score: participate.rounds[i].score, medals: participate.rounds[i].medals
+                    score: participate.rounds[i-1].score, medals: participate.rounds[i-1].medals
                 };
-                roundParticipates.push(roundParaticipate);
+                roundParticipates.unshift(roundParaticipate);
             });
             const roundLeaders = getParticipatesWithRank(roundParticipates);
             const roundLeaderNode = _.map(roundLeaders, (participate) => {
-                return (<Leader participate={participate} rank={participate.rank} />);
+                return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
             });
-            allRoundsLeadersNode.push(<SwiperSlide>{roundLeaderNode}</SwiperSlide>);
+            allRoundsLeadersNode.push(<SwiperSlide key={i}><div className='round-title'>Round {i} Leaders</div>{roundLeaderNode}</SwiperSlide>);
         }
         return (<div>
             <ul className="leader-list" style={{marginTop: '30px'}}><Swiper
-                className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide> {allRoundsLeadersNode} </Swiper></ul>
+                className="Swiper"><SwiperSlide ><div className='round-title'>All Time Leaders </div>{AllTimeLeadersNode}</SwiperSlide> {allRoundsLeadersNode} </Swiper></ul>
         </div>);
     };
     const Leader = ({participate, rank}) => {
@@ -56,7 +55,7 @@ const LeadersContainer = () => {
             </div>);
         });
         return (
-            <li key={participate.userId} className="leader-row">
+            <li className="leader-row">
                 <div className="leader-body">
                     <div className="leader-rank"> {rank}.</div>
                     <div className="leader-side">
@@ -76,7 +75,7 @@ const LeadersContainer = () => {
     };
     return (
         <div id="content" className="ui container">
-            <LeaderList 
+            <LeaderList
                 participates={participates}
             />
         </div>
