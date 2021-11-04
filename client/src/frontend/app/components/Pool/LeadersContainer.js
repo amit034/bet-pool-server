@@ -1,45 +1,39 @@
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React from 'react';
+import {useSelector} from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
 import {getParticipatesWithRank} from '../../utils';
-import {getPoolParticipates} from '../../actions/pools';
 import {Swiper, SwiperSlide} from "swiper/react";
 import 'swiper/swiper.scss';
 import SwiperCore, {Pagination} from 'swiper';
-
 SwiperCore.use([Pagination]);
 
 const LeadersContainer = () => {
     const participates = useSelector(state => state.pools.participates);
-
     const LeaderList = ({participates}) => {
-        const leaders = getParticipatesWithRank(participates);
-        const AllTimeLeadersNode = _.map(leaders, (participate) => {
-            return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
-        });
-        const numberOfRounds = participates[0] ? participates[0].rounds.length : 0;
-        
-        console.log(participates);
-        let allRoundsLeadersNode = [];
-        for (let i = numberOfRounds; i > 0 ; i--) {
-            const roundParticipates = [];
-            _.forEach(participates, (participate) => {
-                let roundParaticipate = {
-                    ...participate,
-                    score: participate.rounds[i-1].score, medals: participate.rounds[i-1].medals
+        const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
+        const roundsScore = _.map(_.range(numberOfRounds), (roundId) => {
+            return _.map(participates, ({score, medals, rounds, ...others}) => {
+                const {score: roundScore, medals: roundMedals} = _.get(rounds, roundId, {score: 0, medals: {1:0, 2:0, 3:0}});
+                return {
+                    ...others,
+                    score: roundScore, 
+                    medals: roundMedals,
                 };
-                roundParticipates.unshift(roundParaticipate);
             });
-            const roundLeaders = getParticipatesWithRank(roundParticipates);
+        });
+        roundsScore.push(participates);  
+        const allLeadersNode = _.map(roundsScore, (roundScore, idx) => {
+            const roundLeaders = getParticipatesWithRank(roundScore);
             const roundLeaderNode = _.map(roundLeaders, (participate) => {
-                return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
+                    return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
             });
-            allRoundsLeadersNode.push(<SwiperSlide key={i}><div className='round-title'>Round {i} Leaders</div>{roundLeaderNode}</SwiperSlide>);
-        }
+            const title = idx < numberOfRounds? `Round ${idx+1}` : 'All Time'; 
+            return (<SwiperSlide key={idx}><div className='round-title'>{title} Leaders</div>{roundLeaderNode}</SwiperSlide>)
+        });
         return (<div>
             <ul className="leader-list" style={{marginTop: '30px'}}><Swiper
-                className="Swiper"><SwiperSlide ><div className='round-title'>All Time Leaders </div>{AllTimeLeadersNode}</SwiperSlide> {allRoundsLeadersNode} </Swiper></ul>
+                className="Swiper">{_.reverse(allLeadersNode)}</Swiper></ul>
         </div>);
     };
     const Leader = ({participate, rank}) => {
