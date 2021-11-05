@@ -1,27 +1,41 @@
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React from 'react';
+import {useSelector} from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
 import {getParticipatesWithRank} from '../../utils';
-import {getPoolParticipates} from '../../actions/pools';
 import {Swiper, SwiperSlide} from "swiper/react";
 import 'swiper/swiper.scss';
 import SwiperCore, {Pagination} from 'swiper';
-
 SwiperCore.use([Pagination]);
 
 const LeadersContainer = () => {
     const participates = useSelector(state => state.pools.participates);
-
     const LeaderList = ({participates}) => {
-        const leaders = getParticipatesWithRank(participates);
-        const AllTimeLeadersNode = _.map(leaders, (participate) => {
-            return (<Leader participate={participate} rank={participate.rank} />);
+        const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
+        const roundsScore = _.map(_.range(numberOfRounds), (roundId) => {
+            return _.map(participates, ({score, medals, rounds, ...others}) => {
+                const {score: roundScore, medals: roundMedals} = _.get(rounds, roundId, {score: 0, medals: {1:0, 2:0, 3:0}});
+                return {
+                    ...others,
+                    score: roundScore, 
+                    medals: roundMedals,
+                };
+            });
         });
-
+        roundsScore.push(participates);  
+        const allLeadersNode = _.map(roundsScore, (roundScore, idx) => {
+            const roundLeaders = getParticipatesWithRank(roundScore);
+            const roundLeaderNode = _.map(roundLeaders, (participate) => {
+                    return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
+            });
+            const title = idx < numberOfRounds? `Round ${idx+1}` : 'All Time'; 
+            return (<SwiperSlide key={idx}>
+                <div className='round-title'>{title} Leaders</div>
+                {roundLeaderNode}</SwiperSlide>)
+        });
         return (<div>
-            <ul className="leader-list" style={{marginTop: '30px'}}><Swiper
-                className="Swiper"><SwiperSlide>{AllTimeLeadersNode}</SwiperSlide> </Swiper></ul>
+            <ul className="leader-list" style={{marginTop: '30px'}}><Swiper pagination={{ "dynamicBullets": true}}
+                className="Swiper">{_.reverse(allLeadersNode)}</Swiper></ul>
         </div>);
     };
     const Leader = ({participate, rank}) => {
@@ -37,12 +51,12 @@ const LeadersContainer = () => {
             </div>);
         });
         return (
-            <li key={participate.userId} className="leader-row">
+            <li className="leader-row">
                 <div className="leader-body">
                     <div className="leader-rank"> {rank}.</div>
                     <div className="leader-side">
                         <img className="leader-image" src={participate.picture} alt={participate.username}
-                             title={participate.username}/>
+                            title={participate.username}/>
                     </div>
                     <div className="leader-center">
                         <div className="leader-name">{participate.firstName} {participate.lastName}</div>
@@ -56,11 +70,9 @@ const LeadersContainer = () => {
             </li>);
     };
     return (
-        <div id="content" className="ui container">
             <LeaderList
                 participates={participates}
-            />
-        </div>
+            />    
     );
 }
 

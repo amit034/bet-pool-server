@@ -36,7 +36,6 @@ const ViewOthers = (props) => {
         </div>);
     };
     const ChallengeDetails = ({challenge}) => {
-        console.log(challenge);
         const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
         return (<Modal.Header><li className="challenge-row" key={id}>
             <div className="game-title">
