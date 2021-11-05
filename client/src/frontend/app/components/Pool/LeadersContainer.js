@@ -29,10 +29,12 @@ const LeadersContainer = () => {
                     return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
             });
             const title = idx < numberOfRounds? `Round ${idx+1}` : 'All Time'; 
-            return (<SwiperSlide key={idx}><div className='round-title'>{title} Leaders</div>{roundLeaderNode}</SwiperSlide>)
+            return (<SwiperSlide key={idx}>
+                <div className='round-title'>{title} Leaders</div>
+                {roundLeaderNode}</SwiperSlide>)
         });
         return (<div>
-            <ul className="leader-list" style={{marginTop: '30px'}}><Swiper
+            <ul className="leader-list" style={{marginTop: '30px'}}><Swiper pagination={{ "dynamicBullets": true}}
                 className="Swiper">{_.reverse(allLeadersNode)}</Swiper></ul>
         </div>);
     };
@@ -68,11 +70,9 @@ const LeadersContainer = () => {
             </li>);
     };
     return (
-        <div id="content" className="ui container">
             <LeaderList
                 participates={participates}
-            />
-        </div>
+            />    
     );
 }
 
