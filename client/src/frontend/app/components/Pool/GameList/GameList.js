@@ -199,7 +199,7 @@ const GameList = (props) => {
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
-                    <input onFocus={handleFocus}
+                    <input id="betInput" onFocus={handleFocus}
                            onChange={(e) => {
                                return clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
                            }} value={_.toString(teamBet)}
