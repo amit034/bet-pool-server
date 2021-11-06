@@ -178,7 +178,12 @@ font-size:16px
                 font-size: 14px;
                 text-align: center;
                 border-radius: 9px;
-                background-color: $background-8
+                background-color: $background-5;
+              }
+              #betInput:disabled {
+                background-color: inherit;
+                border: 3px solid $background-5;
+                color: $title-1;
               }
             }
           }
