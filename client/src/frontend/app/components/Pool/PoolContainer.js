@@ -24,7 +24,6 @@ const PoolContainer = (props) => {
         dispatch(getPoolParticipates(poolId));
         socket.emit('joinPool', poolId);
         return () => {
-            const {socket} = props;
             socket.emit('leavePool', poolId);
         };
     }, []);

@@ -104,7 +104,7 @@ class LoginPage extends React.Component {
             <div className={'login-page-bg'}></div>
             <div style={{ height: '100%' }} className={'login-page'}>
 
-            <Header as='h2' color='white' textAlign='center' className={'login-header'}>
+            <Header as='h2' textAlign='center' className={'login-header'}>
                 Welcome
             </Header>
             <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
@@ -121,7 +121,7 @@ class LoginPage extends React.Component {
                     </Grid.Column>
                     <Grid.Column style={{ maxWidth: 450 }}  className={'social-login-container'}>
                        <Form size='large'>
-                            <p className='social-login-title'><spn>Or</spn></p>
+                            <p className='social-login-title'><span>Or</span></p>
                             <FacebookLogin
                                 appId="476316572540105"
                                 autoLoad={false}
@@ -159,7 +159,7 @@ class LoginPage extends React.Component {
 }
 
 LoginPage.contextTypes = {
-    router: PropTypes.object.isRequired
+    // router: PropTypes.object.isRequired
 };
 
 export default connect(({auth}) => ({auth}))(LoginPage);

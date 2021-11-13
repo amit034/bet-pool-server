@@ -65,18 +65,17 @@ const GameList = (props) => {
             dispatch(getPoolParticipates(poolId));
         }
     }
-    const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
-    const currentBet = _.find(betArray, (bet) => {
-        return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
-    });
-    const currentRound = _.get(currentBet, 'challenge.game.round', 1);
-    const betsGroups = _.groupBy(betArray, 'challenge.game.round');
     const [swiper, setSwiper] = useState(null);
-    // const [currRoundIdx,setRoundIdx] = useState(null)
-    const currSlide = Object.keys(betsGroups).length-currentRound;
-     useEffect(() => {
+    const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
+    const betsGroups = _.groupBy(betArray, 'challenge.game.round');
+    useEffect(() => {
          if(swiper){
-             swiper.slideTo(currSlide);
+            const currentBet = _.find(betArray, (bet) => {
+                return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
+            });
+            const currentRound = _.get(currentBet, 'challenge.game.round', 1);
+            const currSlide = _.size(betsGroups)-currentRound;
+            swiper.slideTo(currSlide);
          }
     },[bets]);
 
@@ -157,7 +156,7 @@ const GameList = (props) => {
         });
 
         return (
-            <section key={challengeId}>
+            <section key={bet.challengeId}>
                     <li className="game-row" data={challengeId}>
                         <div className={gameSideClassName}>
                             {factorId > 1 ? 'Main Event' : ''}
@@ -218,18 +217,11 @@ const GameList = (props) => {
         </div>);
     };
 
-    let newArr = [];
-    _.forEachRight(betsGroups, function (roundBets) {
-            newArr.push(roundBets)
-        }
-    );
-
-
-    const roundNode = _.map(_.pickBy(newArr, (value, key) => key >= 0), (roundBets) => {
+    const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
         let currentDate = null;
-        let roundNum = roundBets[0].challenge.game.round
+        let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const gameNodes = roundBets.map((bet) => {
-            const gameNode = <Game bet={bet} goal={goal}
+            const gameNode = <Game key={bet.challengeId} bet={bet} goal={goal}
                                    showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
