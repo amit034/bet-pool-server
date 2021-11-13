@@ -42,7 +42,7 @@ const PoolsContainer = (props) => {
         );
     };
     const PoolList = ({pools, leave, join, enter}) => {
-        const poolArray = _.concat(_.values(pools), _.values(pools), _.values(pools));
+        const poolArray = _.values(pools);
         const poolNode = poolArray.map((pool) => {
             return (<Pool pool={pool} key={pool.id} leave={leave} join={join} enter={enter}/>)
         });
