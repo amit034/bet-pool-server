@@ -7,6 +7,15 @@ import {getParticipatesWithRank} from '../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import classNames from 'classnames';
 import {Modal} from 'semantic-ui-react';
+import {
+    XYPlot,
+    XAxis,
+    YAxis,
+    VerticalGridLines,
+    HorizontalGridLines,
+    VerticalBarSeries,
+    VerticalBarSeriesCanvas
+  } from 'react-vis';
 
 const ViewOthers = (props) => {
     const dispatch = useDispatch();
@@ -70,6 +79,54 @@ const ViewOthers = (props) => {
             <ul className="users-bets-list" >{userBetsNode}</ul>
             </Modal.Content>);
     };
+
+    const BetsGraph = (props) => {
+        const BarSeries =  VerticalBarSeries;
+        console.log("usersBets" , usersBets);
+        let uniqueScores = {};
+        let xVal = 1;
+        _.forEach(usersBets, (user) => {
+            let betKey = user.score1 + " : " + user.score2;
+            if(!uniqueScores[betKey]) {
+                uniqueScores[betKey] = xVal;
+                xVal++;
+            }
+        });
+        
+        const barsNode = _.map(participates, (participate)=> {
+            const pBet = _.find(usersBets, (user)=> user.userId === participate.userId);
+            if(!pBet) return ;
+            let gData = _.map((pBet,uniqueScores), (val, key) => {
+                console.log(val,key);
+                let valY = (pBet.score1 + " : " + pBet.score2) === key ? 1 : 0
+                return { x: key, y: valY }
+            });
+            return (<BarSeries data={gData} />)
+        });
+
+        const barsNode1 = [
+                <BarSeries data={[{x: "2-0", y: 10}, {x: "3-0", y: 5}, {x: "3-1", y: 15}]} />,
+                <BarSeries data={[{x: "2-0", y: 12}, {x: "3-0", y: 2}, {x: "3-1", y: 11}]} />]
+                
+        
+
+
+        return (
+            <div>
+            <XYPlot width={300} height={300} stackBy="y" xType="ordinal">
+              <VerticalGridLines />
+              <HorizontalGridLines />
+              <XAxis />
+              <YAxis />
+              {barsNode}
+            </XYPlot>
+          </div>
+            )
+    }
+    
+
+
+
     const participates = useSelector(state => state.pools.participates);
     const otherBets = useSelector(state => state.pools.otherBets);
     const {challenge, usersBets} = otherBets;
@@ -77,6 +134,7 @@ const ViewOthers = (props) => {
     return (
         <div id="content" style={{margin: "35px 8px 8px 8px"}} >
             {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
+            <BetsGraph />
             <BetsList
                 usersBets={usersBets}
                 participates={participatesWithRank}
