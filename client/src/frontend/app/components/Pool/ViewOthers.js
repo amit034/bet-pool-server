@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect,useState} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import NavigationMenu from './NavigationMenu';
@@ -14,7 +14,9 @@ import {
     VerticalGridLines,
     HorizontalGridLines,
     VerticalBarSeries,
-    VerticalBarSeriesCanvas
+    VerticalBarSeriesCanvas,
+    FlexibleWidthXYPlot ,
+    Hint
   } from 'react-vis';
 
 const ViewOthers = (props) => {
@@ -101,29 +103,36 @@ const ViewOthers = (props) => {
                 let valY = (pBet.score1 + " : " + pBet.score2) === key ? 1 : 0
                 return { x: key, y: valY }
             });
-            return (<BarSeries data={gData} />)
+            return (<BarSeries data={gData}  onNearestX={(datapoint, event)=>{}} />)
         });
 
         const barsNode1 = [
-                <BarSeries data={[{x: "2-0", y: 10}, {x: "3-0", y: 5}, {x: "3-1", y: 15}]} />,
-                <BarSeries data={[{x: "2-0", y: 12}, {x: "3-0", y: 2}, {x: "3-1", y: 11}]} />]
+            <BarSeries color="#391945" data={[{x: "2-0", y: 10}, {x: "3-0", y: 5}, {x: "3-1", y: 15}]} />,
+            <BarSeries data={[{x: "2-0", y: 12}, {x: "3-0", y: 2}, {x: "3-1", y: 11}]} />
+        ]
                 
         
 
-
         return (
             <div>
-            <XYPlot width={300} height={300} stackBy="y" xType="ordinal">
+            <FlexibleWidthXYPlot color="#608ba8" stroke="#0c4262" height={150} stackBy="y" xType="ordinal">
               <VerticalGridLines />
               <HorizontalGridLines />
               <XAxis />
               <YAxis />
               {barsNode}
-            </XYPlot>
+              {/* {value ? (
+              <Hint
+            value={value}
+            align={{horizontal: Hint.ALIGN.AUTO, vertical: Hint.ALIGN.TOP_EDGE}}
+          >
+            <div className="rv-hint__content">{`(${value.x}, ${value.y})`}</div>
+          </Hint>) : null} */}
+            </FlexibleWidthXYPlot>
           </div>
             )
     }
-    
+    // const [value, rememberValue] = useState(1);
 
 
 
