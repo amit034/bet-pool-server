@@ -18,6 +18,7 @@ import {
     FlexibleWidthXYPlot ,
     Hint
   } from 'react-vis';
+ import 'react-vis/dist/style.css';
 
 const ViewOthers = (props) => {
     const dispatch = useDispatch();
@@ -48,7 +49,8 @@ const ViewOthers = (props) => {
     };
     const ChallengeDetails = ({challenge}) => {
         const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
-        return (<Modal.Header><li className="challenge-row" key={id}>
+        return (
+        <Modal.Header><li className="challenge-row" key={id}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                 <div className="game-hour">{moment(playAt).format('H:mm')}</div>
@@ -58,7 +60,7 @@ const ViewOthers = (props) => {
                 <MatchResult score1={score1} score2={score2} closed={closed} />
                 <TeamScore team={awayTeam} reverse={true} />
             </div>
-
+            <BetsGraph />
         </li></Modal.Header>);
     };
 
@@ -84,7 +86,6 @@ const ViewOthers = (props) => {
 
     const BetsGraph = (props) => {
         const BarSeries =  VerticalBarSeries;
-        console.log("usersBets" , usersBets);
         let uniqueScores = {};
         let xVal = 1;
         _.forEach(usersBets, (user) => {
@@ -99,11 +100,10 @@ const ViewOthers = (props) => {
             const pBet = _.find(usersBets, (user)=> user.userId === participate.userId);
             if(!pBet) return ;
             let gData = _.map((pBet,uniqueScores), (val, key) => {
-                console.log(val,key);
                 let valY = (pBet.score1 + " : " + pBet.score2) === key ? 1 : 0
                 return { x: key, y: valY }
             });
-            return (<BarSeries data={gData}  onNearestX={(datapoint, event)=>{}} />)
+            return (<BarSeries data={gData}  onNearestX={(datapoint, event)=>{}}  />)
         });
 
         const barsNode1 = [
@@ -115,11 +115,12 @@ const ViewOthers = (props) => {
 
         return (
             <div>
-            <FlexibleWidthXYPlot color="#608ba8" stroke="#0c4262" height={150} stackBy="y" xType="ordinal">
-              <VerticalGridLines />
-              <HorizontalGridLines />
-              <XAxis />
-              <YAxis />
+            <FlexibleWidthXYPlot color="#608ba8" height={130}  stackBy="y" xType="ordinal" colorType="literal"
+             style={{margin:"20px 5px 0 -5px", paddingBottom:"-20px"}} animation={1500,true} >
+              {/* <VerticalGridLines /> */}
+              {/* <HorizontalGridLines  /> */}
+              <XAxis  />
+              <YAxis  />
               {barsNode}
               {/* {value ? (
               <Hint
@@ -143,7 +144,7 @@ const ViewOthers = (props) => {
     return (
         <div id="content" style={{margin: "35px 8px 8px 8px"}} >
             {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
-            <BetsGraph />
+            {/* <BetsGraph /> */}
             <BetsList
                 usersBets={usersBets}
                 participates={participatesWithRank}
