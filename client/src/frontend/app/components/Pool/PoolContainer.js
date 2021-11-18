@@ -28,14 +28,13 @@ const PoolContainer = (props) => {
         };
     }, []);
 
-    function onBetKeyChange(challengeId, key, value) {
-        const bet = _.get(bets, challengeId);
+    function onBetKeyChange(bet, challengeId, key, value) {
         _.set(bet, key, value);
+        // _.set(bet, "score2" , 2);
         dispatch(updateUserBet(props.match.params.id, challengeId, bet));
     }
 
-    function onBetChange(challengeId, updatedBet) {
-        const bet = _.get(bets, challengeId);
+    function onBetChange(bet, updatedBet) {
         const match = props.match;
         _.assign(bet, _.pick(updatedBet, ['score1', 'score2']));
         dispatch(updateUserBet(match.params.id, challengeId, bet));

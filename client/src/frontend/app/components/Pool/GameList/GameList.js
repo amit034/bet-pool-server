@@ -41,8 +41,8 @@ const GameList = (props) => {
         setViewOthersOpen(false);
     }
 
-    function clickOnBetKeyChange(challengeId, betFieldName, score) {
-        props.onBetKeyChange(challengeId, betFieldName, score);
+    function clickOnBetKeyChange(bet, challengeId, betFieldName, score) {
+        props.onBetKeyChange(bet, challengeId, betFieldName, score);
     }
 
     function clickOnBetChange(challengeId, score1, score2) {
@@ -154,7 +154,7 @@ const GameList = (props) => {
             'users': !isOpen,
             'lightbulb': isOpen
         });
-
+        // console.log(bet , challengeId);
         return (
             <section key={bet.challengeId}>
                     <li className="game-row" data={challengeId}>
@@ -175,11 +175,11 @@ const GameList = (props) => {
 
                             </div>
                             <div className="game-body">
-                                <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} challengeId={challengeId}
+                                <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} bet={bet} challengeId={challengeId}
                                            betFieldName="score1"/>
-                                <MatchResult score1={c_score1} score2={c_score2} closed={!isOpen}
+                                <MatchResult  score2={c_score2} score1={c_score1} closed={!isOpen}
                                              challengeId={challengeId}/>
-                                <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId}
+                                <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} bet={bet} challengeId={challengeId}
                                            betFieldName="score2"
                                            reverse={true}/>
                             </div>
@@ -193,14 +193,15 @@ const GameList = (props) => {
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
     };
-    const TeamScore = ({team: {flag, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
+    const TeamScore = ({team: {flag, name}, teamBet, closed, bet, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
                     <input id="betInput" onFocus={handleFocus}
                            onChange={(e) => {
-                               return clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
+                               console.log(bet,challengeId);
+                               return clickOnBetKeyChange(bet, challengeId, betFieldName, e.target.value);
                            }} value={_.toString(teamBet)}
                            disabled={closed}></input>
                 </div>
