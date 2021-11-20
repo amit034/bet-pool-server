@@ -1,20 +1,15 @@
 import React, {useEffect} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import NavigationMenu from './NavigationMenu';
-import {getChallengeParticipates, getPoolParticipates} from '../../actions/pools';
-import {getParticipatesWithRank} from '../../utils';
+import NavigationMenu from '../NavigationMenu';
+import {getChallengeParticipates, getPoolParticipates} from '../../../actions/pools';
+import {getParticipatesWithRank} from '../../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import classNames from 'classnames';
 import {Modal} from 'semantic-ui-react';
+import GameList from "./GameList";
 
-const ViewOthers = (props) => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        // dispatch(getChallengeParticipates(props.poolId, props.challengeId));
-        // dispatch(getPoolParticipates(props.poolId));
-    }, [dispatch]);
-
+const ViewOthers = ({clickOnBetChange}) => {
     const MatchResult = ({score1, score2, closed}) => {
         const className = classNames('match-tip-image circular teal icon link small fitted', {
             'users': closed,
@@ -51,19 +46,32 @@ const ViewOthers = (props) => {
         </li></Modal.Header>);
     };
 
-    const UserBet = ({participate, bet}) => {
+    const UserBet = ({participate, bet, isOpen}) => {
         return (
             <li className="user-bet-row">
-                <div className="user-bet-rank"> Rank: {participate.rank} <span
-                    style={{color: 'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
-                <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
-                <div className="user-bet-score"><span>{bet.score1} : {bet.score2}</span></div>
+                <div className="user-bet-side">
+                    <img className="user-bet-image" src={participate.picture} alt={participate.username}
+                         title={participate.username}/>
+                </div>
+                <div className="user-bet-center">
+                    <div className="user-bet-name">{participate.firstName} {participate.lastName}</div>
+                    <div className="user-bet-rank"> Rank: {participate.rank} <span
+                        style={{color: 'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
+                </div>
+                <div className="user-bet-score">
+                    <div><span>{bet.score1} : {bet.score2}</span></div>
+                    {isOpen ? <div className="users-bets-use-it">
+                        <a onClick={() => {
+                            clickOnBetChange(bet.challengeId, bet.score1, bet.score2)
+                        }}>Use it!</a>
+                    </div>: ''}
+                </div>
             </li>);
     };
 
-    const BetsList = ({usersBets, participates}) => {
+    const BetsList = ({usersBets, participates, isOpen}) => {
         const userBetsNode = _.map(_.orderBy(participates, 'rank'), (participate) => {
-            return (<UserBet participate={participate} key={participate.userId}
+            return (<UserBet participate={participate} key={participate.userId} isOpen={isOpen}
                              bet={_.find(usersBets, {userId: participate.userId}) || {}}/>)
         });
         return (<Modal.Content image scrolling style={{maxHeight: "60vh", marginTop: "25px"}}>
@@ -73,15 +81,20 @@ const ViewOthers = (props) => {
     const participates = useSelector(state => state.pools.participates);
     const otherBets = useSelector(state => state.pools.otherBets);
     const {challenge, usersBets} = otherBets;
-    const participatesWithRank = getParticipatesWithRank(participates);
+    const viewableUsersIds = _.map(usersBets, 'userId');
+    const participatesWithRank = _.filter(getParticipatesWithRank(participates), (({userId}) => _.includes(viewableUsersIds, userId)));
     return (
         <div id="content" style={{margin: "35px 8px 8px 8px"}} >
-            {challenge ? <ChallengeDetails challenge={challenge}/> : ''}
-            <BetsList
-                usersBets={usersBets}
-                participates={participatesWithRank}
-            />
+            {challenge ? <section>
+                <ChallengeDetails challenge={challenge}/>
+                <BetsList
+                    usersBets={usersBets}
+                    participates={participatesWithRank}
+                    isOpen = {challenge.isOpen}
+                />
+            </section> : ''}
         </div>
     );
 }
+
 export default ViewOthers;

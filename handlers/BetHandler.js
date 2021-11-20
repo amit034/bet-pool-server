@@ -8,7 +8,6 @@ const logger = require('../utils/logger');
 
 function handleGetOthersBets(req, res) {
     const poolId = req.params.poolId ||null;
-    const userId = req.params.userId || null;
     const challengeId = req.params.challengeId || null;
     return Promise.all([
         challengeRepository.findById(challengeId),
@@ -16,11 +15,11 @@ function handleGetOthersBets(req, res) {
     ]).then(function ([challenge, usersBets]) {
             if (challenge) {
                 const bets = _.map(usersBets, bet => bet.toJSON());
-                return res.status(200).send({challenge, usersBets: challenge.playAt > moment() ? _.filter(bets, 'public') :  bets});
+                return res.status(200).send({challenge, usersBets: challenge.playAt > moment() ? _.filter(bets, 'isPublic') :  bets});
             } else {
                 const massage = `No challenge for challenge id ${challenge}`;
                 logger.log('error', 'An error has occurred while processing a request to get others bets ' +
-                    +massage + req.connection.remoteAddress);
+                    + massage + req.connection.remoteAddress);
                 return res.status(400).send({
                     error: massage
                 });
