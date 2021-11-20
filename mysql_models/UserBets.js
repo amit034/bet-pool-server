@@ -24,6 +24,12 @@ module.exports = function (sequelize, DataTypes) {
         score2: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        isPublic: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: '0',
+            allowNull: false,
+            field: 'is_public'
         }
     }, {
         tableName: 'UserBets',

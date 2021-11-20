@@ -59,7 +59,7 @@
 }
 
 .users-bets-list {
-  padding: 0 15px;
+  padding: 0;
   margin-top: 0;
   .user-bet-row {
     display: flex;
@@ -68,26 +68,54 @@
     border: 1px solid #414d7e;
     margin-bottom: 10px;
     height: 35px;
-    font-size: 0.9em;
+    font-size: 14px;
     padding-left:5px;
     > div {
       align-self: center;
     }
-    .user-bet-rank {
-      min-width: 29%;
-    }
-    .user-bet-name {
-      flex: 2;
-      margin-inline-start: 3%;
+    .user-bet-center {
+      text-align: left;
+      flex: 7;
+      line-height: 1.4;
+      display: flex;
+      margin-left: 5px;
+      flex-direction: column;
+      .user-bet-rank {
+        font-size: 7px;
+      }
+      .user-bet-name {
+        flex: 2;
+      }
     }
     .user-bet-score {
-      min-width: 55px;
       height: 100%;
-      display: flex;
+      display:flex;
+      padding: 5px;
+      flex: 2;
+      flex-grow: 4;
       background-color: #608ba8;
       justify-content: center;
       align-items: center;
-      font-size: 1.0em;  
+      font-size: 1.0em;
+      .users-bets-use-it{
+        margin-left: 5px;
+        a {
+          text-decoration: underline;
+          color: $title-1;
+        }
+      }
+    }
+    .user-bet-side {
+      display:flex;
+      padding: 5px;
+      flex: 1;
+
+      .user-bet-image {
+        width: 2.285em;
+        height: 2.285em;
+        align-self: center;
+        border-radius: 50%;
+      }
     }
   }
 }

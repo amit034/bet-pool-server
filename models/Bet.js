@@ -1,15 +1,15 @@
 'use strict';
 const _ = require('lodash');
-const moment = require('moment');
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER} = DataTypes;
+    const {INTEGER, BOOLEAN} = DataTypes;
     const Model = sequelize.define('Bet', {
         id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
         userId: {type: INTEGER(11), allowNull: false, field: 'user_id'},
         poolId: {type: INTEGER(11), allowNull: false, field: 'pool_id'},
         challengeId: {type: INTEGER(11), allowNull: false, field: 'challenge_id'},
         score1 : {type: INTEGER(5), field: 'score_1'},
-        score2 : {type: INTEGER(5), field: 'score_2' }
+        score2 : {type: INTEGER(5), field: 'score_2' },
+        isPublic: {type: BOOLEAN, defaultValue: 0, field: 'is_public'},
     },{
         tableName: 'bets',
         timestamps: false,

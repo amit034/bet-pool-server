@@ -123,7 +123,7 @@ function handleGetParticipates(req, res) {
                                 roundScore.score += bet.score;
                                 _.set(roundScore.medals, bet.medal, _.get(roundScore.medals, bet.medal, 0) + (1 * bet.factor));
                             }
-                            if (bet.closed){
+                            if (bet.closed || bet.isBot){
                                 roundScore.bets.push(bet);
                             }
                         }
@@ -190,7 +190,9 @@ function handleGetUserBets(req, res) {
                     return bet;
                 });
                 if (!req.requestForMe) {
-                    bets = _.reject(bets, {closed: false});
+                    bets = _.reject(bets, (b) => {
+                        return b.close && !b.isBot;
+                    });
                 }
                 return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
             });
@@ -269,7 +271,7 @@ function handleJoinToPool(req, res) {
     }).then(function (docs) {
         return res.status(201).send(docs);
     }).catch(function (err) {
-        if (err && err.code != 403) {
+        if (err && err.code !== 403) {
             logger.log('error', 'An error has occurred while processing a request to add participates ' +
                 'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
