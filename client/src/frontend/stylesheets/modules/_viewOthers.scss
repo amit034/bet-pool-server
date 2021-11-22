@@ -1,14 +1,13 @@
 .challenge-row {
   margin-top: 25px;
   list-style: none;
-  border: 1px solid #414d7e;
+  border: 1px solid $background-7;
   box-shadow: -1px 3px 0px 0px #000000;
   padding-bottom: 8px;
   display: flex;
   flex-direction: column;
   .game-title {
     display: flex;
-    font-size: 12px;
     padding: 3px 0 10px 10px;
   }
   .game-body {
@@ -31,14 +30,11 @@
           padding: 8px;
           opacity: 0.8;
           border-radius: 36px;
+          margin-bottom: 5px;
           .team-image{
             width: 100%;
             height: 100%
           }
-        }
-        .team-name {
-          font-size: 12px;
-          margin-top: 5px;
         }
       }
     }
@@ -59,35 +55,62 @@
 }
 
 .users-bets-list {
-  padding: 0 15px;
+  padding: 0;
   margin-top: 0;
   .user-bet-row {
     display: flex;
     list-style: none;
     box-shadow: -1px 3px 0px 0px #000000;
-    border: 1px solid #414d7e;
+    border: 1px solid $background-7;
     margin-bottom: 10px;
-    height: 35px;
-    font-size: 0.9em;
+    height: 38px;
+    font-size: 1.05em;
     padding-left:5px;
     > div {
       align-self: center;
     }
-    .user-bet-rank {
-      min-width: 29%;
-    }
-    .user-bet-name {
-      flex: 2;
-      margin-inline-start: 3%;
+    .user-bet-center {
+      text-align: left;
+      flex: 8;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      .user-bet-rank {
+        font-size: 0.7em;
+      }
+      .user-bet-name {
+        flex: 2;
+      }
     }
     .user-bet-score {
-      min-width: 55px;
       height: 100%;
-      display: flex;
-      background-color: #608ba8;
+      display:flex;
+      padding: 5px;
+      flex: 2;
+      flex-grow: 4;
+      background-color: $background-3;
       justify-content: center;
       align-items: center;
-      font-size: 1.0em;  
+      font-size: 1.0em;
+      .users-bets-use-it{
+        margin-left: 5px;
+        a {
+          text-decoration: underline;
+          color: $title-1;
+        }
+      }
+    }
+    .user-bet-side {
+      display:flex;
+      padding: 5px;
+      flex: 1;
+
+      .user-bet-image {
+        width: 2.285em;
+        height: 2.285em;
+        align-self: center;
+        border-radius: 50%;
+      }
     }
   }
 }

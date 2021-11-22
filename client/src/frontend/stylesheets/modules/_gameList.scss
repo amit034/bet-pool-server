@@ -3,6 +3,7 @@
 .listSwiper{
 font-size:16px
 }
+
 .game-list {
   font-family: 'Titillium web', sans-serif;
   text-align: center;
@@ -166,6 +167,8 @@ font-size:16px
               }
               .team-name {
                 font-size: 12px;
+                word-break: break-word;
+                white-space: pre-wrap;
               }
             }
 
@@ -204,4 +207,4 @@ font-size:16px
       }
     }
   }
-} 
+}
