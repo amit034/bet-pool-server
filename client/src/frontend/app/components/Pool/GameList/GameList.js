@@ -57,8 +57,7 @@ const GameList = ({poolId}) => {
             swiper.slideTo(currSlide);
          }
     },[bets]);
-
-
+  
     const ViewOthersModal =  (<Modal
             // className='fullscreen' style={{}}
             style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
@@ -70,7 +69,6 @@ const GameList = ({poolId}) => {
         >
             <ViewOthers clickOnBetChange={clickOnBetChange}/>
         </Modal>)
-
 
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
         let currentDate = null;
