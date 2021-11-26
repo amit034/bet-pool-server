@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
@@ -18,10 +18,16 @@ const GameList = ({poolId}) => {
     const bets = useSelector(state => state.pools.bets);
     const goal = useSelector(state => state.pools.goal);
 
-    function handleViewOthersClose() {
-        setViewOthersOpen(false);
+    function onBetChange(challengeId, updatedBet) {
+        const bet = _.get(bets, challengeId);
+        const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
+        dispatch(updateUserBet(poolId, challengeId, update));
     }
-    function onMatchClick(challengeId, close) {
+
+    const handleViewOthersClose = useCallback (() => {
+        setViewOthersOpen(false);
+    },[]);
+    const onMatchClick = useCallback((challengeId, close) =>  {
         if (!close) {
             setViewOthersOpen(true);
         } else {
@@ -29,21 +35,18 @@ const GameList = ({poolId}) => {
             dispatch(getPoolParticipates(poolId));
         }
         dispatch(getChallengeParticipates(poolId, challengeId));
-    }
-    function clickOnBetChange(challengeId, score1, score2) {
+    });
+    const clickOnBetChange = useCallback ((challengeId, score1, score2) => {
         handleViewOthersClose();
         onBetChange(challengeId, {score1, score2});
-    }
-    function onBetKeyChange(challengeId, key, value) {
+    }, []);
+
+    const onBetKeyChange = useCallback((challengeId, key, value) =>{
         const bet = _.get(bets, challengeId);
-        _.set(bet, key, value);
-        onBetChange(challengeId, bet);
-    }
-    function onBetChange(challengeId, updatedBet) {
-        const bet = _.get(bets, challengeId);
-        _.assign(bet, _.pick(updatedBet, ['score1', 'score2']));
-        dispatch(updateUserBet(poolId, challengeId, bet));
-    }
+        const update = _.assign({}, bet, {[key]: value});
+        onBetChange(challengeId, update);
+    }, [bets]);
+
     const [swiper, setSwiper] = useState(null);
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
@@ -77,7 +80,7 @@ const GameList = ({poolId}) => {
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const gameNodes = roundBets.map((bet) => {
             const {challengeId} = bet;
-            const gameNode = <Game key={challengeId} bet={bet} goal={goal} onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange}
+            const gameNode = <Game bet={bet} goal={goal} onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
                                    showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);

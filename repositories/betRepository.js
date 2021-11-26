@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const {Bet, Challenge, Game} = require('../models');
+
+const {Bet} = require('../models');
 
 function findUserBetsByQuery(query, {transaction} = {}) {
 	return Bet.findAll({where: query, transaction});
@@ -13,7 +13,7 @@ module.exports = {
 		const {userId, challengeId, poolId} = data;
 		const searchQuery = {poolId, challengeId, userId};
 
-		await Bet.create(data, {transaction, updateOnDuplicate: ['score_1', 'score_2']});
+		await Bet.upsert(data, {transaction, updateOnDuplicate: ['score_1', 'score_2']});
 		return Bet.findOne({where: searchQuery, transaction});
 	},
 	findByChallengeId(challengeId, {transaction}){

@@ -15,10 +15,13 @@ module.exports = {
     },
     findByQuery,
     findAllByQuery,
-    findByUserId(userId, {transaction}) {
+    findByOwnerId(userId, {transaction}) {
         return Pool.findAll({where: {ownerId: userId}, include: [{model: PoolParticipant, as: 'participates', required: false}], transaction});
     },
-    async findParticipateByUserId(userId, {transaction} = {}) {
+    findByParticipation(poolId, userId, {transaction}) {
+        return PoolParticipant.findOne({where: {poolId, userId}, transaction});
+    },
+    async findPoolsByUserId(userId, {transaction} = {}) {
         const userParticipants = await PoolParticipant.findAll({where: {userId}, transaction});
         const poolIds = _.map(userParticipants, 'poolId');
         return Pool.findAll({where: {id: poolIds}, include: [{model: PoolParticipant, as: 'participates', required: false}] , transaction});
