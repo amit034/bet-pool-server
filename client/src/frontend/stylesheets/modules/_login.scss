@@ -8,6 +8,22 @@
 //  height: 60px;
 //  border-radius: 60px;
 //}
+#video{
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  /* right: 0; */
+  /* bottom: 0; */
+  /* min-width: 100%; */
+  /* min-height: 100%; */
+  /* align-content: center; */
+  /* margin: 0 auto; */
+  object-fit: cover;
+  /* position: absolute; */
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+}
 .login-page-bg {
     background: url($bg-image);
     background-position-x: $bg-offset-x;
@@ -20,11 +36,9 @@
     background-size: cover;
 }
 .login-page {
-  background:linear-gradient($background-6, $background-1);
   position: absolute;
   top: 0;
   width: 100%;
-  opacity: 90%;
   color: white;
   font-family: 'Titillium web', sans-serif;
   font-weight: 400;

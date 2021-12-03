@@ -2,7 +2,6 @@ const _ = require('lodash');
 const moment = require('moment');
 const repository = require('../repositories/betRepository');
 const poolRepository = require('../repositories/poolRepository');
-const gameRepository = require('../repositories/gameRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const logger = require('../utils/logger');
 
@@ -61,7 +60,7 @@ function handleCreateOrUpdateRequest(req, res) {
 
     return Promise.all([
         challengeRepository.findById(challengeId),
-        poolRepository.findParticipateByUserId(poolId, userId)])
+        poolRepository.findByParticipation(poolId, userId, {})])
     .then(function([challenge, participate]) {
         if (challenge && !_.isEmpty(participate)){
             if (challenge.playAt < moment()){
@@ -69,7 +68,8 @@ function handleCreateOrUpdateRequest(req, res) {
                     error: "too late to change bet for this challenge"
                 });
             }
-            return repository.createOrUpdate({poolId, userId, challengeId, score1, score2})
+            const isPublic = _.get(participate, 'isPublic');
+            return repository.createOrUpdate({poolId, userId, challengeId, score1, score2, isPublic})
                 .then(
                 function (bet) {
                     logger.log('info', 'bet for' + poolId + ' has been submitted.' +
@@ -85,7 +85,7 @@ function handleCreateOrUpdateRequest(req, res) {
                 }
             );
         }else{
-            var massage = "No challenge or participate found for pool id " + poolId;
+            const massage = "No challenge or participate found for pool id " + poolId;
             logger.log('error', 'An error has occurred while processing a request to create a ' +
                 'Pool ' + massage + req.connection.remoteAddress );
             return res.status(400).send({

@@ -43,6 +43,11 @@ var config = {
         publicPath: '/'
     },
     devServer: {
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+            "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+        },
         https:{
             minVersion: 'TLSv1.1',
             key: fs.readFileSync(path.join(__dirname, './server.key')),
@@ -79,6 +84,7 @@ var config = {
                 exclude: /node_modules/,
                 use: [
                     MiniCssExtractPlugin.loader,
+                    MiniCssExtractPlugin.loader,
                     'css-loader',
                     'webfonts-loader'
                 ]
@@ -87,9 +93,12 @@ var config = {
                 test: /\.(wav|mp3)$/,
                 loader: 'file-loader',
                 options: {
-                    name: '[path][name].[ext]',
-                    publicPath: 'sounds',
+                    name: '[path][name].[ext]'
                 }
+            },
+            {
+                test: /\.mp4$/,
+                loader: 'url-loader?limit=8192'
             },
             {
                 test: /\.svg/,

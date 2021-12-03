@@ -186,6 +186,7 @@ function handleGetUserBets(req, res) {
                     bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                     bet.medal = medal;
                     bet.challenge = challenge;
+                    bet.challengeId = challenge.id;
                     bet.closed = !challenge.isOpen;
                     return bet;
                 });
@@ -308,7 +309,7 @@ function handleAddParticipates(req, res) {
 async function handleGetUserPools(req, res) {
     const userId = req.params.userId;
     try{
-        const userPools = await repository.findParticipateByUserId(userId);
+        const userPools = await repository.findPoolsByUserId(userId);
         const publicPools = await repository.findAllByQuery({public: true});
         const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
         const poolList = _.map(pools, pool => {

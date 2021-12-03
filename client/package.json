@@ -64,6 +64,7 @@
     "babel-loader": "^8.0.0",
     "babel-preset-env": "^1.7.0",
     "expose-loader": "^0.7.5",
-    "semantic-ui-react": "^2.0.3"
+    "semantic-ui-react": "^2.0.3",
+    "url-loader": "^4.1.1"
   }
 }

@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const {Bet, Challenge, Game} = require('../models');
+
+const {Bet} = require('../models');
 
 function findUserBetsByQuery(query, {transaction} = {}) {
 	return Bet.findAll({where: query, transaction});

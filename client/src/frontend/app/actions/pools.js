@@ -310,7 +310,7 @@ export function updateUserBets(poolId, bets, userId) {
 export function updateUserBet(poolId, challengeId, bet, userId) {
     return dispatch => {
         userId = userId || getUserFromLocalStorage().userId;
-        dispatch(postUserBet(userId, poolId));
+       // dispatch(postUserBet(userId, poolId));
         return axios.post(`/api/${userId}/pools/${poolId}/challengeS/${challengeId}`, bet, {headers: authHeader()})
             .then((response) => {
                 const bet = response.data;

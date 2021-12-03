@@ -3,7 +3,7 @@ import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
 
-function GameComponent({bet, onMatchClick, onBetKeyChange}){
+const Game = ({bet, onMatchClick, onBetKeyChange}) => {
     const {
         score1, score2, score, medal,
         challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
@@ -26,13 +26,14 @@ function GameComponent({bet, onMatchClick, onBetKeyChange}){
 
     const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
+        const val = _.toString(teamBet);
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
                     <input id="betInput" onFocus={handleFocus}
                            onChange={(e) => {
                                return clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
-                           }} value={_.toString(teamBet)}
+                           }} value={val}
                            disabled={closed}>
                     </input>
                 </div>
@@ -68,7 +69,7 @@ function GameComponent({bet, onMatchClick, onBetKeyChange}){
         </div>);
     };
     return (
-            <li className="game-row" data={challengeId} key={challengeId}>
+            <li className="game-row" data={challengeId}>
                 <div className={gameSideClassName}>
                     {factorId > 1 ? 'Main Event' : ''}
                 </div>
@@ -98,6 +99,4 @@ function GameComponent({bet, onMatchClick, onBetKeyChange}){
             </li>)
 }
 
-export default React.memo(GameComponent, (prevGame, nextGame) => {
-    return _.isEqual(_.get(prevGame, 'bet'), _.get(nextGame, 'bet'));
-});
+export default Game;

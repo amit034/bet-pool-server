@@ -15,11 +15,13 @@ Bot.prototype.init = function() {
     }
     return accountRepository.findAccountByQuery({email: botDetails.email})
     .then((user) => {
-        if (user) return user;
+        if (user) {
+            return user;
+        }
         return accountRepository.createAccount(botDetails);
     }).then((account) => {
         this.userId =  account._id;
-        return Promise.resolve(this)
+        return Promise.resolve(this);
     }).catch((err) => {
         logger.log('warning', `unable to start ${this.name}`);
         return Promise.resolve(null);

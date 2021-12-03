@@ -20,7 +20,7 @@ const PoolContainer = (props) => {
             dispatch(updateChallenge(challenge));
         });
         dispatch(getUserBets(poolId));
-        dispatch(getPoolParticipates(poolId));
+       // dispatch(getPoolParticipates(poolId));
         socket.emit('joinPool', poolId);
         return () => {
             socket.emit('leavePool', poolId);
