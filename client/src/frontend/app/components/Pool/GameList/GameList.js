@@ -10,6 +10,8 @@ import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "./ViewOthers";
 import Game from "./Game";
 SwiperCore.use([Pagination]);
+import goalURL from  '../../../../sounds/goal3.mp3';
+const url = 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3';
 
 
 const GameList = ({poolId}) => {
@@ -17,7 +19,36 @@ const GameList = ({poolId}) => {
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const bets = useSelector(state => state.pools.bets);
     const goal = useSelector(state => state.pools.goal);
+    const useAudio = url => {
+        const item = new Audio(url);
 
+        const [audio] = useState(item);
+        const [playing, setPlaying] = useState(false);
+        useEffect(() => {
+                if (playing) {
+                    audio.play();
+                    audio.currentTime = 5;
+                } else {
+                    audio.pause();
+                }
+            },
+            [playing]
+        );
+        useEffect(() => {
+            audio.addEventListener('ended', () => setPlaying(false));
+
+            return () => {
+                audio.removeEventListener('ended', () => setPlaying(false));
+            };
+        }, []);
+        return [playing, setPlaying];
+    };
+    const [playing, setPlaying] = useAudio('../../../../sounds/goal3.mp3#t=00:03:26');
+    useEffect(() => {
+            setPlaying(!_.isNil(goal));
+    },
+        [goal]
+    );
     function onBetChange(challengeId, updatedBet) {
         const bet = _.get(bets, challengeId);
         const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
@@ -25,6 +56,7 @@ const GameList = ({poolId}) => {
     }
 
     const handleViewOthersClose = useCallback (() => {
+        setPlaying(true);
         setViewOthersOpen(false);
     },[]);
     const onMatchClick = useCallback((challengeId, close) =>  {

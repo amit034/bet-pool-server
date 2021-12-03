@@ -4,6 +4,7 @@ import {connect} from "react-redux";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import {TiSocialFacebook} from 'react-icons/ti';
 import {TiSocialGooglePlus} from 'react-icons/ti';
+import backgroundVideo from '../../../video/intro.mp4';
 //import FacebookLogin from 'react-facebook-login';
 import {GoogleLogin} from 'react-google-login';
 import {loginUser, verifyFacebookToken, verifyGoogleToken} from '../../actions/auth';
@@ -101,11 +102,13 @@ class LoginPage extends React.Component {
      */
     render() {
         return (<div style={{ height: '100%' }} >
-            <div className={'login-page-bg'}></div>
+            {/*<div className={'login-page-bg'}></div>*/}
+            <video autoPlay loop id='video'>
+                <source src={backgroundVideo} type='video/mp4'/>
+            </video>
             <div style={{ height: '100%' }} className={'login-page'}>
-
             <Header as='h2' textAlign='center' className={'login-header'}>
-                Welcome
+                Bet Pool Winner
             </Header>
             <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
                 <Grid.Row stretched>
