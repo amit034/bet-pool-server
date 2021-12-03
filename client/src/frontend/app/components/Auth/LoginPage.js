@@ -110,9 +110,9 @@ class LoginPage extends React.Component {
             <Header as='h2' textAlign='center' className={'login-header'}>
                 Bet Pool Winner
             </Header>
-            <Grid container columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
-                <Grid.Row stretched>
-                    <Grid.Column style={{ maxWidth: 450 }} className={'login-container'}>
+            <Grid columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
+                <Grid.Column  stretched style={{maxWidth:450}}>
+                    <Grid.Column  className={'login-container'}>
                         <LoginForm
                             onSubmit={this.processForm}
                             onChange={this.changeUser}
@@ -122,7 +122,7 @@ class LoginPage extends React.Component {
                             goToRegister={this.goToRegister}
                         />
                     </Grid.Column>
-                    <Grid.Column style={{ maxWidth: 450 }}  className={'social-login-container'}>
+                    <Grid.Column  className={'social-login-container'}>
                        <Form size='large'>
                             <p className='social-login-title'><span>Or</span></p>
                             <FacebookLogin
@@ -152,7 +152,7 @@ class LoginPage extends React.Component {
                             />
                        </Form>
                     </Grid.Column>
-                </Grid.Row>
+                </Grid.Column>
             </Grid>
             </div>
             </div>
