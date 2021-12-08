@@ -1,4 +1,4 @@
-import * as poolActions from '../actions/pools'
+import * as poolActions from '../actions/pools';
 import _ from 'lodash';
 import update from 'immutability-helper';
 
@@ -9,7 +9,7 @@ function pools(state = {
     games: {},
     bets: {},
     participates: {},
-    goal:null
+    goals: {}
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
@@ -22,16 +22,24 @@ function pools(state = {
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.GET_POOL_GAMES_SUCCESS:
             return update(state, {isFetching: {$set: false}, games: {$set:_.keyBy(action.games, 'id')}, errorMessage: {$set: null}});
-        case poolActions.UPDATE_CHALLEGE_SUCCESS:
+        case poolActions.UPDATE_CHALLEGE_SUCCESS: {
             const challengeId = action.challenge.id;
             const bet = _.cloneDeep(_.get(state.bets, challengeId));
             if (bet) {
                 bet.challenge = action.challenge;
-                return update(state, {isFetching: {$set: false} , goal:{$set:challengeId} , bets: {$merge: {[challengeId]: bet}}, errorMessage: {$set: null}});
+                return update(state, {
+                    isFetching: {$set: false},
+                    goals: {$merge: {[challengeId]: challengeId}},
+                    bets: {$merge: {[challengeId]: bet}},
+                    errorMessage: {$set: null}
+                });
             }
             return update(state, {isFetching: {$set: false}, errorMessage: {$set: null}});
-        case poolActions.CLEAR_GOAL_ANIMA:
-            return update(state , {goal:{$set:null}})
+        }
+        case poolActions.CLEAR_GOAL_ANIMA:{
+            const challengeId = action.challengeId;
+            return update(state , {goals:{$splice: challengeId}});
+        }
         case poolActions.GET_USER_BETS_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.GET_USER_BETS_SUCCESS:

@@ -22,6 +22,9 @@
       text-align: left;
        color: $title-1;
        flex: 13;
+      .pool-left-side-center{
+        margin-top: 5px;
+      }
       .pool-left-title{
         white-space: break-spaces;
       }
@@ -29,8 +32,8 @@
         display: flex;
         .pool-left-detail-header{
             flex: 6;
-            font-weight: 100;
-            font-size: 10px;
+            font-weight: 600;
+            font-size: 12px;
         }
         .pool-left-detail-value{
           flex: 6;

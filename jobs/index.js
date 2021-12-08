@@ -7,7 +7,7 @@ const autoGames = require('./auto-games');
 module.exports = {
     start(io) {
         autoGames.start();
-        //liveGames.start(io);
+        liveGames.start(io);
         //footballApi.start();
         //botsBet.start(),
         //migrateDb.start();

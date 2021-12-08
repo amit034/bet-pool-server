@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
+import React from 'react';
+import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 
 const LoginForm = ({
   onSubmit,
@@ -8,9 +8,9 @@ const LoginForm = ({
   successMessage,
   goToRegister,
   user
-}) => (
-  <div className='login-form'>
-    {/*
+}) => {
+    return (<div className='login-form'>
+        {/*
       Heads up! The styles below are necessary for the correct render of this example.
       You can do same with CSS, the main idea is that all the elements up to the `Grid`
       below must have a height of 100%.
@@ -26,19 +26,19 @@ const LoginForm = ({
                         value={user.email}
             />
             <Form.Input
-              fluid
-              icon='lock'
-              name='password'
-              iconPosition='left'
-              placeholder='Password'
-              type='password'
-              className={'login-input'}
-              onChange={onChange}
-              value={user.password}
+                fluid
+                icon='lock'
+                name='password'
+                iconPosition='left'
+                placeholder='Password'
+                type='password'
+                className={'login-input'}
+                onChange={onChange}
+                value={user.password}
             />
 
             <Button fluid size='large' className={'login-button'}>
-              LOGIN
+                LOGIN
             </Button>
             <Grid className={'login-help'}>
                 <Grid.Row>
@@ -55,7 +55,7 @@ const LoginForm = ({
         {/*<Message attached='bottom'>*/}
         {/*  New to us? <a onClick={goToRegister}>Sign Up</a>*/}
         {/*</Message>*/}
-  </div>
-)
+    </div>);
+};
 
 export default LoginForm

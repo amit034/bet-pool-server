@@ -176,6 +176,7 @@ font-size:16px
             .team-bet {
               flex: 6;
               input {
+                padding: 0 !important;
                 width: 60px;
                 height: 40px;
                 font-weight: 800;
@@ -184,7 +185,7 @@ font-size:16px
                 border-radius: 9px;
                 background-color: $background-5;
               }
-              #betInput:disabled {
+              #betInput:read-only {
                 background-color: inherit;
                 border: 3px solid $background-5;
                 color: $title-1;

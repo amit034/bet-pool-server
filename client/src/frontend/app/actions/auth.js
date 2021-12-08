@@ -1,5 +1,5 @@
 import axios from 'axios';
-import _ from 'lodash'
+import _ from 'lodash';
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -11,7 +11,7 @@ function requestLogin(creds) {
     isFetching: true,
     isAuthenticated: false,
     creds
-  }
+  };
 }
 
 function receiveLogin(user) {
@@ -20,7 +20,7 @@ function receiveLogin(user) {
     isFetching: false,
     isAuthenticated: true,
     user: user
-  }
+  };
 }
 function receiveLogout(user) {
   return {
@@ -46,7 +46,7 @@ function logoutError(message) {
         isFetching: false,
         isAuthenticated: false,
         message
-    }
+    };
 }
 export function authHeader() {
 
@@ -72,7 +72,7 @@ export function getUserFromLocalStorage() {
     try{
         currentUser = JSON.parse(localStorage.getItem('user'));
     }catch (e) {
-        currentUser = {}
+        currentUser = {};
     }
     return currentUser;
 }
@@ -99,7 +99,7 @@ export function logoutUser() {
         return axios.post('/api/auth/logout', {},{headers: authHeader()}).then((response) => {
             localStorage.removeItem('user');
             localStorage.removeItem('apiAccessToken');
-            dispatch(receiveLogout())
+            dispatch(receiveLogout());
         }).catch((err) => {
             dispatch(loginError(_.get(err, 'response.data.error', err)));
         });
