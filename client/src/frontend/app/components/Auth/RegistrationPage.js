@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 //import FacebookLogin from 'react-facebook-login';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import {GoogleLogin} from 'react-google-login';
 import {TiSocialFacebook} from 'react-icons/ti';
 import {TiSocialGooglePlus} from 'react-icons/ti';
 import {registerUser, registerWithFacebookToken, registerWithGoogleToken} from '../../actions/auth';
-import {Button, Form, Grid, Header, Icon} from 'semantic-ui-react'
+import {Button, Form, Grid, Header, Icon} from 'semantic-ui-react';
 import RegistrationForm from './RegistrationForm';
 
 class RegistrationPage extends React.Component {
@@ -77,7 +77,7 @@ class RegistrationPage extends React.Component {
      */
     render() {
         return (<div style={{ height: '100%' }} >
-            <div className={'login-page-bg'}></div>
+            <div className={'login-page-bg'}/>
             <div style={{height: '100%'}} className={'login-page'}>
                 <Header as='h2' textAlign='center'  className={'login-header'}>
                     Create An Account

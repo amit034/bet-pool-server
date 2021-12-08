@@ -12,18 +12,20 @@ const PoolsContainer = (props) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getUserPools());
-  },[dispatch])
+  },[dispatch]);
 
   function handleLeave(id) {
     // Filter all todos except the one to be removed
     const remainder = this.state.data.filter((pool) => {
-      if(pool.id !== id) return pool;
+      if(pool.id !== id) {
+          return pool;
+      }
     });
-    
+
     axios.delete(this.apiUrl+'/'+id)
-      .then((res) => {
+      .then(() => {
         this.setState({data: remainder});
-      })
+      });
   }
   function handleJoin(id){
       props.dispatch(joinPool(id), () => handleEnter(id));
@@ -31,7 +33,7 @@ const PoolsContainer = (props) => {
   function handleEnter(id){
       props.history.push(`/pools/${id}?active=true`);
   }
-  
+
     const Title = ({poolCount}) => {
         return (
           <div>
@@ -58,17 +60,19 @@ const PoolsContainer = (props) => {
         return (<li className="pool" key={pool.id} onClick={() => { return actionObj.action(pool.id)}}>
             <div className= 'pool-left-side'>
                 <div className='pool-left-title'>{pool.name}</div>
-                <div className='pool-left-detail'>
-                    <div className='pool-left-detail-header'>Players</div>
-                    <div className='pool-left-detail-value'>{_.size(pool.participates)}</div>
-                </div>
-                <div className='pool-left-detail'>
-                    <div className='pool-left-detail-header'>Pot</div>
-                    <div className='pool-left-detail-value'>{pool.pot} NIS</div>
-                </div>
-                <div className='pool-left-detail'>
-                    <div className='pool-left-detail-header'>First Price</div>
-                    <div className='pool-left-detail-value'>{_.first(pool.prices)} NIS</div>
+                <div className='pool-left-side-center'>
+                    <div className='pool-left-detail'>
+                        <div className='pool-left-detail-header'>Players</div>
+                        <div className='pool-left-detail-value'>{_.size(pool.participates)}</div>
+                    </div>
+                    <div className='pool-left-detail'>
+                        <div className='pool-left-detail-header'>Pot</div>
+                        <div className='pool-left-detail-value'>{pool.pot} NIS</div>
+                    </div>
+                    <div className='pool-left-detail'>
+                        <div className='pool-left-detail-header'>First Price</div>
+                        <div className='pool-left-detail-value'>{_.first(pool.prices)} NIS</div>
+                    </div>
                 </div>
             </div>
             <div className= 'pool-right-side'>

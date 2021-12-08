@@ -20,9 +20,18 @@
   /* margin: 0 auto; */
   object-fit: cover;
   /* position: absolute; */
-  opacity: 0.2;
+  opacity: 0.4;
   top: 0;
   left: 0;
+}
+.mute-btn{
+  top: 5px;
+  right: 5px;
+  padding: 10px 5px !important;
+  position: absolute;
+  background: transparent !important;
+  color: white !important;
+  z-index: 100;
 }
 .login-page-bg {
     background: url($bg-image);

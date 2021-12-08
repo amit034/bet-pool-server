@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
-
+import {Form} from 'semantic-ui-react';
 const Game = ({bet, onMatchClick, onBetKeyChange}) => {
     const {
         score1, score2, score, medal,
@@ -16,6 +16,7 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
     });
     function clickOnBetKeyChange(challengeId, betFieldName, score) {
         onBetKeyChange(challengeId, betFieldName, score);
+        return true;
     }
     function  handleFocus ({ target }) {
         const el = target;
@@ -30,12 +31,12 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
-                    <input id="betInput" onFocus={handleFocus}
+                    <Form.Input id="betInput" onFocus={handleFocus}
+                           type='number'
                            onChange={(e) => {
-                               return clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
+                               clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
                            }} value={val}
-                           disabled={closed}>
-                    </input>
+                           disabled={closed} />
                 </div>
                 <div className="team-name game-body-column-footer">{shortName}</div>
             </div>

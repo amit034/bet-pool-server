@@ -1,17 +1,17 @@
 import React from 'react';
-import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
+import {Menu, Icon, Dropdown, Image, Button} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
 import {useSelector, useDispatch} from 'react-redux';
 import {Route, Switch, useRouteMatch, Redirect, NavLink} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
-import RegistrationPage from "./Auth/RegistrationPage";
 import PoolContainer from './Pool/PoolContainer';
 import PoolsContainer from './Pools/PoolsContainer';
 import NewPool from './Pools/NewPool';
 
 const App = () => {
     const user = getUserFromLocalStorage();
+    const mute = localStorage.getItem('mute');
     const match = useRouteMatch();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -19,6 +19,28 @@ const App = () => {
     function logout() {
         dispatch(logoutUser());
     }
+
+    function muteSite() {
+        localStorage.setItem('mute' , 'true');
+    }
+    function unMuteSite() {
+        localStorage.setItem('mute' , 'false');
+    }
+
+    const muteMenu = mute === 'true' ? (<Dropdown.Item
+        name='unMmuteSiteMenu'
+        onClick={unMuteSite}
+    >
+        <Icon name='mute'/>
+        Un-Mute Site
+    </Dropdown.Item>) : (<Dropdown.Item
+        name='muteSiteMenu'
+        onClick={muteSite}
+    >
+        <Icon name='unmute'/>
+        Mute Site
+    </Dropdown.Item>)
+
 
     return (<div className="app-wrapper">
         {isAuthenticated &&
@@ -51,6 +73,7 @@ const App = () => {
                             <Icon name='user'/>
                             Your profile
                         </Dropdown.Item>
+                        {muteMenu}
                         <Dropdown.Divider/>
                         <Dropdown.Item
                             name='logout'
@@ -71,12 +94,12 @@ const App = () => {
             <Route exact path="/register" render={(props) => {
                 return isAuthenticated ?
                     <Redirect to="/pools"/> :
-                    <RegistrationPage {...props}/>
+                    <LoginPage register={true} {...props}/>
             }}/>
             <Route exact path="/" render={(props) => {
                 return isAuthenticated ?
                     <Redirect to="/pools"/> :
-                    <LoginPage {...props}/>
+                    <LoginPage register={false} {...props}/>
             }}/>
         </Switch>
     </div>);

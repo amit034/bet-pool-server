@@ -1,8 +1,9 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import {useAudio} from 'react-use';
 import _ from 'lodash';
 import moment from 'moment';
-import {Modal} from 'semantic-ui-react';
+import {Modal, Form} from 'semantic-ui-react';
 import {getChallengeParticipates, getPoolParticipates, updateUserBet} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
@@ -18,45 +19,34 @@ const GameList = ({poolId}) => {
     const dispatch = useDispatch();
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const bets = useSelector(state => state.pools.bets);
-    const goal = useSelector(state => state.pools.goal);
-    const useAudio = url => {
-        const item = new Audio(url);
-
-        const [audio] = useState(item);
-        const [playing, setPlaying] = useState(false);
-        useEffect(() => {
-                if (playing) {
-                    audio.play();
-                    audio.currentTime = 5;
-                } else {
-                    audio.pause();
-                }
-            },
-            [playing]
-        );
-        useEffect(() => {
-            audio.addEventListener('ended', () => setPlaying(false));
-
-            return () => {
-                audio.removeEventListener('ended', () => setPlaying(false));
-            };
-        }, []);
-        return [playing, setPlaying];
-    };
-    const [playing, setPlaying] = useAudio('../../../../sounds/goal3.mp3#t=00:03:26');
+    const goals = useSelector(state => state.pools.goals);
+    let goalHandler;
+    const [audio, state, goalSoundControllers, audioRef] = useAudio({
+        src: '../../../../sounds/goal3.mp3'
+    });
     useEffect(() => {
-            setPlaying(!_.isNil(goal));
+        if (!_.isEmpty(goals) && audioRef && audioRef.current) {
+            if (goalHandler){
+                clearTimeout(goalHandler);
+            }
+            audioRef.current.currentTime = 5;
+            goalSoundControllers.play();
+            goalHandler = setTimeout(() => {
+                goalSoundControllers.pause();
+            }, 20000);
+        }
     },
-        [goal]
+        [goals]
     );
     function onBetChange(challengeId, updatedBet) {
         const bet = _.get(bets, challengeId);
         const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
         dispatch(updateUserBet(poolId, challengeId, update));
     }
-
+    const processForm = (event) => {
+        event.preventDefault();
+    };
     const handleViewOthersClose = useCallback (() => {
-        setPlaying(true);
         setViewOthersOpen(false);
     },[]);
     const onMatchClick = useCallback((challengeId, close) =>  {
@@ -110,17 +100,20 @@ const GameList = ({poolId}) => {
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const gameNodes = roundBets.map((bet) => {
             const {challengeId} = bet;
-            const gameNode = <Game bet={bet} goal={goal} onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
+            const gameNode = <Game bet={bet} onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
                                    showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
         });
         return (<SwiperSlide key={roundNum}><div>
             <span className="round-title">Round No: {roundNum}</span>
-            <ul className="round-games">{gameNodes}</ul>
+            <Form size='large' action="/" onSubmit={processForm}>
+                <ul className="round-games">{gameNodes}</ul>
+            </Form>
         </div></SwiperSlide>);
     });
     return (<div>
+            {audio}
             {ViewOthersModal}
             <Swiper pagination={{ "dynamicBullets": true}}  onSwiper={setSwiper}
                     className="Swiper game-list"

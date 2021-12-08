@@ -36,10 +36,10 @@ function requestUserPools(userId) {
     };
 }
 
-export function clearGoalAnima(){
+export function clearGoalAnima(challengeId){
     return{
         type: CLEAR_GOAL_ANIMA,
-        goal:null
+        challengeId
     };
 }
 
