@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import _ from 'lodash';
 import {io} from "socket.io-client";
 import {Route, useRouteMatch} from 'react-router-dom';
-import {clearGoalAnima, getUserBets, updateChallenge} from '../../actions/pools';
+import {clearGoalAnima, getUserBets, updateChallenge, getPoolParticipates} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {useDispatch, useSelector} from 'react-redux';
 import GameList from './GameList/GameList';
@@ -31,7 +31,7 @@ const PoolContainer = (props) => {
         const socket = io();
         socket.on('updateChallenge', updateChallengeInPool);
         dispatch(getUserBets(poolId));
-       // dispatch(getPoolParticipates(poolId));
+        dispatch(getPoolParticipates(poolId));
         socket.emit('joinPool', poolId);
         return () => {
             socket.emit('leavePool', poolId);

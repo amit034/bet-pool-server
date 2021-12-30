@@ -4,7 +4,7 @@ const _ = require('lodash');
 module.exports = function (sequelize, DataTypes) {
     const {STRING, BOOLEAN, DATE, INTEGER} = DataTypes;
     const Model = sequelize.define('Pool', {
-        id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true},
+        poolId: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true,  field: 'id'},
         ownerId: {type: INTEGER(11), allowNull: false, field: 'owner_id'},
         name : {type: STRING, allowNull: false},
         lastCheckIn:{type: DATE, field: 'last_check_in'},

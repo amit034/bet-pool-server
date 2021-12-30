@@ -9,8 +9,7 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
         challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
             game: {homeTeam, awayTeam}, playAt, factorId}
     } = bet;
-    const gameSideClassName = classNames('game-side', {'main-event': factorId > 1});
-    const className = classNames('match-tip-image circular teal icon link small fitted', {
+    const className = classNames('match-tip-image circular icon link small fitted', {
         'users': !isOpen,
         'lightbulb': isOpen
     });
@@ -31,7 +30,7 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
-                    <Form.Input id="betInput" onFocus={handleFocus}
+                    <input id="betInput" onFocus={handleFocus}
                            type='number'
                            onChange={(e) => {
                                clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
@@ -51,15 +50,14 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
         </div>);
     };
     const Medal = ({score, medal}) => {
-        const className = classNames('icon star large fitted', {
-            'outline': medal === 0,
+        const className = classNames('bet-score-medal', {
+            'no-medal': medal === 0,
             'bronze-medal': medal === 1,
             'sliver-medal': medal === 2,
             'gold-medal': medal === 3
         });
         return <div className="bet-score">
-            <div className="bet-score-points">{score}</div>
-            <div className="bet-score-medal"><i className={className}></i></div>
+            <label className={className}>{score}</label>
         </div>
     };
 
@@ -71,8 +69,13 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
     };
     return (
             <li className="game-row" data={challengeId}>
-                <div className={gameSideClassName}>
-                    {factorId > 1 ? 'Main Event' : ''}
+                <div className="game-side">
+                    <div className="game-side-score">
+                        {!isOpen ? <Medal score={score} medal={medal}/> : ''}
+                    </div>
+                    <div className="game-side-title">
+                        {factorId > 1 ? 'Main Event' : ''}
+                    </div>
                 </div>
                 <div className="game-center">
                     <div className="game-title">
@@ -81,7 +84,7 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
                                onClick={() => onMatchClick(challengeId, !isOpen)}></i>
                             {/* <i className={className} onClick={() => this.onAnimation()}></i> */}
                         </div>
-                        {!isOpen ? <Medal score={score} medal={medal}/> : ''}
+
                         <div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>
                         {/* < div className="game-more">{factor > 1 ? 'Main Event': ''}</div> */}
                         <div className="game-hour">{moment(playAt).format('H:mm')}</div>
