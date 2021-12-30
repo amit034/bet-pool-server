@@ -124,6 +124,8 @@ module.exports = function (sequelize, DataTypes) {
         return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
     };
     Account.prototype.checkPassword = function (password) {
+        const encrypt =  this.encryptPassword(password);
+        console.log(encrypt);
         return this.encryptPassword(password) === this.hashedPassword;
     };
     Account.prototype.isLocal = function() {

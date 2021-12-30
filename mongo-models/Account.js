@@ -43,6 +43,8 @@ accountSchema.methods.encryptPassword = function(password) {
 };
 
 accountSchema.methods.checkPassword = function(password) {
+    const encrypt = this.encryptPassword(password);
+    console.log(encrypt)
     return this.encryptPassword(password) === this.hashedPassword;
 };
 

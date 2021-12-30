@@ -8,10 +8,12 @@ function findAllByQuery(query, {transaction} = {}) {
     return Pool.findAll({where: query, transaction});
 }
 module.exports = {
-    findById(id) {
-        return Pool.findByPk(id, {include: [{
-            model: PoolParticipant, as: 'participates', required: false,
-            include: [{model: Account, as: 'user'}]}, {model: Challenge, as: 'challenges', required: false},  {model: Event, as: 'events', required: false}]});
+    async findById(poolId) {
+        const pool = await  Pool.findByPk(poolId);
+        const participates = await PoolParticipant.findAll({where: {poolId}, include: [{model: Account, as: 'user'}]});
+        const challenges = await Challenge.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]});
+        const events = await Event.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]})
+        return _.assign({}, pool, {participates, events, challenges});
     },
     findByQuery,
     findAllByQuery,
