@@ -1,6 +1,8 @@
 const debug = require('debug')('dev:routes');
 const path = require("path");
 require('./passport')();
+const demoPools = require('./mocks/pools');
+const demoPool = require('./mocks/pool');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public', 'index.html');
 function setup(app, handlers, authorisationPolicy) {
     app.get('/status', (req, res)=> res.send('ok'));
@@ -18,9 +20,19 @@ function setup(app, handlers, authorisationPolicy) {
     app.get('/api/events', handlers.event.handleActiveEventsRequest);
     app.get('/api/events/:eventId/teams', handlers.event.getTeams);
     app.get('/api/games', authorisationPolicy, handlers.game.getActiveGames);
-    app.get('/api/:userId/pools',  authorisationPolicy , handlers.pools.getPools);
+    app.get('/api/:userId/pools',  authorisationPolicy, (req, res, next) => {
+        if (req.isDemo) {
+            return res.json(demoPools);
+        }
+        next();
+    } , handlers.pools.getPools);
     app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
-    app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.pools.getUserBets);
+    app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, (req, res, next) => {
+        if (req.isDemo) {
+            return res.json(demoPool.userBets);
+        }
+        next();
+    } , handlers.pools.getUserBets);
     app.post('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.bets.updateUserBets);
     app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
     app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
@@ -46,12 +58,17 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/login', (req, res, next) => {  req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     //app.post('/api/auth/facebook', handlers.auth.verifyFacebookToken);
     app.post('/api/auth/facebook', (req, res, next) => { req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
-    app.post('/api/auth/google',(req, res, next) => { req.authStrategy = 'google-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
+    app.post('/api/auth/google',(req, res, next) => {
+        req.authStrategy = 'google-token'; return next();
+        }, authorisationPolicy, handlers.auth.postLogin);
 
     //app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
-    app.post('/api/auth/register', (req, res, next) => { req.register = true; req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
+    app.post('/api/auth/register', (req, res, next) => {
+        req.register = true; req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
-    app.post('/api/auth/register/google', (req, res, next) => {   req.register = true; req.authStrategy = 'google-token';return next();}, authorisationPolicy, handlers.auth.postLogin);
+    app.post('/api/auth/register/google', (req, res, next) => {
+        req.register = true; req.authStrategy = 'google-token';return next();
+        }, authorisationPolicy, handlers.auth.postLogin);
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
     app.get('*', (req,res) =>{
         res.sendFile(publicPath);

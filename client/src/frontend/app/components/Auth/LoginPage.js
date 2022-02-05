@@ -5,7 +5,13 @@ import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props
 import {useVideo} from 'react-use';
 import backgroundVideo from '../../../video/intro.mp4';
 import {GoogleLogin} from 'react-google-login';
-import {loginUser, verifyFacebookToken, verifyGoogleToken} from '../../actions/auth';
+import {
+    loginUser,
+    registerUser,
+    registerWithFacebookToken, registerWithGoogleToken,
+    verifyFacebookToken,
+    verifyGoogleToken
+} from '../../actions/auth';
 import LoginForm from './LoginForm';
 import {Button, Grid, Icon, Header ,Form} from 'semantic-ui-react';
 import RegistrationForm from "./RegistrationForm";
@@ -51,16 +57,24 @@ const LoginPage = ({register = false}) => {
         }
     }, [video]);
     function facebookResponse(response) {
-        dispatch(verifyFacebookToken(response));
+        const verifyFacebook = register ? registerWithFacebookToken : verifyFacebookToken;
+        dispatch(verifyFacebook(response));
     }
 
     function googleResponse(response) {
-        dispatch(verifyGoogleToken(response));
+        const verifyGoogle= register ? registerWithGoogleToken : verifyGoogleToken;
+        dispatch(verifyGoogle(response));
     }
 
     function processForm(event) {
         event.preventDefault();
         dispatch(loginUser(state.user));
+    }
+
+    function processRegisterForm(event) {
+        // prevent default action. in this case, action is the form submission event
+        event.preventDefault();
+        dispatch(registerUser(state.user));
     }
 
     function changeUser(event) {
@@ -76,7 +90,8 @@ const LoginPage = ({register = false}) => {
         history.push(`/register`);
     }
     const FormComp = register ? RegistrationForm : LoginForm;
-
+    const onSubmit = register ? processRegisterForm : processForm;
+    const socialPrefix = register ? 'Register' : 'Login';
     return (<div style={{ height: '100%' }} >
             {/*<div className={'login-page-bg'}></div>*/}
             {video}
@@ -89,7 +104,7 @@ const LoginPage = ({register = false}) => {
                 <Grid.Column  stretched style={{maxWidth:450}}>
                     <Grid.Column  className={'login-container'}>
                             <FormComp
-                                onSubmit={processForm}
+                                onSubmit={onSubmit}
                                 onChange={changeUser}
                                 errors={{summary: auth.errorMessage}}
                                 successMessage={state.successMessage}
@@ -108,7 +123,7 @@ const LoginPage = ({register = false}) => {
                                     render={renderProps => (
                                         <div className="field login-input">
                                             <Button fluid size='large' onClick={renderProps.onClick} className={'social-button facebook-button'}>
-                                                <Icon name='facebook' /> Login with Facebook
+                                                <Icon name='facebook' /> {socialPrefix} with Facebook
                                             </Button>
                                         </div>
                                     )}
@@ -120,7 +135,7 @@ const LoginPage = ({register = false}) => {
                                     render={renderProps => (
                                         <div className="field login-input">
                                             <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
-                                                <Icon name='google' /> Login with Google
+                                                <Icon name='google' /> {socialPrefix} with Google
                                             </Button>
                                         </div>
                                     )}

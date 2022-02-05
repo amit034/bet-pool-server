@@ -1,10 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
-import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react'
-import { Card, CardText } from 'material-ui/Card';
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
+import { Button, Form, } from 'semantic-ui-react'
 
 
 const RegistrationForm = ({
