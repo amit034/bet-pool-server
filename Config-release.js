@@ -3,8 +3,8 @@ module.exports = {
 		"mongodb": "mongodb://api:239rtjss9akjksf82@ds035787.mongolab.com:35787/shopwithme",
 		"sequelize": {
 			HOST: "localhost",
-			USER: "betpool",
-			PASSWORD: "arotbard@X69",
+			USER: "root",
+			PASSWORD: "arotbarD!053450",
 			DB: "betPool",
 			dialect: "mysql",
 			pool: {

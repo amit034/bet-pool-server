@@ -37,7 +37,7 @@ const PoolsContainer = (props) => {
     const PoolList = ({pools, leave, join, enter}) => {
         const poolArray = _.values(pools);
         const poolNode = poolArray.map((pool) => {
-            return (<Pool pool={pool} key={pool.id} leave={leave} join={join} enter={enter}/>)
+            return (<Pool pool={pool} key={pool.poolId} leave={leave} join={join} enter={enter}/>)
         });
         return (<ul className="pool-list" style={{marginTop: '30px'}}>{poolNode}</ul>);
     };
@@ -48,7 +48,7 @@ const PoolsContainer = (props) => {
         if (moment(pool.lastCheckIn).isAfter(moment()) || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
         }
-        return (<li className="pool" key={pool.id} onClick={() => { return actionObj.action(pool.poolId)}}>
+        return (<li className="pool" key={pool.poolId} onClick={() => { return actionObj.action(pool.poolId)}}>
             <div className= 'pool-left-side'>
                 <div className='pool-left-title'>{pool.name}</div>
                 <div className='pool-left-side-center'>
