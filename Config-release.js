@@ -4,7 +4,7 @@ module.exports = {
 		"sequelize": {
 			HOST: "localhost",
 			USER: "root",
-			PASSWORD: "arotbard",
+			PASSWORD: "arotbarD!053450",
 			DB: "betPool",
 			dialect: "mysql",
 			pool: {

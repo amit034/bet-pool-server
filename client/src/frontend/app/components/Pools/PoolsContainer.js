@@ -15,20 +15,11 @@ const PoolsContainer = (props) => {
   },[dispatch]);
 
   function handleLeave(id) {
-    // Filter all todos except the one to be removed
-    const remainder = this.state.data.filter((pool) => {
-      if(pool.id !== id) {
-          return pool;
-      }
-    });
 
-    axios.delete(this.apiUrl+'/'+id)
-      .then(() => {
-        this.setState({data: remainder});
-      });
   }
-  function handleJoin(id){
-      props.dispatch(joinPool(id), () => handleEnter(id));
+  async function handleJoin(id){
+      await dispatch(joinPool(id));
+      handleEnter(id);
   }
   function handleEnter(id){
       props.history.push(`/pools/${id}?active=true`);
@@ -46,7 +37,7 @@ const PoolsContainer = (props) => {
     const PoolList = ({pools, leave, join, enter}) => {
         const poolArray = _.values(pools);
         const poolNode = poolArray.map((pool) => {
-            return (<Pool pool={pool} key={pool.id} leave={leave} join={join} enter={enter}/>)
+            return (<Pool pool={pool} key={pool.poolId} leave={leave} join={join} enter={enter}/>)
         });
         return (<ul className="pool-list" style={{marginTop: '30px'}}>{poolNode}</ul>);
     };
@@ -57,7 +48,7 @@ const PoolsContainer = (props) => {
         if (moment(pool.lastCheckIn).isAfter(moment()) || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
         }
-        return (<li className="pool" key={pool.id} onClick={() => { return actionObj.action(pool.id)}}>
+        return (<li className="pool" key={pool.poolId} onClick={() => { return actionObj.action(pool.poolId)}}>
             <div className= 'pool-left-side'>
                 <div className='pool-left-title'>{pool.name}</div>
                 <div className='pool-left-side-center'>
@@ -80,7 +71,7 @@ const PoolsContainer = (props) => {
                 <div className='divider' ></div>
                 <div className='pool-right-detail-value'>{pool.buyIn} NIS</div>
                 <div className='pool-right-detail-value' style={{fontWeight: 100}}>Check-in DeadLine</div>
-                <div className='pool-right-detail-value'>{moment(pool.lastCheckIn).format('DD/MM/YY hh:mm')}</div>
+                <div className='pool-right-detail-value'>{moment(pool.lastCheckIn).format('DD/MM/YY HH:mm')}</div>
             </div>
 
         </li>);

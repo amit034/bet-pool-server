@@ -49,6 +49,9 @@ function authorise(req, res, next) {
         }
         if (user) {
             req.currentUser = user;
+            if (user.username === 'demo@365win.bet') {
+                req.isDemo = true;
+            }
             req.requestForMe = requestForMe(req);
             return next();
         }
