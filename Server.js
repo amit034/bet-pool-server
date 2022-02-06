@@ -12,8 +12,8 @@ const fs = require('fs');
 const securityPolicy = require('./securityPolicy');
 const http = require('http');
 const https = require('https');
-const privateKey  = fs.readFileSync('./ssl/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('./ssl/fullchain.pem', 'utf8');
+const privateKey  = fs.readFileSync('./sslcert/idareu.live.privkey.pem', 'utf8');
+const certificate = fs.readFileSync('./sslcert/idareu.live.fullchain.pem', 'utf8');
 const credentials = {key: privateKey, cert: certificate};
 //const tester = require('./test/sdk');
 
