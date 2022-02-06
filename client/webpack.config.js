@@ -50,8 +50,8 @@ var config = {
         },
         https:{
             minVersion: 'TLSv1.1',
-            key: fs.readFileSync(path.join(__dirname, './server.key')),
-            cert: fs.readFileSync(path.join(__dirname, './server.crt')),
+            key: fs.readFileSync(path.join(__dirname, './ssl/privkey.pem')),
+            cert: fs.readFileSync(path.join(__dirname, './ssl/fullchain.pem')),
             passphrase: 'webpack-dev-server',
             requestCert: true,
         },
