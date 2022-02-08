@@ -330,8 +330,8 @@ export function joinPool(poolId) {
         const userId = getUserFromLocalStorage().userId;
         return axios.post(`/api/${userId}/pools/${poolId}/join`, null, {headers: authHeader()})
             .then((response) => {
-                const participate = response.data;
-                dispatch(receiveJoinToPool(userId, poolId, null, participate));
+                const pool = response.data;
+                dispatch(receiveJoinToPool(userId, poolId, null, pool.participates));
             }).catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) {

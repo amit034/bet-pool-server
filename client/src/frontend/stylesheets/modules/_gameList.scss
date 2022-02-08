@@ -9,7 +9,16 @@ font-size:16px
   text-align: center;
   padding:0;
   list-style: none;
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
   .round-title {
     display: block;
     font-size: 1.3em;
@@ -91,13 +100,13 @@ font-size:16px
             }
           }
           .game-day {
-            flex: 4;
+            flex: 11;
             display: flex;
             justify-content: end;
           }
 
           .game-hour {
-            flex: 2;
+            flex: 1;
             text-align: end;
           }
 

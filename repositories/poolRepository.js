@@ -4,8 +4,12 @@ const {Pool, Challenge, PoolParticipant, Event, Account} = require('../models');
 function findByQuery(query, {transaction} = {}) {
     return Pool.findOne({where: query, transaction});
 }
-function findAllByQuery(query, {transaction} = {}) {
-    return Pool.findAll({where: query, transaction});
+async function findAllByQuery(query, {transaction, participates} = {}) {
+    let include = undefined;
+    if (participates) {
+        include =  [{model: PoolParticipant, as: 'participates', required: false}];
+    }
+    return Pool.findAll({where: query, include, transaction});
 }
 module.exports = {
     async findById(poolId) {
@@ -13,7 +17,7 @@ module.exports = {
         const participates = await PoolParticipant.findAll({where: {poolId}, include: [{model: Account, as: 'user'}]});
         const challenges = await Challenge.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]});
         //const {events} = await Pool.findById(poolId, {include: [{model: Event, as: 'events'}]})
-        return _.assign({}, pool, {participates, challenges});
+        return _.assign({}, pool.toJSON(), {participates, challenges});
     },
     findByQuery,
     findAllByQuery,

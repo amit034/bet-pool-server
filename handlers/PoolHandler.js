@@ -309,7 +309,7 @@ async function handleGetUserPools(req, res) {
     const userId = req.params.userId;
     try{
         const userPools = await repository.findPoolsByUserId(userId);
-        const publicPools = await repository.findAllByQuery({public: true});
+        const publicPools = await repository.findAllByQuery({public: true}, {participates: true});
         const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
         const poolList = _.map(pools, pool => {
             const item = pool.toJSON();
@@ -415,8 +415,8 @@ function addEventsToPool(pool, eventsIds, req) {
 async function addParticipatesToPool(pool, usersIds, join, req, {transaction} = {}) {
     const users = await accountRepository.findActiveAccountsByIds(usersIds)
     try {
-        pool = await repository.setParticipates(pool.id, _.map(users, 'userId'), join, {transaction});
-        logger.log('info', 'add users to Pool' + pool.id + ' has been created.' +
+        pool = await repository.setParticipates(pool.poolId, _.map(users, 'userId'), join, {transaction});
+        logger.log('info', 'add users to Pool' + pool.poolId + ' has been created.' +
             'Request from address ' + req.connection.remoteAddress + '.');
         return Promise.resolve(pool);
     } catch (err) {
