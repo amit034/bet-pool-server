@@ -42,16 +42,14 @@ function prepareChallenges(games){
 }
 module.exports = {
     async start() {
-        schedule.scheduleJob('0 6 * * *', async () => {
+        schedule.scheduleJob('* * * * *', async () => {
             const transaction = await sequelize.transaction();
             try {
                 const autoEvents = await eventRepository.findActivePoolEvents({transaction});
                 const fApiEvents = _.reject(autoEvents, {fapiId: null});
                 await Promise.all(_.map(fApiEvents, async ({id: eventId, fapiId}) => {
-                    const matches = await apiFootballSdk.getMatches(fapiId, {stage: 'GROUP_STAGE'});
+                    const matches = await apiFootballSdk.getMatches(fapiId, {stage: 'LAST_16'});
                     const teams = await apiFootballSdk.getTeams(fapiId);
-
-
                     const {season} = _.sample(matches);
                     if (!_.isNil(season)) {
                         const {endDate, currentMatchday: matchday} = season;
