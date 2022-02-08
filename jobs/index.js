@@ -9,7 +9,7 @@ module.exports = {
         autoGames.start();
         liveGames.start(io);
         //footballApi.start();
-        botsBet.start();
+        //botsBet.start();
    //     migrateDb.start();
     }
 };

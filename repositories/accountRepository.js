@@ -11,7 +11,7 @@ module.exports = {
 	createAccount(details, {transaction}) {
 		return Account.create(details, {transaction});
 	},
-	findAccountByQuery(where, {transaction}) {
+	findAccountByQuery(where, {transaction} = {}) {
 		return Account.findOne({where, transaction});
 	},
 	findAccountByUsernamePassword(username, password) {
