@@ -9,11 +9,11 @@ function findAllByQuery(query, {transaction} = {}) {
 }
 module.exports = {
     async findById(poolId) {
-        const pool = await  Pool.findByPk(poolId);
+        const pool = await  Pool.findByPk(poolId, {include: [{model: Event, as: 'events'}]});
         const participates = await PoolParticipant.findAll({where: {poolId}, include: [{model: Account, as: 'user'}]});
         const challenges = await Challenge.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]});
-        const events = await Event.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]})
-        return _.assign({}, pool, {participates, events, challenges});
+        //const {events} = await Pool.findById(poolId, {include: [{model: Event, as: 'events'}]})
+        return _.assign({}, pool, {participates, challenges});
     },
     findByQuery,
     findAllByQuery,

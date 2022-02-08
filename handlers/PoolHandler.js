@@ -428,11 +428,16 @@ async function addParticipatesToPool(pool, usersIds, join, req, {transaction} = 
 
 
 function getPopulatePoolChallenges(pool, active , challangeId) {
-    const eventIds = _.map(pool.events, 'id');
-    return gameRepository.findGamesByEventIds(eventIds, active)
+    const events = _.keyBy(pool.events, 'id');
+    return gameRepository.findGamesByEventIds(_.keys(events), active)
     .then((games) => {
+        const filter = _.filter(games, (game) => {
+            const event = _.get(events, game.eventId);
+            const filter = _.get(event, 'PoolEvent.filter', 0);
+            return _.parseInt(game.round) >= _.parseInt(filter);
+        })
         const challengesQuery = {
-                        refId: {[Op.in]: _.map(games, 'id')},
+                        refId: {[Op.in]: _.map(filter, 'id')},
                         refName: 'Game',
                         type: Challenge.TYPES.FULL_TIME
         };

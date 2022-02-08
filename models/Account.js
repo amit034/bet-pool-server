@@ -126,7 +126,7 @@ module.exports = function (sequelize, DataTypes) {
     Account.prototype.checkPassword = function (password) {
         const encrypt =  this.encryptPassword(password);
         console.log(encrypt);
-        return this.encryptPassword(password) === this.hashedPassword;
+        return encrypt === this.hashedPassword;
     };
     Account.prototype.isLocal = function() {
         return this.facebookProviderId < 1 && this.googleProviderId < 1
