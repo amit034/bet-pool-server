@@ -206,6 +206,7 @@ function receiveJoinToPool(userId, poolId, pool, participates) {
     return {
         type: JOIN_TO_POOL_SUCCESS,
         isFetching: false,
+        afterJoin: true,
         poolId,
         pool,
         userId,
@@ -331,7 +332,7 @@ export function joinPool(poolId) {
         return axios.post(`/api/${userId}/pools/${poolId}/join`, null, {headers: authHeader()})
             .then((response) => {
                 const pool = response.data;
-                dispatch(receiveJoinToPool(userId, poolId, null, pool.participates));
+                dispatch(receiveJoinToPool(userId, poolId, pool, pool.participates));
             }).catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) {

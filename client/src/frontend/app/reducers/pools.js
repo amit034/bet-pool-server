@@ -4,6 +4,7 @@ import update from 'immutability-helper';
 
 function pools(state = {
     isFetching: false,
+    afterJoin: false,
     pools: {},
     otherBets: {},
     games: {},
@@ -51,7 +52,7 @@ function pools(state = {
         case poolActions.GET_POOL_PARTICIPATES_SUCCESS:
             return update(state, { isFetching: { $set: false }, participates: { $set: action.participates }, errorMessage: { $set: null } });
         case poolActions.JOIN_TO_POOL_SUCCESS:
-            return update(state, { isFetching: { $set: false }, pools: { $merge: { [action.poolId]: action.pool } }, participates: { $set: action.participates }, errorMessage: { $set: null } });
+            return update(state, { isFetching: { $set: false }, afterJoin: { $set: true }, pools: { $merge: { [action.poolId]: action.pool } }, participates: { $set: action.participates }, errorMessage: { $set: null } });
         case poolActions.GET_CHALLENGE_PARTICIPATES_SUCCESS:
             return update(state, { isFetching: { $set: false }, otherBets: { $merge: { challenge: action.challenge, usersBets: action.usersBets } }, errorMessage: { $set: null } });
         case poolActions.UPDATE_USER_BET_REQUEST:

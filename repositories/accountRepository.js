@@ -8,7 +8,7 @@ module.exports = {
 	findActiveAccountsByIds(userId) {
 		return Account.findAll({where: {userId}});
 	},
-	createAccount(details, {transaction}) {
+	createAccount(details, {transaction} = {}) {
 		return Account.create(details, {transaction});
 	},
 	findAccountByQuery(where, {transaction} = {}) {

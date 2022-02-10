@@ -1,0 +1,35 @@
+@import '../spritesmith-generated/sprite';
+
+//.winner-icon{
+//  background: url($winner-image) no-repeat;
+//  background-position-x: $winner-offset-x;
+//  background-position-y: $winner-offset-y;
+//  width: 60px;
+//  height: 60px;
+//  border-radius: 60px;
+//}
+#video{
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+}
+.splash-screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  .skip-intro{
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    height: 40px;
+    background-color: black;
+    color: white;
+    border-radius: 20px;
+    border: 2px solid;
+  }
+}
+
