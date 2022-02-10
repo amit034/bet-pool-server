@@ -17,9 +17,8 @@ const PoolsContainer = (props) => {
   function handleLeave(id) {
 
   }
-  async function handleJoin(id){
-      await dispatch(joinPool(id));
-      handleEnter(id);
+  function handleJoin(id){
+      dispatch(joinPool(id));
   }
   function handleEnter(id){
       props.history.push(`/pools/${id}?active=true`);

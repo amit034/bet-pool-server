@@ -6,6 +6,7 @@ const BearerStrategy = require('passport-http-bearer').Strategy;
 const GoogleTokenStrategy = require('passport-google-token').Strategy;
 const FacebookTokenStrategy = require('passport-facebook-token');
 const {SecurityToken} = require('./models');
+const accountRepository = require('./repositories/accountRepository');
 
 module.exports = function () {
 
@@ -25,7 +26,12 @@ module.exports = function () {
             }
             if (!user && req.register) {
                 const {lastName, firstName} = req.body;
-                return new Account({username: email, email, password, firstName, lastName}).save()
+                return accountRepository.createAccount({
+                    username: email,
+                    password: password,
+                    email: email,
+                    firstName,
+                    lastName})
                     .then((user) => {
 
                         done(null, user, info);
