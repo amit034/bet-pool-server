@@ -16,17 +16,9 @@ const App = () => {
     const match = useRouteMatch();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-    const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-    const [showIntro, setShowIntro] = useState(true);
+    const [skipIntro, setSkipIntro] = useState(false);
+    const showIntro = localStorage.getItem('showIntro');
 
-    useEffect(() => {
-        const alreadyLaunched = localStorage.getItem('alreadyLaunched');
-        if(alreadyLaunched == null){
-            setIsFirstLaunch(true);
-        } else{
-            setIsFirstLaunch(false);
-        }
-    },[]);
     function logout() {
         dispatch(logoutUser());
     }
@@ -36,10 +28,6 @@ const App = () => {
     }
     function unMuteSite() {
         localStorage.setItem('mute' , 'false');
-    }
-    function skipIntro() {
-        setShowIntro(false);
-        localStorage.setItem('alreadyLaunched','true');
     }
     const switcher = (<Switch>
         <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
@@ -115,7 +103,7 @@ const App = () => {
                 </Menu.Menu>
             </Menu>) : '';
     return (<div className="app-wrapper">
-        {isAuthenticated && isFirstLaunch && showIntro ? <SplashScreen skipIntro={skipIntro}/> : ''}
+        {isAuthenticated && !skipIntro && showIntro ? <SplashScreen setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         {switcher}
     </div>);

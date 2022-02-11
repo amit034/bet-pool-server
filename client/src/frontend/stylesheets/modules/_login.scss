@@ -40,7 +40,13 @@
   .error-message{
     height: 23px;
   }
-
+  .login-logo{
+    background: url($logo);
+    background-repeat: no-repeat;;
+    width: 60px;
+    height: 60px;
+    margin: auto;
+  }
   .login-button {
     font-family: 'Titillium web', sans-serif;
     background-color: white !important;
@@ -78,7 +84,6 @@
     }
   }
   .login-header{
-    padding-top: 20px;
     font-family: 'Titillium web', sans-serif;
     color: white !important;
     font-size: 24px;

@@ -17,19 +17,30 @@
   left: 0;
 }
 .splash-screen {
+  font-family: 'Titillium web', sans-serif;
   position: absolute;
   width: 100%;
   height: 100%;
   z-index: 1000;
   .skip-intro{
     position: absolute;
-    right: 30px;
-    bottom: 30px;
+    right: 18px;
+    bottom: 60px;
     height: 40px;
     background-color: black;
     color: white;
     border-radius: 20px;
     border: 2px solid;
+    width: 170px;
+    letter-spacing: 3.5px;
+  }
+  .show-intro{
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    label, label:hover, label:focus{
+      color: white !important;
+    }
   }
 }
 
