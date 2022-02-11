@@ -17,7 +17,7 @@ const App = () => {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const [skipIntro, setSkipIntro] = useState(false);
-    const showIntro = localStorage.getItem('showIntro');
+    const showIntro = localStorage.getItem('showIntro') !== 'false';
 
     function logout() {
         dispatch(logoutUser());
