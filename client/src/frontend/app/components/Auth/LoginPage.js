@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router-dom';
 import {useDispatch, useSelector} from "react-redux";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
@@ -93,12 +93,16 @@ const LoginPage = ({register = false}) => {
     const onSubmit = register ? processRegisterForm : processForm;
     const socialPrefix = register ? 'Register' : 'Login';
     return (<div style={{ height: '100%' }} >
-            {/*<div className={'login-page-bg'}></div>*/}
             {video}
             {<Button className='mute-btn' icon={mute ? 'mute' : 'unmute'}  onClick={mute? unMuteSite : muteSite} />}
             <div style={{ height: '100%' }} className={'login-page'}>
+                <div className={'login-logo'}>
+                </div>
                 <Header as='h2' textAlign='center' className={'login-header'}>
-                    Bet Pool Winner
+                    I Dare U
+                </Header>
+                <Header as='h4' textAlign='center' className={'login-sub-header'}>
+                    Challenge your friends to beat you in football predictions
                 </Header>
             <Grid columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
                 <Grid.Column  stretched style={{maxWidth:450}}>
