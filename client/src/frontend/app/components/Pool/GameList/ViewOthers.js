@@ -10,13 +10,17 @@ import {Modal} from 'semantic-ui-react';
 import GameList from "./GameList";
 
 const ViewOthers = ({clickOnBetChange}) => {
-    const MatchResult = ({score1, score2, closed}) => {
+    const MatchResult = ({challenge: {score1, score2, closed, odds1, odds2, oddsX}}) => {
         const className = classNames('match-tip-image circular teal icon link small fitted', {
             'users': closed,
             'lightbulb': !closed
         });
-        return (<div className="game-result">
+        return closed? (<div className="game-result">
                 {score1} : {score2}
+        </div>) : (<div className="game-odds">
+            <div class='odds-title-row'> <div>Home</div><div>Draw</div><div>Away</div></div>
+            <div className='odds-title-values'><div>{odds1}</div><div>{oddsX}</div><div>{odds2}</div>
+            </div>
         </div>);
     };
     const TeamScore = ({team: {flag, name}, reverse}) => {
@@ -31,7 +35,7 @@ const ViewOthers = ({clickOnBetChange}) => {
         </div>);
     };
     const ChallengeDetails = ({challenge}) => {
-        const {id, score1, score2, game: {homeTeam, awayTeam}, playAt} = challenge;
+        const {id, game: {homeTeam, awayTeam}, playAt} = challenge;
         return (<Modal.Header><li className="challenge-row" key={id}>
             <div className="game-title">
                 <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
@@ -39,7 +43,7 @@ const ViewOthers = ({clickOnBetChange}) => {
             </div>
             <div className="game-body">
                 <TeamScore team={homeTeam}/>
-                <MatchResult score1={score1} score2={score2} closed={closed} />
+                <MatchResult challenge={challenge} />
                 <TeamScore team={awayTeam} reverse={true} />
             </div>
 

@@ -38,6 +38,36 @@
         }
       }
     }
+    .game-odds{
+      flex: 4;
+      flex-direction: column;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .odds-title-row{
+        display: flex;
+        width: 100%;
+        align-content: space-between;
+        border-bottom: #965A38 1px solid;
+        text-align: center;
+        line-height: 2;
+        div {
+          flex: 4;
+        }
+      }
+      .odds-title-values{
+        display: flex;
+        width: 100%;
+        align-content: space-between;
+        text-align: center;
+        line-height: 2;
+        div {
+          flex: 4;
+        }
+      }
+
+
+    }
     .game-result {
       flex: 2;
       flex-direction: column;
