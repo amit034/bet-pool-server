@@ -29,7 +29,7 @@ const Intro = ({setSkipIntro}) => {
                 skipIntro();
             });
         }
-    }, [video]);
+    }, [ref]);
     return (
         <div className='splash-screen'>
             <Button className='mute-btn' icon={mute === 'true' ? 'mute' : 'unmute'}  onClick={mute ? unMuteSite : muteSite} />

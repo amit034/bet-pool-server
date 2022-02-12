@@ -38,8 +38,8 @@ const LoginPage = ({register = false, muteSite, unMuteSite}) => {
     });
 
     const [video, videoState, controls, ref] = useVideo(
-        <video autoPlay muted={mute === 'true'} id='video'>
-            <source src={backgroundVideo} playsInline type='video/mp4'/>
+        <video autoPlay playsInline muted={mute === 'true'} id='video'>
+            <source src={backgroundVideo} type='video/mp4'/>
         </video>
     );
     useEffect(() => {

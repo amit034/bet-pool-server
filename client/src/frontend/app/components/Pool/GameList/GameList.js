@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useAudio} from 'react-use';
+import {useAudio, useLocalStorage} from 'react-use';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Form} from 'semantic-ui-react';
@@ -15,6 +15,7 @@ SwiperCore.use([Pagination]);
 const GameList = ({poolId}) => {
     const dispatch = useDispatch();
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
+    const [mute] = useLocalStorage('mute', 'false');
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
     let goalHandler;
@@ -22,7 +23,7 @@ const GameList = ({poolId}) => {
         src: '../../../../sounds/goal3.mp3'
     });
     useEffect(() => {
-        if (!_.isEmpty(goals) && audioRef && audioRef.current) {
+        if (!_.isEmpty(goals) && audioRef && audioRef.current && mute !== 'true') {
             if (goalHandler){
                 clearTimeout(goalHandler);
             }
