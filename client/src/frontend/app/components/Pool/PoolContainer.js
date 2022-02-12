@@ -25,9 +25,7 @@ const PoolContainer = (props) => {
         if (prev) {
             const {score1: prevScore1, score2: prevScore2} = prev;
             if ((prevScore1 !==null && score1 > prevScore1) || (prevScore2 !==null && score2 > prevScore2)) {
-                setTimeout(() => {
-                    clearGoalAnima(id);
-                }, 3000);
+                dispatch(clearGoalAnima(id));
             }
         }
     }

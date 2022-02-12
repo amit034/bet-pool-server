@@ -37,9 +37,9 @@ function pools(state = {
             }
             return update(state, {isFetching: {$set: false}, errorMessage: {$set: null}});
         }
-        case poolActions.CLEAR_GOAL_ANIMA:{
-            const challengeId = action.challengeId;
-            return update(state , {goals:{$splice: challengeId}});
+        case poolActions.CLEAR_GOAL_ANIMA: {
+            const clearId = action.challengeId;
+            return update(state , {goals:{$unset: [clearId]}});
         }
         case poolActions.GET_USER_BETS_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
