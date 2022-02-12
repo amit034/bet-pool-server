@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router-dom';
 import {useDispatch, useSelector} from "react-redux";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
-import {useVideo} from 'react-use';
+import {useVideo, useLocalStorage} from 'react-use';
 import backgroundVideo from '../../../video/intro.mp4';
 import {GoogleLogin} from 'react-google-login';
 import {
@@ -16,18 +16,12 @@ import LoginForm from './LoginForm';
 import {Button, Grid, Icon, Header ,Form} from 'semantic-ui-react';
 import RegistrationForm from "./RegistrationForm";
 
-const LoginPage = ({register = false}) => {
+const LoginPage = ({register = false, muteSite, unMuteSite}) => {
     const auth = useSelector(state => state.auth);
     const dispatch = useDispatch();
     const history = useHistory();
-    const mute = localStorage.getItem('mute') === 'true';
+    const [mute] = useLocalStorage('mute', 'false');
     const storedMessage = localStorage.getItem('successMessage');
-    const muteSite = () => {
-        localStorage.setItem('mute' , 'true');
-    };
-    const unMuteSite = () => {
-        localStorage.setItem('mute' , 'false');
-    };
     let successMessage = '';
 
     if (storedMessage) {
@@ -44,8 +38,8 @@ const LoginPage = ({register = false}) => {
     });
 
     const [video, videoState, controls, ref] = useVideo(
-        <video autoPlay muted={mute} id='video'>
-            <source src={backgroundVideo} type='video/mp4'/>
+        <video autoPlay muted={mute === 'true'} id='video'>
+            <source src={backgroundVideo} playsInline type='video/mp4'/>
         </video>
     );
     useEffect(() => {
@@ -94,7 +88,7 @@ const LoginPage = ({register = false}) => {
     const socialPrefix = register ? 'Register' : 'Login';
     return (<div style={{ height: '100%' }} >
             {video}
-            {<Button className='mute-btn' icon={mute ? 'mute' : 'unmute'}  onClick={mute? unMuteSite : muteSite} />}
+            {<Button className='mute-btn' icon={mute === 'true' ? 'volume up' : 'volume off'}  onClick={mute? unMuteSite : muteSite} />}
             <div style={{ height: '100%' }} className={'login-page'}>
                 <div className={'login-logo'}>
                 </div>

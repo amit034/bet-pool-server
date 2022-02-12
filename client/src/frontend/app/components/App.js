@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
+import {useLocalStorage} from "react-use";
 import {useSelector, useDispatch} from 'react-redux';
 import {Route, Switch, useRouteMatch, Redirect, NavLink} from "react-router-dom";
 import Intro from "./Intro";
@@ -12,22 +13,22 @@ import NewPool from './Pools/NewPool';
 
 const App = () => {
     const user = getUserFromLocalStorage();
-    const mute = localStorage.getItem('mute');
+    const [mute, setMute] = useLocalStorage('mute', 'false');
     const match = useRouteMatch();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const [skipIntro, setSkipIntro] = useState(false);
-    const showIntro = localStorage.getItem('showIntro') !== 'false';
+    const [showIntro, setShowIntro] =  useLocalStorage('showIntro', 'true');
 
     function logout() {
         dispatch(logoutUser());
     }
 
     function muteSite() {
-        localStorage.setItem('mute' , 'true');
+        setMute('true');
     }
     function unMuteSite() {
-        localStorage.setItem('mute' , 'false');
+        setMute('false');
     }
     const switcher = (<Switch>
         <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
@@ -41,20 +42,20 @@ const App = () => {
         <Route exact path="/" render={(props) => {
             return isAuthenticated ?
                 <Redirect to="/pools"/> :
-                <LoginPage register={false} {...props}/>
+                <LoginPage register={false} muteSite={muteSite} unMuteSite={unMuteSite}  {...props}/>
         }}/>
     </Switch>);
     const muteMenu = mute === 'true' ? (<Dropdown.Item
         name='unMmuteSiteMenu'
         onClick={unMuteSite}
     >
-        <Icon name='mute'/>
+        <Icon name='volume off'/>
         Un-Mute Site
     </Dropdown.Item>) : (<Dropdown.Item
         name='muteSiteMenu'
         onClick={muteSite}
     >
-        <Icon name='unmute'/>
+        <Icon name='volume up'/>
         Mute Site
     </Dropdown.Item>);
 
@@ -103,7 +104,7 @@ const App = () => {
                 </Menu.Menu>
             </Menu>) : '';
     return (<div className="app-wrapper">
-        {isAuthenticated && !skipIntro && showIntro ? <Intro setSkipIntro={setSkipIntro}/> : ''}
+        {isAuthenticated && !skipIntro && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         {switcher}
     </div>);

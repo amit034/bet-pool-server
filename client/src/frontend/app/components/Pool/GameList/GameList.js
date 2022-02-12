@@ -11,9 +11,6 @@ import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "./ViewOthers";
 import Game from "./Game";
 SwiperCore.use([Pagination]);
-import goalURL from  '../../../../sounds/goal3.mp3';
-const url = 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3';
-
 
 const GameList = ({poolId}) => {
     const dispatch = useDispatch();
@@ -33,7 +30,7 @@ const GameList = ({poolId}) => {
             goalSoundControllers.play();
             goalHandler = setTimeout(() => {
                 goalSoundControllers.pause();
-            }, 20000);
+            }, 11000);
         }
     },
         [goals]
@@ -57,7 +54,7 @@ const GameList = ({poolId}) => {
             dispatch(getPoolParticipates(poolId));
         }
         dispatch(getChallengeParticipates(poolId, challengeId));
-    });
+    }, []);
     const clickOnBetChange = useCallback ((challengeId, score1, score2) => {
         handleViewOthersClose();
         onBetChange(challengeId, {score1, score2});
@@ -82,7 +79,7 @@ const GameList = ({poolId}) => {
             swiper.slideTo(currSlide);
          }
     },[bets]);
-  
+
     const ViewOthersModal =  (<Modal
             // className='fullscreen' style={{}}
             style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
