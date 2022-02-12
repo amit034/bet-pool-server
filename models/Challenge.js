@@ -17,6 +17,9 @@ module.exports = function (sequelize, DataTypes) {
         status: {type: STRING(9), defaultValue: 'SCHEDULED'},
         score1: {type: INTEGER(3), field: 'score_1'},
         score2: {type: INTEGER(9), field: 'score_2'},
+        odds1: {type: INTEGER(3), field: 'odds_1'},
+        oddsX: {type: INTEGER(9), field: 'odds_x'},
+        odds2: {type: INTEGER(3), field: 'odds_2'},
         factorId: {type: INTEGER(1), defaultValue: 1, field: 'factor_id'},
         isOpen: {
             type: VIRTUAL,

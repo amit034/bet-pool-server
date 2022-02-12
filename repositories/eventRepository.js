@@ -42,6 +42,6 @@ module.exports = {
     },
     async updateEvent({id, isActive}, {transaction}) {
         const event = await Event.findByPk(id, {transaction});
-        return event.update({isActive}, {transaction});
+        return event.update({isActive, updatedAt: moment()}, {transaction});
     }
 }

@@ -24,10 +24,10 @@ function pools(state = {
         case poolActions.GET_POOL_GAMES_SUCCESS:
             return update(state, {isFetching: {$set: false}, games: {$set:_.keyBy(action.games, 'id')}, errorMessage: {$set: null}});
         case poolActions.UPDATE_CHALLEGE_SUCCESS: {
-            const challengeId = action.challenge.id;
+            const {id: challengeId, score1, score2, status} = action.challenge;
             const bet = _.cloneDeep(_.get(state.bets, challengeId));
             if (bet) {
-                bet.challenge = action.challenge;
+                bet.challenge = _.assign({}, bet.challenge , {score1, score2, status});
                 return update(state, {
                     isFetching: {$set: false},
                     goals: {$merge: {[challengeId]: challengeId}},
@@ -58,14 +58,10 @@ function pools(state = {
         case poolActions.UPDATE_USER_BET_REQUEST:
             return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
         case poolActions.UPDATE_USER_BET_SUCCESS:
-            return update(state, { isFetching: { $set: false }, bets: { $merge: { [action.challengeId]: action.bet } }, errorMessage: { $set: null } });
-        // return update(state, {isFetching: {$set: false}, bets: {$apply: (bets) => bets.map((bet) => {
-        //     if (bet.id === action.bet.id) {
-        //         bet.score1 = action.score1;
-        //         bet.score2 = action.score2;
-        //     }
-        //     return bet;
-        // })}, errorMessage: {$set: null}});
+            return update(state, {
+                isFetching: { $set: false },
+                bets: { $merge: { [action.challengeId]: action.bet } },
+                errorMessage: { $set: null } });
         case poolActions.UPDATE_USER_BET_FAILURE:
             return update(state, { isFetching: { $set: false }, errorMessage: { $set: action.message } });
         case poolActions.UPDATE_USER_BETS_REQUEST:
