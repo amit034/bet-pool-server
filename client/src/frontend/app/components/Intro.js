@@ -3,9 +3,9 @@ import backgroundVideo from "../../video/intro.mp4";
 import React, {useEffect, useState} from "react";
 import {Button, Checkbox} from "semantic-ui-react";
 
-const SplashScreen = ({setSkipIntro}) => {
+const Intro = ({setSkipIntro}) => {
     const mute = localStorage.getItem('mute') === 'true';
-    const showIntro = localStorage.getItem('showIntro') === 'true';
+    const showIntro = localStorage.getItem('showIntro') !== 'false';
     const muteSite = () => {
         localStorage.setItem('mute' , 'true');
     };
@@ -43,4 +43,4 @@ const SplashScreen = ({setSkipIntro}) => {
     );
 };
 
-export default SplashScreen;
+export default Intro;

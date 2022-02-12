@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 const moment = require('moment');
 const _ = require('lodash');
 
-const {sequelize, Challenge: {TYPES}} = require('../models');
+const {sequelize, Challenge: {TYPES}, Sequelize: {Op}} = require('../models');
 const apiFootballSdk = require('../lib/apiFootballSDK');
 const eventRepository = require('../repositories/eventRepository');
 const teamRepository = require('../repositories/teamRepository');
@@ -47,21 +47,26 @@ module.exports = {
             try {
                 const autoEvents = await eventRepository.findActivePoolEvents({transaction});
                 const fApiEvents = _.reject(autoEvents, {fapiId: null});
-                await Promise.all(_.map(fApiEvents, async ({id: eventId, fapiId}) => {
-                    const matches = await apiFootballSdk.getMatches(fapiId, {stage: 'LAST_16'});
+                await Promise.all(_.map(fApiEvents, async ({id: eventId, fapiId, updatedAt, filter}) => {
+                    const matches = await apiFootballSdk.getMatches(fapiId, {stage: _.split(filter, ',')});
                     const teams = await apiFootballSdk.getTeams(fapiId);
                     const {season} = _.sample(matches);
                     if (!_.isNil(season)) {
-                        const {endDate, currentMatchday: matchday} = season;
+                        const {endDate, currentMatchday} = season;
                         if (moment().isBefore(endDate)) {
-                            const currentMatches = _.filter(matches, {matchday});
-                            const currentTeamIds = _.concat(_.map(currentMatches, 'homeTeam.id'), _.map(currentMatches, 'awayTeam.id'));
-                            const dbTeamsMap = await mapTeams(_.filter(teams, ({id}) => _.includes(currentTeamIds, id)), {transaction});
-                            const gamesData = await prepareGames(eventId, currentMatches, dbTeamsMap);
-                            const games = await gameRepository.createAll(gamesData, {transaction});
-                            const challengesData = prepareChallenges(games);
-                            await challengeRepository.createAll(challengesData, {transaction});
-
+                            const currentMatches = _.filter(matches, ({matchday, lastUpdated}) => {
+                                return matchday === currentMatchday && moment(lastUpdated).isAfter(updatedAt);
+                            });
+                            if(!_.isEmpty(currentMatches)) {
+                                await eventRepository.updateEvent({id: eventId, isActive: true}, transaction);
+                                const currentTeamIds = _.concat(_.map(currentMatches, 'homeTeam.id'), _.map(currentMatches, 'awayTeam.id'));
+                                const dbTeamsMap = await mapTeams(_.filter(teams, ({id}) => _.includes(currentTeamIds, id)), {transaction});
+                                const gamesData = await prepareGames(eventId, currentMatches, dbTeamsMap);
+                                await gameRepository.createAll(gamesData, {transaction});
+                                const games = await gameRepository.findGamesByQuery({fapiId: {[Op.in]: _.map(currentMatches, 'id')}}, {transaction})
+                                const challengesData = prepareChallenges(games);
+                                await challengeRepository.createAll(challengesData, {transaction});
+                            }
                         } else {
                             return eventRepository.updateEvent({id: eventId, isActive: false}, {transaction});
                         }

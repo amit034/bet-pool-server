@@ -4,10 +4,14 @@ const moment = require('moment');
 const {Game, Team, Event, Sequelize} = require('../models');
 const {Op} = Sequelize;
 
+const findGamesByQuery = (query, {transaction}) => {
+    return Game.findAll({where: query, transaction});
+}
 module.exports = {
     findGameById(gameId, {transaction}) {
         return Game.findByPk(gameId, {transaction});
     },
+    findGamesByQuery,
     findGameByQuery(query, {transaction}) {
         return Game.findOne({where: query, transaction});
     },
@@ -18,19 +22,19 @@ module.exports = {
         } else if (active === false) {
             query.playAt = {[Op.lt]: moment()};
         }
-        return Game.findAll({where: query, transaction});
+        return findGamesByQuery(query, {transaction});
     },
     findGameByIds(gameIds, {transaction}) {
         return Game.findAll({where: {gameId: gameIds}, transaction});
     },
     findActiveGameByIds(gameIds, {transaction}) {
-        return Game.findAll({where: {gameId: gameIds, playAt: {[Op.gte]: moment()}},transaction});
+        return findGamesByQuery({where: {gameId: gameIds, playAt: {[Op.gte]: moment()}}}, {transaction});
     },
     findActive({transaction}) {
-        return Game.findAll({
+        return findGamesByQuery({
             where: {playAt: {[Op.gte]: moment()}} ,
             include: [{model: Team, as: 'homeTeam'},{model: Team, as: 'awayTeam'}],
-            transaction});
+        },{transaction});
     },
     findLive({transaction}) {
         return Game.findAll({

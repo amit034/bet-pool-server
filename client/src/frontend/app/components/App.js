@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {Menu, Icon, Dropdown, Image, Button} from 'semantic-ui-react';
+import React, {useState} from 'react';
+import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
 import {useSelector, useDispatch} from 'react-redux';
 import {Route, Switch, useRouteMatch, Redirect, NavLink} from "react-router-dom";
-import SplashScreen from "./SplashScreen";
+import Intro from "./Intro";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
 import PoolContainer from './Pool/PoolContainer';
@@ -103,7 +103,7 @@ const App = () => {
                 </Menu.Menu>
             </Menu>) : '';
     return (<div className="app-wrapper">
-        {isAuthenticated && !skipIntro && showIntro ? <SplashScreen setSkipIntro={setSkipIntro}/> : ''}
+        {isAuthenticated && !skipIntro && showIntro ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         {switcher}
     </div>);
