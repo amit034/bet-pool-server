@@ -101,7 +101,7 @@
     }
     .user-bet-center {
       text-align: left;
-      flex: 8;
+      flex: 12;
       line-height: 1.4;
       display: flex;
       flex-direction: column;
@@ -116,8 +116,8 @@
       height: 100%;
       display:flex;
       padding: 5px;
-      flex: 2;
-      flex-grow: 4;
+      flex: 3;
+      color: $title-3;
       background-color: $background-3;
       justify-content: center;
       align-items: center;
@@ -136,8 +136,8 @@
       flex: 1;
 
       .user-bet-image {
-        width: 2.285em;
-        height: 2.285em;
+        width: 2.225em;
+        height: 2.225em;
         align-self: center;
         border-radius: 50%;
       }

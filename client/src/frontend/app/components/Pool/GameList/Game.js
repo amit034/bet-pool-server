@@ -85,9 +85,9 @@ const Game = ({bet, onMatchClick, onBetKeyChange}) => {
                             {/* <i className={className} onClick={() => this.onAnimation()}></i> */}
                         </div>
 
-                        <div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>
-                        {/* < div className="game-more">{factor > 1 ? 'Main Event': ''}</div> */}
-                        <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+                        {/*<div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>*/}
+                        {/*< div className="game-more">{factorId > 1 ? 'Main Event': ''}</div>*/}
+                        <div className="game-hour">{moment(playAt).format('DD/MM/YYYY H:mm')}</div>
 
                     </div>
                     <div className="game-body">
