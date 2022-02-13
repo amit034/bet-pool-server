@@ -14,7 +14,13 @@ font-size:16px
     -webkit-appearance: none;
     margin: 0;
   }
-
+  //.goal {
+  //  background-image: url($football-net-image);
+  //  background-position-x:  $football-net-offset-x;
+  //  background-position-y: $football-net-offset-y;
+  //  background-repeat: no-repeat;
+  //  background-size: 150px 500px;
+  //}
   /* Firefox */
   input[type=number] {
     -moz-appearance: textfield;

@@ -31,7 +31,7 @@ const GameList = ({poolId}) => {
             goalSoundControllers.play();
             goalHandler = setTimeout(() => {
                 goalSoundControllers.pause();
-            }, 11000);
+            }, 15000);
         }
     },
         [goals]
@@ -98,7 +98,8 @@ const GameList = ({poolId}) => {
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const gameNodes = roundBets.map((bet) => {
             const {challengeId} = bet;
-            const gameNode = <Game bet={bet} onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
+            const showGoal = _.has(goals, challengeId);
+            const gameNode = <Game bet={bet} showGoal={showGoal}  onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
                                    showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);
