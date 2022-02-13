@@ -13,7 +13,6 @@ const Intro = ({setSkipIntro}) => {
     };
     const onShowThisAgain = () => {
         setShowIntro((!(showIntro === 'true')).toString());
-        skipIntro();
     }
     const skipIntro = () => {
         setSkipIntro(true);
