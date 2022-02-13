@@ -42,7 +42,7 @@ const App = () => {
         <Route exact path="/" render={(props) => {
             return isAuthenticated ?
                 <Redirect to="/pools"/> :
-                <LoginPage register={false} muteSite={muteSite} unMuteSite={unMuteSite}  {...props}/>
+                <LoginPage register={false} {...props}/>
         }}/>
     </Switch>);
     const muteMenu = mute === 'true' ? (<Dropdown.Item
