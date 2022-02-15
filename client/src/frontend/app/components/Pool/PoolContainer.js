@@ -20,16 +20,10 @@ const PoolContainer = (props) => {
     const poolId = match.params.id;
     const updateChallengeHandler = (challenge) => {
         dispatch(updateChallenge(challenge));
-        const {id, score1, score2} = challenge;
-        const prev = _.get(betsRef.current, id);
-        if (prev) {
-            const {score1: prevScore1, score2: prevScore2} = prev;
-            if ((prevScore1 !==null && score1 > prevScore1) || (prevScore2 !==null && score2 > prevScore2)) {
-                setTimeout(() => {
-                    dispatch(clearGoalAnima(id));
-                }, 15000)
-            }
-        }
+        const {id} = challenge;
+        setTimeout(() => {
+            dispatch(clearGoalAnima(id));
+        }, 20000)
     }
     useEffect(() => {
         dispatch(getUserBets(poolId));

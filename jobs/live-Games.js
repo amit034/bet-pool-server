@@ -9,6 +9,7 @@ const apiFootballSdk = require('../lib/apiFootballSDK');
 const eventRepository = require('../repositories/eventRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 module.exports = {
+
     async start(io) {
        schedule.scheduleJob('* * * * *', async () => {
            const transaction = await sequelize.transaction();
@@ -23,7 +24,7 @@ module.exports = {
                        await eventRepository.updateEvent({id: eventId, isActive: true}, transaction);
                        await Promise.all(_.map(updatedMatches, async (match) => {
                            const game = _.find(games, {fapiId: match.id});
-                           if (match) {
+                           if (game) {
                                const {status, utcDate: playAt, score: {fullTime: {homeTeam: homeTeamScore, awayTeam: awayTeamScore}}} = match;
                                const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
                                await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
@@ -33,9 +34,11 @@ module.exports = {
                                        type: TYPES.FULL_TIME
                                    },
                                    {score1: homeTeamScore, score2: awayTeamScore, status}, {transaction});
-                               if (changed){
+                               if (changed) {
                                    const data = challenge.toJSON();
-                                   return io.in(_.map(pools, 'poolId').join(' ')).emit('updateChallenge', data);
+                                   _.forEach(_.map(pools, 'poolId'), (room) => {
+                                       io.to(room).emit('updateChallenge', data);
+                                   })
                                }
                            }
                            return Promise.resolve();

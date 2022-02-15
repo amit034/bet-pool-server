@@ -29,15 +29,15 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
     const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         const val = _.toString(teamBet);
+        const editable  = (<input id="betInput" onFocus={handleFocus}
+                                  type='number'
+                                  onChange={(e) => {
+                                      clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
+                                  }} value={val}/>);
         return (<div className={className}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
-                    <input id="betInput" onFocus={handleFocus}
-                           type='number'
-                           onChange={(e) => {
-                               clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
-                           }} value={val}
-                           disabled={closed} />
+                    {closed ? <div className="team-bet-closed">{val}</div> : editable}
                 </div>
                 <div className="team-name game-body-column-footer">{shortName}</div>
             </div>
@@ -69,7 +69,6 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
     };
-    const goalRow =(<Goal challenge={challenge} goal={goal}/> );
     const betRow = (<section style={{display: "contents"}}>
                     <div className="game-side">
                         <div className="game-side-score">
@@ -104,7 +103,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
                     </div></section>)
     return (
             <li className="game-row" data={challengeId}>
-                {goal? goalRow: betRow}
+                {goal? <Goal challenge={challenge} goal={goal}/> : betRow}
             </li>)
 }
 

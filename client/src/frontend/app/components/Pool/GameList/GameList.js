@@ -9,33 +9,15 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
 import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "./ViewOthers";
+import GoalSound from "./GoalSound";
 import Game from "./Game";
 SwiperCore.use([Pagination]);
 
 const GameList = ({poolId}) => {
     const dispatch = useDispatch();
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
-    const [mute] = useLocalStorage('mute', 'false');
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
-    let goalHandler;
-    const [audio, state, goalSoundControllers, audioRef] = useAudio({
-        src: '../../../../sounds/goal3.mp3'
-    });
-    useEffect(() => {
-        if (!_.isEmpty(goals) && audioRef && audioRef.current && mute !== 'true') {
-            if (goalHandler){
-                clearTimeout(goalHandler);
-            }
-            audioRef.current.currentTime = 5;
-            goalSoundControllers.play();
-            goalHandler = setTimeout(() => {
-                goalSoundControllers.pause();
-            }, 15000);
-        }
-    },
-        [goals]
-    );
     function onBetChange(challengeId, updatedBet) {
         const bet = _.get(bets, challengeId);
         const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
@@ -112,7 +94,7 @@ const GameList = ({poolId}) => {
         </div></SwiperSlide>);
     });
     return (<div>
-            {audio}
+            {<GoalSound></GoalSound>}
             {ViewOthersModal}
             <Swiper pagination={{ "dynamicBullets": true}}  onSwiper={setSwiper}
                     className="Swiper game-list"
@@ -121,7 +103,5 @@ const GameList = ({poolId}) => {
             </Swiper>
         </div>
     );
-
 }
-
 export default GameList;
