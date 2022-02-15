@@ -98,8 +98,8 @@ const GameList = ({poolId}) => {
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const gameNodes = roundBets.map((bet) => {
             const {challengeId} = bet;
-            const showGoal = _.has(goals, challengeId);
-            const gameNode = <Game bet={bet} showGoal={showGoal}  onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
+            const goal = _.get(goals, challengeId, null);
+            const gameNode = <Game bet={bet} goal={goal}  onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
                                    showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
             currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return (gameNode);

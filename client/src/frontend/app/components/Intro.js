@@ -15,7 +15,7 @@ const Intro = ({setSkipIntro}) => {
         setShowIntro((!(showIntro === 'true')).toString());
     }
     const skipIntro = () => {
-        setSkipIntro(true);
+        setSkipIntro('true');
     }
     const [video, videoState, controls, ref] = useVideo(
         <video autoPlay playsInline muted={mute === 'true'} id='video'>
@@ -31,7 +31,7 @@ const Intro = ({setSkipIntro}) => {
     }, [ref]);
     return (
         <div className='splash-screen'>
-            <Button className='mute-btn' icon={mute === 'true' ? 'mute' : 'unmute'}  onClick={mute ? unMuteSite : muteSite} />
+            <Button className='mute-btn' icon={mute === 'true' ? 'mute' : 'unmute'}  onClick={mute === 'true' ? unMuteSite : muteSite} />
             <div style={{ height: '100%' }} >
                 {video}
             </div>

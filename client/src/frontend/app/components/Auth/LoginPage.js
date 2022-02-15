@@ -16,11 +16,12 @@ import LoginForm from './LoginForm';
 import {Button, Grid, Icon, Header ,Form} from 'semantic-ui-react';
 import RegistrationForm from "./RegistrationForm";
 
-const LoginPage = ({register = false, muteSite, unMuteSite}) => {
+const LoginPage = ({register = false}) => {
     const auth = useSelector(state => state.auth);
     const dispatch = useDispatch();
     const history = useHistory();
-    const [mute] = useLocalStorage('mute', 'false');
+    const [mute, setMute] = useLocalStorage('mute', 'false');
+    const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
     const storedMessage = localStorage.getItem('successMessage');
     let successMessage = '';
 
@@ -44,12 +45,19 @@ const LoginPage = ({register = false, muteSite, unMuteSite}) => {
     );
     useEffect(() => {
         if (ref && ref.current) {
+            setSkipIntro('false');
             ref.current.addEventListener('ended', () => {
                 controls.mute();
                 controls.play();
             });
         }
-    }, [video]);
+    }, [ref]);
+    function muteSite() {
+        setMute('true');
+    }
+    function unMuteSite() {
+        setMute('false');
+    }
     function facebookResponse(response) {
         const verifyFacebook = register ? registerWithFacebookToken : verifyFacebookToken;
         dispatch(verifyFacebook(response));
@@ -88,7 +96,7 @@ const LoginPage = ({register = false, muteSite, unMuteSite}) => {
     const socialPrefix = register ? 'Register' : 'Login';
     return (<div style={{ height: '100%' }} >
             {video}
-            {<Button className='mute-btn' icon={mute === 'true' ? 'volume up' : 'volume off'}  onClick={mute? unMuteSite : muteSite} />}
+            {<Button className='mute-btn' icon={mute === 'true' ? 'volume up' : 'volume off'}  onClick={mute === 'true' ? unMuteSite : muteSite} />}
             <div style={{ height: '100%' }} className={'login-page'}>
                 <div className={'login-logo'}>
                 </div>

@@ -53,7 +53,7 @@ const PoolsContainer = (props) => {
                 <div className='pool-left-side-center'>
                     <div className='pool-left-detail'>
                         <div className='pool-left-detail-header'>Players</div>
-                        <div className='pool-left-detail-value'>{_.size(pool.participates)}</div>
+                        <div className='pool-left-detail-value'>{_.size(_.reject(pool.participates, {isBot: true}))}</div>
                     </div>
                     <div className='pool-left-detail'>
                         <div className='pool-left-detail-header'>Pot</div>

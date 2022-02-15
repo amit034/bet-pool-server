@@ -1,6 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const { Server } = require("socket.io");
+const favicon = require('serve-favicon');
+
 const cors = require('cors');
 const path = require('path');
 const jobs = require('./jobs');
@@ -47,6 +49,8 @@ app.use(cors());
 //app.use(morgan('combined', { stream: expressLogFile }));
 
 app.use(express.static(publicPath));
+app.use(favicon(publicPath + '/img/favicon.ico'));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());

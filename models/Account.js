@@ -39,7 +39,8 @@ module.exports = function (sequelize, DataTypes) {
         // Treated as a set
         //pools: {type: [mongoose.Schema.ObjectId], 'default': []},
         facebookProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
-        googleProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'google_provider_id'}
+        googleProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'google_provider_id'},
+        isBot: {type: BOOLEAN, defaultValue: true, field: 'is_bot'}
     }, {
         tableName: 'accounts',
         timestamps: true,
