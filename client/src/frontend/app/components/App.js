@@ -17,8 +17,8 @@ const App = () => {
     const match = useRouteMatch();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-    const [skipIntro, setSkipIntro] = useState(false);
-    const [showIntro, setShowIntro] =  useLocalStorage('showIntro', 'true');
+    const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
+    const [showIntro] =  useLocalStorage('showIntro', 'true');
 
     function logout() {
         dispatch(logoutUser());
@@ -104,7 +104,7 @@ const App = () => {
                 </Menu.Menu>
             </Menu>) : '';
     return (<div className="app-wrapper">
-        {isAuthenticated && !skipIntro && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
+        {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         {switcher}
     </div>);

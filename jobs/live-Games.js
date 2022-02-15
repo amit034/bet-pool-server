@@ -9,7 +9,6 @@ const apiFootballSdk = require('../lib/apiFootballSDK');
 const eventRepository = require('../repositories/eventRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 module.exports = {
-
     async start(io) {
        schedule.scheduleJob('* * * * *', async () => {
            const transaction = await sequelize.transaction();
@@ -42,23 +41,6 @@ module.exports = {
                            return Promise.resolve();
                        }));
                    }
-                   const score1 = Math.floor(Math.random() * (5 - 1) + 1);
-                   // return ["11","12","13"].forEach((room) => {
-                   //     io.to(room).emit('updateChallenge', {id: 371, score1, score2: 2, status: 'IN_PLAY', game: {
-                   //             "id": 2,
-                   //             "eventId": 1,
-                   //             "round": 1,
-                   //             "playAt": "2022-02-09T00:30:00Z",
-                   //             "homeTeamId": 3,
-                   //             "homeTeamScore": 2,
-                   //             "awayTeamId": 4,
-                   //             "awayTeamScore": 0,
-                   //             "status": "FINISHED",
-                   //             "factorId": 1,
-                   //             "fapiId": null
-                   //         }});
-                   // });
-
                }))
                await transaction.commit();
            } catch (e) {

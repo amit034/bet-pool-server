@@ -104,7 +104,7 @@ function handleGetParticipates(req, res) {
             const challengeRounds = _.groupBy(pool.challenges, c => c.game.round);
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
-                _.assign(participate, _.pick(participateModel.user, ['userId', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId']));
+                _.assign(participate, _.pick(participateModel.user, ['userId', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId', 'isBot']));
                 const userBets = _.filter(usersBets, {userId: participate.userId});
                 const challengeBets = _.keyBy(userBets, 'challengeId');
                 const poolScore = _.reduce(challengeRounds, (poolScore, challenges) => {
@@ -310,12 +310,16 @@ async function handleGetUserPools(req, res) {
     try{
         const userPools = await repository.findPoolsByUserId(userId);
         const publicPools = await repository.findAllByQuery({public: true}, {participates: true});
+        const bots = await accountRepository.findAccountsByQuery({isBot: 1});
+        const botsIds = _.map(bots, 'userId');
         const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
         const poolList = _.map(pools, pool => {
             const item = pool.toJSON();
             const buyIn = _.parseInt(_.get(item, 'buyIn', '0'));
-            item.pot = buyIn * _.size(item.participates);
-            item.prices = [buyIn * _.ceil(_.size(item.participates) * 0.4)];
+            item.participates = _.map(item.participates, (p) => _.assign({}, p, {isBot: _.includes(botsIds, p.userId)}));
+            const payingParticipates = _.reject(item.participates, {isBot: true});
+            item.pot = buyIn * _.size(payingParticipates);
+            item.prices = [buyIn * _.ceil(_.size(payingParticipates) * 0.4)];
             return item;
         });
         return res.send(poolList);

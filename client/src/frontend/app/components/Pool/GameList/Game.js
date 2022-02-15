@@ -4,12 +4,13 @@ import moment from "moment";
 import _ from "lodash";
 import {Form} from 'semantic-ui-react';
 import Goal from "./Goal";
-const Game = ({bet, showGoal, onMatchClick, onBetKeyChange}) => {
+const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
     const {
         score1, score2, score, medal,
-        challenge: {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
-            game: {homeTeam, awayTeam}, playAt, factorId}
-    } = bet;
+        challenge} = bet;
+    const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
+        game: {homeTeam, awayTeam}, playAt, factorId} = challenge
+
     const className = classNames('match-tip-image circular icon link small fitted', {
         'users': !isOpen,
         'lightbulb': isOpen
@@ -68,7 +69,7 @@ const Game = ({bet, showGoal, onMatchClick, onBetKeyChange}) => {
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
     };
-    const goalRow =(<Goal score1={score1} score2={score2} side='score1'/>);
+    const goalRow =(<Goal challenge={challenge} goal={goal}/> );
     const betRow = (<section style={{display: "contents"}}>
                     <div className="game-side">
                         <div className="game-side-score">
@@ -103,7 +104,7 @@ const Game = ({bet, showGoal, onMatchClick, onBetKeyChange}) => {
                     </div></section>)
     return (
             <li className="game-row" data={challengeId}>
-                {showGoal ? goalRow : betRow}
+                {goal? goalRow: betRow}
             </li>)
 }
 
