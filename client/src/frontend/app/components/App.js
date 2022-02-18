@@ -103,7 +103,7 @@ const App = () => {
                     </Dropdown>
                 </Menu.Menu>
             </Menu>) : '';
-    return (<div className="app-wrapper">
+    return (<div className="app-wrapper blue-bronze">
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         {switcher}
