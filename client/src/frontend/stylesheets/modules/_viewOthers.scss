@@ -91,7 +91,7 @@
     display: flex;
     list-style: none;
     box-shadow: -1px 3px 0px 0px #000000;
-    border: 1px solid $background-7;
+    border: 1px solid var(--background-7);
     margin-bottom: 10px;
     height: 38px;
     font-size: 1.05em;
@@ -117,8 +117,8 @@
       display:flex;
       padding: 5px;
       flex: 3;
-      color: $title-3;
-      background-color: $background-3;
+      color: var(--title-3);
+      background-color: var(--background-3);
       justify-content: center;
       align-items: center;
       font-size: 1.0em;
@@ -126,7 +126,7 @@
         margin-left: 5px;
         a {
           text-decoration: underline;
-          color: $title-3;
+          color: var(--title-3);
         }
       }
     }

@@ -1,18 +1,18 @@
 #app{
-  background-color: $background-1;
+  background-color: var(--background-1);
   height: 100%;
-  color: $title-1;
+  color: var(--title-1);
   overflow: overlay;
 }
 .app-wrapper{
   height: 100%;
   .ui.inverted.top-menu {
-    background-color: $background-1 !important;
+    background-color: var(--background-1) !important;
     .header{
-      color: $title-1 !important;
+      color: var(--title-1) !important;
     }
     .menu>.item{
-      color: $title-1 !important;
+      color: var(--title-1) !important;
       font-size: 1.1em;
       font-weight:600;
     }
@@ -20,10 +20,10 @@
       background: none;
     }
     :hover, .active.item {
-      background-color: $background-1 !important;
+      background-color: var(--background-1) !important;
     }
     .menu {
-      background-color: $background-1 !important;
+      background-color: var(--background-1) !important;
     }
   }
 
@@ -43,19 +43,19 @@
   padding: 40px 0 55px 0
 }
 .top-menu {
-  background-color: $background-1 !important;
+  background-color: var(--background-1) !important;
   .item{
-    color: $title-1 !important;
+    color: var(--title-1) !important;
 
   }
 }
 .bottom-menu{
   display: flex;
-  color: $title-1 !important;
+  color: var(--title-1) !important;
   background-color: $background-frame !important;
   .item{
     flex: 1;
-    color: $title-1 !important;
+    color: var(--title-1) !important;
   }
   .item.disabled {
     color: rgba(225,225,225,.3) !important;
@@ -127,6 +127,17 @@
   -webkit-animation-iteration-count:infinite;
   -webkit-animation-timing-function:ease-in-out;
   -webkit-animation-direction: alternate;
+}
+
+.blue-bronze {
+  --background-1: $background-1;
+  --background-3: $background-3;
+  --background-5: $background-5;
+  --background-7: $background-7;
+  --title-1: $title-1;
+  --title-2: $title-2;
+  --title-3: $title-3;
+  --title-4: $title-4;
 }
 
 

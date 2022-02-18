@@ -20,7 +20,7 @@
       font-size: 16px;
       font-weight: 600;
       text-align: left;
-       color: $title-1;
+       color: var(--title-1);
        flex: 13;
       .pool-left-side-center{
         margin-top: 5px;
@@ -46,8 +46,8 @@
     }
     .pool-right-side {
        padding: 5px 0px;
-       color: $title-2;
-       background-color: $background-3;
+       color: var(--title-2);
+       background-color: var(--background-3);
        flex: 11;
       font-weight: 600;
       font-size: 16px;
