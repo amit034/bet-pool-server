@@ -7,7 +7,7 @@ export function getParticipatesWithRank(participates) {
     }
     const sortedParticipates = _.orderBy(participates, ['score', 'medals.3', 'medals.2', 'medals.1'], ['desc', 'desc', 'desc', 'desc']);
     const first = _.first(sortedParticipates);
-    const {participatesWithRank} = _.reduce(sortedParticipates, (agg, participate, idx) => {
+    const {participatesWithRank} = _.reduce(sortedParticipates, (agg, participate) => {
         if (!agg.prvIsBot){
             agg.cnt++;
         }
@@ -18,12 +18,11 @@ export function getParticipatesWithRank(participates) {
                 agg.rank = agg.cnt;
                 agg.medals = participate.medals;
             }
-
         }
         agg.prvIsBot  = participate.isBot;
         agg.participatesWithRank.push(_.assign(participate, {rank: agg.rank}));
         return agg;
-    }, {participatesWithRank: [], rank: 1, cnt: 1, prvIsBot: first.isBot, medals: first.medals});
+    }, {participatesWithRank: [], rank: 1, cnt: 0, prvIsBot: first.isBot, medals: first.medals});
     return participatesWithRank;
 }
 
