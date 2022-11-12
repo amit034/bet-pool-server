@@ -4,10 +4,13 @@ const {Pool, Challenge, PoolParticipant, Event, Account} = require('../models');
 function findByQuery(query, {transaction} = {}) {
     return Pool.findOne({where: query, transaction});
 }
-async function findAllByQuery(query, {transaction, participates} = {}) {
-    let include = undefined;
+async function findAllByQuery(query, {transaction, participates, events} = {}) {
+    const include = [];
     if (participates) {
-        include =  [{model: PoolParticipant, as: 'participates', required: false}];
+        include.push({model: PoolParticipant, as: 'participates', required: false});
+    }
+    if (events) {
+        include.push({model: Event, as: 'events', required: false});
     }
     return Pool.findAll({where: query, include, transaction});
 }
@@ -30,7 +33,13 @@ module.exports = {
     async findPoolsByUserId(userId, {transaction} = {}) {
         const userParticipants = await PoolParticipant.findAll({where: {userId}, transaction});
         const poolIds = _.map(userParticipants, 'poolId');
-        return Pool.findAll({where: {id: poolIds}, include: [{model: PoolParticipant, as: 'participates', required: false}] , transaction});
+        return Pool.findAll(
+            {
+                where: {id: poolIds},
+                include: [
+                    {model: PoolParticipant, as: 'participates', required: false},
+                    {model: Event, as: 'events', required: false}
+                ] , transaction});
     },
     createPool(details, {transaction}) {
         return Pool.create(details, {transaction, returning: true});

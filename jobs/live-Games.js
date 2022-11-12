@@ -24,21 +24,24 @@ module.exports = {
                        await eventRepository.updateEvent({id: eventId, isActive: true}, transaction);
                        await Promise.all(_.map(updatedMatches, async (match) => {
                            const game = _.find(games, {fapiId: match.id});
-                           if (game) {
-                               const {status, utcDate: playAt, score: {fullTime: {homeTeam: homeTeamScore, awayTeam: awayTeamScore}}} = match;
-                               const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
-                               await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
-                               const challenge = await challengeRepository.updateChallengeByQuery({
-                                       refName: 'Game',
-                                       refId: game.id,
-                                       type: TYPES.FULL_TIME
-                                   },
-                                   {score1: homeTeamScore, score2: awayTeamScore, status}, {transaction});
-                               if (changed) {
-                                   const data = challenge.toJSON();
-                                   _.forEach(_.map(pools, 'poolId'), (room) => {
-                                       io.to(room).emit('updateChallenge', data);
-                                   })
+                           if (!_.isNil(game)) {
+                               const {status, utcDate: playAt, score: {fullTime}}= match;
+                               if (_.isNil(fullTime)) {
+                                   const {homeTeam: homeTeamScore = 0, awayTeam: awayTeamScore = 0} = fullTime;
+                                   const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
+                                   await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
+                                   const challenge = await challengeRepository.updateChallengeByQuery({
+                                           refName: 'Game',
+                                           refId: game.id,
+                                           type: TYPES.FULL_TIME
+                                       },
+                                       {score1: homeTeamScore, score2: awayTeamScore, status}, {transaction});
+                                   if (changed) {
+                                       const data = challenge.toJSON();
+                                       _.forEach(_.map(pools, 'poolId'), (room) => {
+                                           io.to(room).emit('updateChallenge', data);
+                                       })
+                                   }
                                }
                            }
                            return Promise.resolve();

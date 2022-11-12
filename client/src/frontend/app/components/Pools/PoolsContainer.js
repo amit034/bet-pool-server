@@ -1,18 +1,27 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import {useHistory} from 'react-router-dom';
 import moment from 'moment';
 import _ from 'lodash';
 import {getUserPools, joinPool} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {getUserFromLocalStorage} from '../../actions/auth';
+import classNames from "classnames";
 
-const PoolsContainer = (props) => {
+const PoolsContainer = () => {
   const userPools = useSelector(state => state.pools.pools);
   const auth = useSelector(state => state.auth);
   const dispatch = useDispatch();
+  const history = useHistory();
   useEffect(() => {
     dispatch(getUserPools());
   },[dispatch]);
+  useEffect(() => {
+    const activePools =_.filter(userPools, {isActive: true});
+    // if (_.size(activePools) === 1) {
+    //     handleEnter(_.get(_.first(activePools), 'poolId'));
+    // }
+  },[userPools]);
 
   function handleLeave(id) {
 
@@ -21,7 +30,7 @@ const PoolsContainer = (props) => {
       dispatch(joinPool(id));
   }
   function handleEnter(id){
-      props.history.push(`/pools/${id}?active=true`);
+      history.push(`/pools/${id}?active=true`);
   }
 
     const Title = ({poolCount}) => {
@@ -44,10 +53,14 @@ const PoolsContainer = (props) => {
         const userId = _.get(getUserFromLocalStorage(), 'userId');
         const joined = _.find(pool.participates, {userId, joined: true});
         const actionObj = {action: () => {}, name: 'Closed'};
-        if (moment(pool.lastCheckIn).isAfter(moment()) || joined){
+        const poolIsOpen = moment(pool.lastCheckIn).isAfter(moment());
+        if (poolIsOpen || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
         }
-        return (<li className="pool" key={pool.poolId} onClick={() => { return actionObj.action(pool.poolId)}}>
+        const poolClass = classNames('pool', {
+            'pool-closed': !poolIsOpen,
+        });
+        return (<li className={poolClass} key={pool.poolId} onClick={() => { return actionObj.action(pool.poolId)}}>
             <div className= 'pool-left-side'>
                 <div className='pool-left-title'>{pool.name}</div>
                 <div className='pool-left-side-center'>

@@ -19,7 +19,7 @@ const GoalSound = () => {
                 goalSoundControllers.play();
                 goalHandler = setTimeout(() => {
                     goalSoundControllers.pause();
-                }, 20000);
+                }, 10000);
             }
         },
         [goals, audioRef]

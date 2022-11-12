@@ -1,6 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {useAudio, useLocalStorage} from 'react-use';
+import {useDispatch, useSelector} from 'react-redux';;
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Form} from 'semantic-ui-react';
@@ -78,14 +77,27 @@ const GameList = ({poolId}) => {
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
         let currentDate = null;
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
-        const gameNodes = roundBets.map((bet) => {
-            const {challengeId} = bet;
-            const goal = _.get(goals, challengeId, null);
-            const gameNode = <Game bet={bet} goal={goal}  onMatchClick={onMatchClick}  onBetKeyChange={onBetKeyChange} key={_.toString(challengeId)}
-                                   showDay={currentDate < moment(bet.challenge.playAt).format('YYYYMMDD')}/>;
-            currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
-            return (gameNode);
+        const currentBet = _.find(betArray, (bet) => {
+            return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
         });
+        const dateGroup = _.groupBy(roundBets, (bet) => {
+            return moment(_.get(bet, 'challenge.playAt')).format('YYYYMMDD');
+        })
+        const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
+            agg.push((<div className='group-play-at'>{moment(playAt).format('dddd')}</div>));
+            agg.push(..._.map(bets,(bet) => {
+                const {challengeId} = bet;
+                const goal = _.get(goals, challengeId, null);
+                const gameNode = <Game bet={bet} goal={goal} isCurrent={currentBet === bet}
+                                       onMatchClick={onMatchClick}
+                                       onBetKeyChange={onBetKeyChange}
+                                       key={_.toString(challengeId)} />;
+                return (gameNode);
+            }));
+
+            //currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
+            return agg;
+        }, []);
         return (<SwiperSlide key={roundNum}><div>
             <span className="round-title">Round No: {roundNum}</span>
             <Form size='large' action="/" onSubmit={processForm}>

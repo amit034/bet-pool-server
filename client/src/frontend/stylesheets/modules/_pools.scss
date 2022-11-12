@@ -7,6 +7,9 @@
   font-family: 'Titillium web', sans-serif;
   text-align: center;
   padding:0;
+  .pool-closed {
+    opacity: 0.3;
+  }
   .pool {
     list-style: none;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);

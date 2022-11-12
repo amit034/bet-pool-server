@@ -309,7 +309,7 @@ async function handleGetUserPools(req, res) {
     const userId = req.params.userId;
     try{
         const userPools = await repository.findPoolsByUserId(userId);
-        const publicPools = await repository.findAllByQuery({public: true}, {participates: true});
+        const publicPools = await repository.findAllByQuery({public: true}, {participates: true, events: true});
         const bots = await accountRepository.findAccountsByQuery({isBot: 1});
         const botsIds = _.map(bots, 'userId');
         const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
@@ -320,6 +320,7 @@ async function handleGetUserPools(req, res) {
             const payingParticipates = _.reject(item.participates, {isBot: true});
             item.pot = buyIn * _.size(payingParticipates);
             item.prices = [buyIn * _.ceil(_.size(payingParticipates) * 0.4)];
+            item.isActive = _.some(item.events, ({PoolEvent}) => _.get(PoolEvent, 'isActive'));
             return item;
         });
         return res.send(poolList);
