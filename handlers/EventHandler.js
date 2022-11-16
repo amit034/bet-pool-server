@@ -1,13 +1,13 @@
 'use strict';
 const _ = require('lodash');
-const EventRepository = require('../repositories/eventRepository');
+const repository = require('../repositories/eventRepository');
+const challengeRepository = require('../repositories/challengeRepository');
 const TeamRepository = require('../repositories/teamRepository');
 const apiFootballSdk = require('../lib/apiFootballSDK');
 const logger = require('../utils/logger');
 
 
 function handleCreateAndGetEventsRequest(req, res) {
-    const repository = new EventRepository();
     return Promise.all([
         repository.findAll(),
         apiFootballSdk.getCompetitions({plan: 'TIER_ONE'})
@@ -24,7 +24,6 @@ function handleCreateAndGetEventsRequest(req, res) {
     })
 }
 function handleActiveEventsRequest(req, res) {
-    const repository = new EventRepository();
     return repository.findAll({isActive: true})
         .then(function (events) {
             return res.send(events);
@@ -37,7 +36,6 @@ function handleActiveEventsRequest(req, res) {
 }
 
 function handleGetEventsRequest(req, res) {
-    const repository = new EventRepository();
     return repository.findAll()
         .then(function (events) {
             return res.send(events);
@@ -51,7 +49,6 @@ function handleGetEventsRequest(req, res) {
 
 function handleCreateEventRequest(req, res) {
     const name = req.body.name || null;
-    const repository = new EventRepository();
     repository.createEvent({name})
         .then(
             function (event) {
@@ -73,10 +70,9 @@ function handleAddTeamToEventRequest(req, res) {
     const eventId = req.params.eventId || null;
     const teamId = req.params.teamId || null;
     const teamRepository = new TeamRepository();
-    const eventRepository = new EventRepository();
 
     if (eventId && teamId) {
-        return Q.all([eventRepository.findById(eventId), teamRepository.findById(teamId)])
+        return Q.all([repository.findById(eventId), teamRepository.findById(teamId)])
             .then(function ([event, team]) {
                 let message;
                 if (!eventId) {
@@ -113,8 +109,7 @@ function handleAddTeamToEventRequest(req, res) {
 }
 
 function handleCreateTeamRequest(req, res) {
-    const repository = new TeamRepository();
-    repository.createTeam(req.body)
+    return repository.createTeam(req.body)
         .then(function (team) {
             logger.log('info', 'Team ' + name + ' has been created.' +
                 'Request from address ' + req.connection.remoteAddress + '.');
@@ -127,11 +122,21 @@ function handleCreateTeamRequest(req, res) {
         });
     });
 }
-
-function handleGetTeamsRequest(req, res) {
-    const repository = new EventRepository();
+function handleGetChallenges(req, res) {
     const eventId = req.params.eventId || null;
-    repository.findById(eventId)
+    return challengeRepository.findAllByQuery( {eventId})
+    .then(function (challenges) {
+        return res.send(challenges);
+    })
+    .catch(function (err) {
+        return res.status(500).send({
+            error: err.message
+        });
+    });
+}
+function handleGetTeamsRequest(req, res) {
+    const eventId = req.params.eventId || null;
+    return repository.findById(eventId)
     .then(function (event) {
         if (event) {
             return res.send(event.teams);
@@ -157,6 +162,7 @@ module.exports = {
     createEvent: handleCreateEventRequest,
     addTeam: handleAddTeamToEventRequest,
     createTeam: handleCreateTeamRequest,
-    getTeams: handleGetTeamsRequest
+    getTeams: handleGetTeamsRequest,
+    getChallenges: handleGetChallenges
 };
 

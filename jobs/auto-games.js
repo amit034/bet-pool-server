@@ -52,16 +52,16 @@ module.exports = {
                     const teams = await apiFootballSdk.getTeams(fapiId);
                     const {season} = _.sample(matches);
                     if (!_.isNil(season)) {
-                        const {endDate, currentMatchday} = season;
+                        const {endDate} = season;
                         if (moment().isBefore(endDate)) {
-                            const currentMatches = _.filter(matches, ({matchday, lastUpdated}) => {
-                                return matchday === currentMatchday && moment(lastUpdated).isAfter(updatedAt);
+                            const currentMatches = _.filter(matches, ({matchday, lastUpdated, utcDate}) => {
+                                return moment(utcDate).isBetween(moment(), moment().add(13, "days"));
                             });
                             if(!_.isEmpty(currentMatches)) {
                                 await eventRepository.updateEvent({id: eventId, isActive: true}, transaction);
                                 const currentTeamIds = _.concat(_.map(currentMatches, 'homeTeam.id'), _.map(currentMatches, 'awayTeam.id'));
                                 const dbTeamsMap = await mapTeams(_.filter(teams, ({id}) => _.includes(currentTeamIds, id)), {transaction});
-                                const gamesData = await prepareGames(eventId, currentMatches, dbTeamsMap);
+                                const gamesData = prepareGames(eventId, currentMatches, dbTeamsMap);
                                 await gameRepository.createAll(gamesData, {transaction});
                                 const games = await gameRepository.findGamesByQuery({fapiId: {[Op.in]: _.map(currentMatches, 'id')}}, {transaction})
                                 const challengesData = prepareChallenges(games);

@@ -251,12 +251,12 @@ export function getPoolGames(poolId, userId) {
     };
 }
 
-export function getUserPools(userId) {
+export function getUserPools(qs) {
 
     return dispatch => {
-        userId = userId || getUserFromLocalStorage().userId;
+        const userId = getUserFromLocalStorage().userId;
         dispatch(requestUserPools(userId));
-        return axios.get(`/api/${userId}/pools`, {headers: authHeader()})
+        return axios.get(`/api/${userId}/pools`, {headers: authHeader(), params: qs})
             .then((response) => {
                 const pools = response.data;
                 dispatch(receiveUserPools(userId, pools));

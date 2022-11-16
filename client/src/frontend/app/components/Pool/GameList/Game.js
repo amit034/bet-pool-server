@@ -1,16 +1,16 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
 import {Form} from 'semantic-ui-react';
 import Goal from "./Goal";
-const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
+const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
     const {
         score1, score2, score, medal,
         challenge} = bet;
     const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
         game: {homeTeam, awayTeam}, playAt, factorId} = challenge
-
+    const currentDayRef = useRef(null);
     const className = classNames('match-tip-image circular icon link small fitted', {
         'users': !isOpen,
         'lightbulb': isOpen
@@ -25,7 +25,11 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
             el.select();
         }, 0);
     }
-
+    useEffect(() => {
+        if (currentDayRef && currentDayRef.current /* + other conditions */) {
+            currentDayRef.current.scrollIntoView({behavior: 'smooth', block: 'start' })
+        }
+    },[currentDayRef]);
     const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         const val = _.toString(teamBet);
@@ -34,7 +38,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
                                   onChange={(e) => {
                                       clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
                                   }} value={val}/>);
-        return (<div className={className}>
+        return (<div className={className} ref={isCurrent ? currentDayRef : null}>
             <div className="team-bet game-body-column">
                 <div className="game-body-column-center">
                     {closed ? <div className="team-bet-closed">{val}</div> : editable}
@@ -88,7 +92,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange}) => {
 
                             {/*<div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>*/}
                             {/*< div className="game-more">{factorId > 1 ? 'Main Event': ''}</div>*/}
-                            <div className="game-hour">{moment(playAt).format('DD/MM/YYYY H:mm')}</div>
+                            <div className="game-hour">{moment(playAt).format('H:mm')}</div>
 
                         </div>
                         <div className="game-body">

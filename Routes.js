@@ -15,6 +15,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/admin/events',  handlers.event.createEvent);
     app.post('/api/admin/teams',  handlers.event.createTeam);
     app.get('/api/admin/events/:eventId/teams', handlers.event.getTeams);
+    app.get('/api/admin/events/:eventId/challenges', handlers.event.getChallenges);
     app.post('/api/admin/events/:eventId/teams/:teamId', handlers.event.addTeam);
     app.post('/api/admin/events/:eventId/games', handlers.game.createGame);
     app.get('/api/events', handlers.event.handleActiveEventsRequest);

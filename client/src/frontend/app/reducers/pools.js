@@ -24,7 +24,7 @@ function pools(state = {
         case poolActions.GET_POOL_GAMES_SUCCESS:
             return update(state, {isFetching: {$set: false}, games: {$set:_.keyBy(action.games, 'id')}, errorMessage: {$set: null}});
         case poolActions.UPDATE_CHALLEGE_SUCCESS: {
-            const {id: challengeId, score1, score2, status} = action.challenge;
+            const {id: challengeId, score1, score2, status, isOpen} = action.challenge;
             const bet = _.cloneDeep(_.get(state.bets, challengeId));
             if (bet) {
                 const {score1: prevScore1, score2: prevScore2} = bet.challenge;
@@ -35,7 +35,7 @@ function pools(state = {
                 if (prevScore2 !== score2 && score2 > 0) {
                     side = 'awayTeam';
                 }
-                bet.challenge = _.assign({}, bet.challenge , {score1, score2, status});
+                bet.challenge = _.assign({}, bet.challenge , {score1, score2, status, isOpen});
                 return update(state, {
                     isFetching: {$set: false},
                     goals: side !== null ? {$merge: {[challengeId]: side}} :  {$unset: [challengeId]} ,

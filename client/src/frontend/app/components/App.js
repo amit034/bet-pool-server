@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React from 'react';
+import _ from 'lodash';
 import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
 import {useLocalStorage} from "react-use";
@@ -10,6 +11,7 @@ import LoginPage from "./Auth/LoginPage";
 import PoolContainer from './Pool/PoolContainer';
 import PoolsContainer from './Pools/PoolsContainer';
 import NewPool from './Pools/NewPool';
+import {getParticipatesWithRank} from "../utils";
 
 const App = () => {
     const user = getUserFromLocalStorage();
@@ -19,7 +21,10 @@ const App = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
     const [showIntro] =  useLocalStorage('showIntro', 'true');
+    const participates = useSelector(state => state.pools.participates);
 
+    const leaders = getParticipatesWithRank(participates);
+    const rank = _.get(_.find(leaders, {userId: _.get(user, 'userId')}), 'rank');
     function logout() {
         dispatch(logoutUser());
     }
@@ -71,10 +76,7 @@ const App = () => {
                     Back to Pools
                 </Menu.Item>
                 }
-                <Menu.Item>
-                    <div>Welcome Back, {user.firstName} {user.lastName}</div>
-                </Menu.Item>
-                <Menu.Menu position='right'>
+                <Menu.Menu className='right-menu'>
                     <Dropdown item trigger={(
                         <span>
                                 <Image avatar src={user.picture}/>
@@ -102,6 +104,10 @@ const App = () => {
                         </Dropdown.Menu>
                     </Dropdown>
                 </Menu.Menu>
+                <Menu.Item>
+                    <div>{user.firstName} {user.lastName} </div>
+                        {rank && <div className='user-rank'>Rank: {rank}</div>}
+                </Menu.Item>
             </Menu>) : '';
     return (<div className="app-wrapper">
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}

@@ -1,12 +1,13 @@
 'use strict';
 const _ = require('lodash');
 module.exports = function (sequelize, DataTypes) {
-    const {INTEGER, STRING} = DataTypes;
+    const {INTEGER, STRING, BOOLEAN} = DataTypes;
     const Model = sequelize.define('PoolEvent', {
         id: {type: INTEGER(11), allowNull: false, primaryKey: true, autoIncrement: true, field: 'id'},
         poolId: {type: INTEGER(11), allowNull: false, field: 'pool_id'},
         eventId: {type: INTEGER(11), allowNull: false, field: 'event_id'},
-        filter: {type: STRING, allowNull: true, field: 'filter'}
+        filter: {type: STRING, allowNull: true, field: 'filter'},
+        isActive: {type: BOOLEAN, defaultValue: true, field: 'is_active'},
     },{
         tableName: 'poolEvents',
         timestamps: false,
