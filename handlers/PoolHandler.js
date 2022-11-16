@@ -306,13 +306,15 @@ function handleAddParticipates(req, res) {
 }
 
 async function handleGetUserPools(req, res) {
-    const userId = req.params.userId;
+    const {userId} = req.params;
+    const {isActive = 'true', code = ''} = req.query;
     try{
         const userPools = await repository.findPoolsByUserId(userId);
-        const publicPools = await repository.findAllByQuery({public: true}, {participates: true, events: true});
+        const poolWhere  = _.isEmpty(code) ? {public: true} : {public: false, code};
+        const otherPools = await repository.findAllByQuery(poolWhere, {participates: true, events: true});
         const bots = await accountRepository.findAccountsByQuery({isBot: 1});
         const botsIds = _.map(bots, 'userId');
-        const pools = _.uniqBy(_.concat(userPools, publicPools), 'poolId');
+        const pools = _.uniqBy(_.filter(_.concat(userPools, otherPools), ({events}) => _.some(events, {isActive: isActive.toLowerCase() === 'true'})), 'poolId');
         const poolList = _.map(pools, pool => {
             const item = pool.toJSON();
             const buyIn = _.parseInt(_.get(item, 'buyIn', '0'));

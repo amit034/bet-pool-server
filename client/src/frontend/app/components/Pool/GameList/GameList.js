@@ -54,7 +54,7 @@ const GameList = ({poolId}) => {
     useEffect(() => {
          if(swiper){
             const currentBet = _.find(betArray, (bet) => {
-                return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
+                return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment().add(10, 'days'), 'day');
             });
             const currentRound = _.get(currentBet, 'challenge.game.round', 1);
             const currSlide = _.size(betsGroups)-currentRound;
@@ -78,13 +78,14 @@ const GameList = ({poolId}) => {
         let currentDate = null;
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const currentBet = _.find(betArray, (bet) => {
-            return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment(), 'day');
+            return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment().add(10, 'days'), 'day');
         });
         const dateGroup = _.groupBy(roundBets, (bet) => {
             return moment(_.get(bet, 'challenge.playAt')).format('YYYYMMDD');
+
         })
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
-            agg.push((<div className='group-play-at'>{moment(playAt).format('dddd')}</div>));
+            agg.push((<div key={_.toString(playAt)} className='group-play-at'>{moment(playAt).format('dddd DD/MM')}</div>));
             agg.push(..._.map(bets,(bet) => {
                 const {challengeId} = bet;
                 const goal = _.get(goals, challengeId, null);

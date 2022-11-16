@@ -76,11 +76,7 @@ const App = () => {
                     Back to Pools
                 </Menu.Item>
                 }
-                <Menu.Item>
-                    <div>Welcome Back, {user.firstName} {user.lastName}</div>
-                    {rank && <div className='user-rank'>Rank: {rank}</div>}
-                </Menu.Item>
-                <Menu.Menu position='right'>
+                <Menu.Menu className='right-menu'>
                     <Dropdown item trigger={(
                         <span>
                                 <Image avatar src={user.picture}/>
@@ -108,6 +104,10 @@ const App = () => {
                         </Dropdown.Menu>
                     </Dropdown>
                 </Menu.Menu>
+                <Menu.Item>
+                    <div>{user.firstName} {user.lastName} </div>
+                        {rank && <div className='user-rank'>Rank: {rank}</div>}
+                </Menu.Item>
             </Menu>) : '';
     return (<div className="app-wrapper">
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}

@@ -27,7 +27,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
     }
     useEffect(() => {
         if (currentDayRef && currentDayRef.current /* + other conditions */) {
-            currentDayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            currentDayRef.current.scrollIntoView({behavior: 'smooth', block: 'start' })
         }
     },[currentDayRef]);
     const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {

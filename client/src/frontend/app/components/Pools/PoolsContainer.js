@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useHistory} from 'react-router-dom';
 import moment from 'moment';
@@ -7,21 +7,14 @@ import {getUserPools, joinPool} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {getUserFromLocalStorage} from '../../actions/auth';
 import classNames from "classnames";
+import {Form, Radio} from "semantic-ui-react";
 
 const PoolsContainer = () => {
-  const userPools = useSelector(state => state.pools.pools);
-  const auth = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const history = useHistory();
   useEffect(() => {
     dispatch(getUserPools());
   },[dispatch]);
-  useEffect(() => {
-    const activePools =_.filter(userPools, {isActive: true});
-    // if (_.size(activePools) === 1) {
-    //     handleEnter(_.get(_.first(activePools), 'poolId'));
-    // }
-  },[userPools]);
 
   function handleLeave(id) {
 
@@ -42,13 +35,71 @@ const PoolsContainer = () => {
           </div>
         );
     };
-    const PoolList = ({pools, leave, join, enter}) => {
-        const poolArray = _.values(pools);
+    const PoolList = ({leave, join, enter}) => {
+        const userPools = useSelector(state => state.pools.pools);
+        const poolArray = _.values(userPools);
+        useEffect(() => {
+            const activePools =_.filter(userPools, {isActive: true});
+            // if (_.size(activePools) === 1) {
+            //     enter(_.get(_.first(activePools), 'poolId'));
+            // }
+        },[userPools]);
         const poolNode = poolArray.map((pool) => {
             return (<Pool pool={pool} key={pool.poolId} leave={leave} join={join} enter={enter}/>)
         });
         return (<ul className="pool-list" style={{marginTop: '30px'}}>{poolNode}</ul>);
     };
+
+    const SearchPools = () => {
+        const [search, setSearch] = useState({searchType: 'public', code: ''});
+        const [code, setCode] =  useState('');
+        const handleSetType = (event) => {
+            const searchType = event.target.value;
+            setSearch({searchType, code: ''});
+            setCode('');
+
+        }
+        const handleSetCode = (event) => {
+            const code = event.target.value;
+            setCode(code);
+        }
+        useEffect(() => {
+            const {searchType, code} = search;
+            const isActive = searchType !== 'archive';
+            if (searchType !== 'private' || !_.isEmpty(code)) {
+                dispatch(getUserPools({isActive, code}));
+            }
+        },[search]);
+        return <div className="search-pools">
+              <div onClick={handleSetType} className="search-type" >
+                  <input className="hidden" name="radioGroup" readOnly=''
+                         checked={search.searchType === 'public'}
+                         type="radio" value="public" />
+                  <label>Public</label>
+              </div>
+              <div onClick={handleSetType} className="search-type">
+                  <input className="hidden" name="radioGroup" readOnly=''
+                         checked={search.searchType === 'archive'}
+                         type="radio" value="archive" />
+                  <label>Archive</label>
+              </div>
+              <div className="search-type search-type-private">
+                  <div  onClick={handleSetType} ><input className="hidden" name="radioGroup" readOnly=''
+                              checked={search.searchType === 'private'}
+                              type="radio" value="private" />
+                      <label>Private</label></div>
+                  {search.searchType === 'private' && <div className='private-code'>
+                      <input placeholder="Paste Code here" type="text" value={code} onChange={handleSetCode}/>
+                      <button className="ui icon button" onClick={(event) => {
+                          event.preventDefault();
+                          setSearch(_.assign({}, search, {code}));
+                      }}>
+                          <i aria-hidden="true" className="search icon"></i>
+                      </button>
+                  </div>}
+              </div>
+      </div>
+    }
     const Pool = ({pool, leave, join, enter}) => {
         const userId = _.get(getUserFromLocalStorage(), 'userId');
         const joined = _.find(pool.participates, {userId, joined: true});
@@ -90,9 +141,8 @@ const PoolsContainer = () => {
         };
     return (
       <div id="content" className="ui container">
+        <SearchPools />
         <PoolList
-          pools={userPools}
-          auth={auth}
           leave={handleLeave.bind(this)}
           join={handleJoin.bind(this)}
           enter={handleEnter.bind(this)}

@@ -1,3 +1,41 @@
+#content{
+  margin-top: 30px;
+}
+.search-pools {
+    display: flex;
+    .search-type {
+      flex: 2;
+      display: flex;
+      line-height: 35px;
+      color: $title-4;
+      input {
+        accent-color: $title-4;
+      }
+      label {
+        margin-left: 10px;
+      }
+    }
+    .search-type-private{
+        flex: 5;
+    }
+    .private-code{
+      margin-left: 10px;
+      flex: 2;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      input {
+        line-height: 1.55;
+        width: 80px;
+        font-size: 13px;
+      }
+      button {
+        padding: 5px;
+        font-size: 10px;
+      }
+    }
+}
+
 .bottom-menu{
   .disabled {
     color: rgba(225,225,225,.3) !important;
@@ -13,7 +51,8 @@
   .pool {
     list-style: none;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
-    border: 1px solid #414d7e;
+    background-color: $background-frame;
+    border: 1px solid $background-7;
     margin-bottom: 10px;
     height: 110px;
     display: flex;
@@ -59,7 +98,7 @@
           height: 35px;
           width: 35px;
         }
-        border-bottom: 2px solid rgba(12, 66, 98, 0.5);
+        border-bottom: 2px solid $background-frame;
 
       }
     }

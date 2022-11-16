@@ -10,6 +10,7 @@ module.exports = function (sequelize, DataTypes) {
         lastCheckIn:{type: DATE, field: 'last_check_in'},
         image: {type: STRING},
         public: {type: BOOLEAN, defaultValue: true},
+        code: {type: STRING, allowNull: false},
         buyIn: {type: INTEGER(5), defaultValue: 0, field: 'buy_in'},
         factorsStrategy: {type: INTEGER(5), defaultValue: 0, field: 'factors_strategy'}
     },{
