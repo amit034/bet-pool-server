@@ -105,11 +105,12 @@ const PoolsContainer = () => {
         const joined = _.find(pool.participates, {userId, joined: true});
         const actionObj = {action: () => {}, name: 'Closed'};
         const poolIsOpen = moment(pool.lastCheckIn).isAfter(moment());
+        const poolIsActive = pool.isActive;
         if (poolIsOpen || joined){
             _.assign(actionObj, {action: joined ? enter : join, name: joined ? 'Enter' : 'Join'});
         }
         const poolClass = classNames('pool', {
-            'pool-closed': !poolIsOpen,
+            'pool-closed': (!poolIsOpen && !joined) || !poolIsActive,
         });
         return (<li className={poolClass} key={pool.poolId} onClick={() => { return actionObj.action(pool.poolId)}}>
             <div className= 'pool-left-side'>

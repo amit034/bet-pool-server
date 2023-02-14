@@ -6,10 +6,17 @@ const Bot = require('./bot');
 const gameRepository = require('../repositories/gameRepository');
 const repository = require('../repositories/betRepository');
 
-function CrazyBot() {
-    this.name = 'crazyBot';
-}
 
+class CrazyBot extends Bot{
+    name = 'crazyBot';
+    id = 3;
+    bet(challange) {
+        const home =  _.get(challange, 'odds.home', 1);
+        const away =  _.get(challange, 'odds.away', 1);
+        const draw =  _.get(challange, 'odds.draw' ,1);
+        const awayScore = home > away
+    }
+}
 CrazyBot.prototype.bet = function (challengeModel) {
     if (!this.userId) {
         return;

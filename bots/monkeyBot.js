@@ -8,6 +8,7 @@ const repository = require('../repositories/betRepository');
 
 function MonkeyBot() {
     this.name = 'monkeyBot';
+    this.id = 2;
 }
 
 MonkeyBot.prototype.bet = function (challengeModel) {

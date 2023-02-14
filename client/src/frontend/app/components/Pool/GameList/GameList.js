@@ -33,7 +33,7 @@ const GameList = ({poolId}) => {
             setViewOthersOpen(true);
         } else {
             setViewOthersOpen(true);
-            dispatch(getPoolParticipates(poolId));
+            //dispatch(getPoolParticipates(poolId));
         }
         dispatch(getChallengeParticipates(poolId, challengeId));
     }, []);
@@ -64,7 +64,7 @@ const GameList = ({poolId}) => {
 
     const ViewOthersModal =  (<Modal
             // className='fullscreen' style={{}}
-            style={{maxHeight: "90vh", backgroundColor: "#0C4262", color: "#EFBA9A", paddingTop: "0px"}}
+            style={{maxHeight: "90vh", backgroundColor: "#202020", color: "#FFFFFF", paddingTop: "0px"}}
             open={viewOthersOpen}
             closeIcon
             dimmer="blurring"
@@ -110,8 +110,7 @@ const GameList = ({poolId}) => {
             {<GoalSound></GoalSound>}
             {ViewOthersModal}
             <Swiper pagination={{ "dynamicBullets": true}}  onSwiper={setSwiper}
-                    className="Swiper game-list"
-                    style={{marginTop: '30px'}}>
+                    className="Swiper game-list">
                 {roundNode}
             </Swiper>
         </div>

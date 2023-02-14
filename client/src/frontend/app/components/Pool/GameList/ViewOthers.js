@@ -10,15 +10,15 @@ import {Modal} from 'semantic-ui-react';
 import GameList from "./GameList";
 
 const ViewOthers = ({clickOnBetChange}) => {
-    const MatchResult = ({challenge: {score1, score2, closed, odds1, odds2, oddsX}}) => {
+    const MatchResult = ({challenge: {score1, score2, isOpen, odds1, odds2, oddsX}}) => {
         const className = classNames('match-tip-image circular teal icon link small fitted', {
-            'users': closed,
-            'lightbulb': !closed
+            'users': !isOpen,
+            'lightbulb': isOpen
         });
-        return closed? (<div className="game-result">
+        return !isOpen? (<div className="game-result">
                 {score1} : {score2}
         </div>) : (<div className="game-odds">
-            <div class='odds-title-row'> <div>Home</div><div>Draw</div><div>Away</div></div>
+            <div className='odds-title-row'> <div>Home</div><div>Draw</div><div>Away</div></div>
             <div className='odds-title-values'><div>{odds1}</div><div>{oddsX}</div><div>{odds2}</div>
             </div>
         </div>);
@@ -50,6 +50,19 @@ const ViewOthers = ({clickOnBetChange}) => {
         </li></Modal.Header>);
     };
 
+    const Medal = ({score, medal}) => {
+        const className = classNames('icon star large fitted', {
+            'no-medal': medal === 0,
+            'bronze-medal': medal === 1,
+            'sliver-medal': medal === 2,
+            'gold-medal': medal === 3
+        });
+
+        return <div className='bet-score'>
+            <i className={className}></i>
+            <div className="medal-badge">{score}</div>
+        </div>
+    };
     const UserBet = ({participate, bet, isOpen}) => {
         return (
             <li className="user-bet-row">
@@ -62,6 +75,7 @@ const ViewOthers = ({clickOnBetChange}) => {
                     <div className="user-bet-rank"> Rank: {participate.rank} <span
                         style={{color: 'rgb(156 161 164)'}}>({participate.score}pts).</span></div>
                 </div>
+                <div className="user-bet-medal">{!isOpen ? <Medal score={bet.score} medal={bet.medal} /> : ''}</div>
                 <div className="user-bet-score">
                     <div><span>{bet.score1} : {bet.score2}</span></div>
                     {isOpen ? <div className="users-bets-use-it">

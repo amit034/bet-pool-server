@@ -126,6 +126,9 @@
     }
   }
 }
+.ui.modal>.close {
+  color: #ffff;
+}
 
 @-webkit-keyframes blinker {
   from {opacity: 1.0;}

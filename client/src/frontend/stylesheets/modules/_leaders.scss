@@ -4,7 +4,37 @@
   font-weight: 700;
   margin-bottom: 19px;
 }
-
+.live-toggle {
+  display: flex;
+  width: 5em;
+  justify-content: space-between;
+  align-items: center;
+  .live-label{
+      color: #4C4C4C;
+     &.active {
+       color: #EAB704;
+     }
+  }
+  .live-toggle-switch {
+    border: 1px solid #EAB704;
+    height: 1em;
+    width: 2em;
+    border-radius: 0.5em;
+    .knob {
+      position: relative;
+      width: 0.8em;
+      height: 0.8em;
+      background: #EAB704;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      left: 0em;
+      transition: left 0.3s ease-out;
+      &.active {
+        left: 1em;
+      }
+    }
+  }
+}
 .leader-list{
   text-align: center;
   padding:0;

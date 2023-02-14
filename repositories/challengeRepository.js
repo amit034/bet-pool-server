@@ -5,8 +5,8 @@ const {Op} = Sequelize;
 function findOneByQuery(query, {transaction} = {}){
     return Challenge.scope('game').findOne({where: query, transaction});
 }
-function findAllByQuery(query, {transaction} = {}){
-    return Challenge.scope('game').findAll({where: query, transaction});
+function findAllByQuery(query, {transaction, include = []} = {}){
+    return Challenge.scope('game').findAll({where: query, include, transaction});
 }
 async function updateChallengeByQuery(query, data, {transaction} = {}) {
     const searchQuery = _.assign(query,{status: {[Op.ne]: 'FINISHED'}});
@@ -25,7 +25,7 @@ module.exports = {
     createChallenge(data, {transaction}= {}) {
         return Challenge.create(data, {transaction});
     },
-    async findOrCreate(data, {transaction}) {
+    async findOrCreate(data, {transaction} = {}) {
         const query = {refId: data.refId, refName: data.refName, type: data.type};
         const challenge = await Challenge.findOne({where: query, transaction});
         return !_.isNil(challenge) ? challenge : Challenge.create(_.assign({}, data, query), {transaction});
@@ -33,7 +33,7 @@ module.exports = {
     updateChallengeById(id, challenge, {transaction} = {}) {
         return updateChallengeByQuery({id}, challenge, {transaction})
     },
-    createAll(records ,{transaction}) {
+    createAll(records ,{transaction} = {}) {
         return Challenge.bulkCreate(records, {transaction, ignoreDuplicates: true});
     },
     updateChallengeByQuery

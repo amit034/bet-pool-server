@@ -94,7 +94,7 @@ function handleGetParticipates(req, res) {
     const betsPromise = challengeId ? betRepository.findByChallengeId(challengeId, {}) : betRepository.findUsersBetsByPoolId(poolId);
     return Promise.all([repository.findById(poolId), betsPromise])
         .then(([pool, usersBets]) => {
-            return getPopulatePoolChallenges(pool, false)
+            return getPopulatePoolChallenges(pool, true)
                 .then((challenges) => {
                     pool.challenges = _.map(challenges, item => item.toJSON());
                     return [pool, _.map(usersBets, bet => bet.toJSON())];
@@ -116,6 +116,7 @@ function handleGetParticipates(req, res) {
                             const challengeFactor = _.get(challenge, 'factorId', 1);
                             bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
                             bet.closed = !challenge.isOpen;
+                            bet.status = challenge.status;
                             bet.factor = challengeFactor;
                             bet.medal = medal;
                             if(bet.medal){

@@ -6,12 +6,12 @@ export function getParticipatesWithRank(participates) {
         return [];
     }
     const sortedParticipates = _.orderBy(participates, ['score', 'medals.3', 'medals.2', 'medals.1'], ['desc', 'desc', 'desc', 'desc']);
-    const first = _.first(sortedParticipates);
+    const first = _.first(_.filter(sortedParticipates, {isBot: false}));
     const {participatesWithRank} = _.reduce(sortedParticipates, (agg, participate) => {
         if (!agg.prvIsBot){
             agg.cnt++;
         }
-        if (!_.isEqual(participate.medals, agg.medals)) {
+        if (!_.isEqual(participate.medals, agg.medals) || agg.prvIsBot) {
             if (participate.isBot) {
                 agg.rank = '-';
             } else {

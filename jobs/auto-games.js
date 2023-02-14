@@ -54,8 +54,8 @@ module.exports = {
                     if (!_.isNil(season)) {
                         const {endDate} = season;
                         if (moment().isBefore(endDate)) {
-                            const currentMatches = _.filter(matches, ({matchday, lastUpdated, utcDate}) => {
-                                return moment(utcDate).isBetween(moment(), moment().add(13, "days"));
+                            const currentMatches = _.filter(matches, ({matchday, lastUpdated, utcDate, homeTeam, awayTeam}) => {
+                                return moment(utcDate).isBetween(moment(), moment().add(13, "days")) && _.get(homeTeam, 'id') && _.get(awayTeam, 'id');
                             });
                             if(!_.isEmpty(currentMatches)) {
                                 await eventRepository.updateEvent({id: eventId, isActive: true}, transaction);

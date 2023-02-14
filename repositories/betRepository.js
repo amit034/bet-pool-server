@@ -16,6 +16,9 @@ module.exports = {
 		await Bet.upsert(data, {transaction, updateOnDuplicate: ['score_1', 'score_2']});
 		return Bet.findOne({where: searchQuery, transaction});
 	},
+	async createBulk(data, {transaction} = {} ) {
+		return  Bet.bulkCreate(data, {transaction, updateOnDuplicate: ['score_1', 'score_2']});
+	},
 	findByChallengeId(challengeId, {transaction}){
 		return findUserBetsByQuery({challengeId}, {transaction});
 	}

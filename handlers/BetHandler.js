@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 const repository = require('../repositories/betRepository');
+const accountRepository = require('../repositories/accountRepository');
 const poolRepository = require('../repositories/poolRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const logger = require('../utils/logger');
@@ -9,11 +10,19 @@ function handleGetOthersBets(req, res) {
     const poolId = req.params.poolId ||null;
     const challengeId = req.params.challengeId || null;
     return Promise.all([
+        poolRepository.findById(poolId),
         challengeRepository.findById(challengeId),
         repository.findUserBetsByQuery({poolId, challengeId})
-    ]).then(function ([challenge, usersBets]) {
+    ]).then(function ([pool, challenge, usersBets]) {
             if (challenge) {
-                const bets = _.map(usersBets, bet => bet.toJSON());
+                const challengeFactor = _.get(challenge, 'factorId', 1);
+                const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+                const bets = _.map(usersBets, betModel => {
+                    const bet = betModel.toJSON();
+                    bet.medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
+                    bet.score = _.get(poolFactors, bet.medal, 0) * challengeFactor;
+                    return bet;
+                });
                 return res.status(200).send({challenge, usersBets: challenge.playAt > moment() ? _.filter(bets, 'isPublic') :  bets});
             } else {
                 const massage = `No challenge for challenge id ${challenge}`;

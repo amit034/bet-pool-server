@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useState} from 'react';
 import {useSelector} from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -10,31 +10,52 @@ SwiperCore.use([Pagination]);
 
 const LeadersContainer = () => {
     const participates = useSelector(state => state.pools.participates);
+    const [live, setLive] = useState(1);
+    const handleClick = e => {
+        e.preventDefault();
+        setLive(!live);
+    };
     const LeaderList = ({participates}) => {
         const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
+        const totals = {};
         const roundsScore = _.map(_.range(numberOfRounds), (roundId) => {
-            return _.map(participates, ({score, medals, rounds, ...others}) => {
-                const {score: roundScore, medals: roundMedals} = _.get(rounds, roundId, {score: 0, medals: {1:0, 2:0, 3:0}});
+            return _.map(participates, ({score, medals, rounds, userId, ...others}) => {
+                const {bets} = _.get(rounds, roundId, {score: 0, medals: {1:0, 2:0, 3:0}});
+                const {roundScore, roundMedals} = _.reduce(bets, (agg, bet) => {
+                    if(bet.medal && (live || bet.status === 'FINISHED')){
+                        agg.roundScore += bet.score;
+                        _.set(agg.roundMedals, bet.medal, _.get(agg.roundMedals, bet.medal, 0) + (1 * bet.factor));
+                    }
+                    return agg;
+                }, {roundScore: 0, roundMedals: {1:0, 2:0, 3:0}})
+                const userTotals = _.get(totals, userId, {score: 0, medals: {1:0, 2:0, 3:0}});
+                userTotals.score += roundScore;
+                _.forEach(roundMedals, (count, medal) => {
+                    userTotals.medals[medal] += count;
+                });
+                _.assign(userTotals, {userId, ...others});
+                _.set(totals,userId, userTotals);
                 return {
                     ...others,
-                    score: roundScore, 
+                    userId,
+                    score: roundScore,
                     medals: roundMedals,
                 };
             });
         });
-        roundsScore.push(participates);  
+        roundsScore.push(_.values(totals));
         const allLeadersNode = _.map(roundsScore, (roundScore, idx) => {
             const roundLeaders = getParticipatesWithRank(roundScore);
             const roundLeaderNode = _.map(roundLeaders, (participate) => {
                     return (<Leader key={participate.userId} participate={participate} rank={participate.rank} />);
             });
-            const title = idx < numberOfRounds? `Round ${idx+1}` : 'All Time'; 
+            const title = idx < numberOfRounds? `Round ${idx+1}` : 'All Time';
             return (<SwiperSlide key={idx}>
                 <div className='round-title'>{title} Leaders</div>
                 {roundLeaderNode}</SwiperSlide>)
         });
         return (<div>
-            <ul className="leader-list" style={{marginTop: '30px'}}><Swiper pagination={{ "dynamicBullets": true}}
+            <ul className="leader-list"><Swiper pagination={{ "dynamicBullets": true}}
                 className="Swiper">{_.reverse(allLeadersNode)}</Swiper></ul>
         </div>);
     };
@@ -69,11 +90,16 @@ const LeadersContainer = () => {
                 </div>
             </li>);
     };
-    return (
+    return (<div>
+                <div className='live-toggle'>
+                    <div onClick={handleClick} className="live-toggle-switch">
+                         <div className={live? 'knob active' : 'knob'} />
+                    </div>
+                <div className={live? 'live-label active' : 'live-label'}>Live</div>
+            </div>
             <LeaderList
                 participates={participates}
-            />    
-    );
+            /></div>);
 }
 
 export default LeadersContainer;

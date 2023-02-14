@@ -7,6 +7,7 @@ const repository = require('../repositories/betRepository');
 
 function CrowdBot() {
     this.name = 'crowdBot';
+    this.id = 4;
 }
 
 CrowdBot.prototype.bet = function (challengeModel) {

@@ -104,7 +104,7 @@ exports.start = () => {
                 throw error;
         }
     }
-    const io = new Server(httpsServer);
+    const io = new Server(httpServer);
     io.on('connection', function(socket) {
 
         socket.on('joinPool', (poolId) => {
