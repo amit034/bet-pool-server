@@ -52,7 +52,7 @@ const ViewOthers = ({clickOnBetChange}) => {
 
     const Medal = ({score, medal}) => {
         const className = classNames('icon star large fitted', {
-            'no-medal': medal === 0,
+            'outline': medal === 0,
             'bronze-medal': medal === 1,
             'sliver-medal': medal === 2,
             'gold-medal': medal === 3

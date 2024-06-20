@@ -26,7 +26,7 @@ module.exports = {
                            const game = _.find(games, {fapiId: match.id});
                            if (!_.isNil(game)) {
                                const {status, utcDate: playAt, score: {fullTime}}= match;
-                               if (_.isNil(fullTime)) {
+                               if (!_.isNil(fullTime)) {
                                    const {homeTeam: homeTeamScore = 0, awayTeam: awayTeamScore = 0} = fullTime;
                                    const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
                                    await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
@@ -40,6 +40,7 @@ module.exports = {
                                        const data = challenge.toJSON();
                                        _.forEach(_.map(pools, 'poolId'), (room) => {
                                            io.to(room).emit('updateChallenge', data);
+                                           logger.info(`updateChallenge, ${JSON.stringify(data)}`);
                                        })
                                    }
                                }

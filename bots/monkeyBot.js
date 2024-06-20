@@ -1,37 +1,98 @@
 'use strict';
 const _ = require('lodash');
-const mongoose = require('mongoose');
-const util = require('util');
+const moment = require('moment');
+const { Sequelize, sequelize} = require('../models');
+const {Op} = Sequelize;
 const Bot = require('./bot');
 const gameRepository = require('../repositories/gameRepository');
+const challengeRepository = require('../repositories/challengeRepository');
+const poolRepository = require('../repositories/poolRepository');
 const repository = require('../repositories/betRepository');
+const betRepository = require("../repositories/betRepository");
 
-function MonkeyBot() {
-    this.name = 'monkeyBot';
-    this.id = 2;
-}
-
-MonkeyBot.prototype.bet = function (challengeModel) {
-    if (!this.userId) return;
-    return Promise.all([
-        gameRepository.findGameByQuery({event: challengeModel.event}),
-        repository.findByChallengeId(challengeModel._id)
-    ]).then(([games, bets]) => {
-        const myBet = _.find(bets,{participate: this.userId});
-        if (myBet) return myBet;
-        const score1Avg = _.sumBy(games, 'score1') / _.size(games);
-        const score2Avg = _.sumBy(games, 'score2') / _.size(games);
-        const score1 = _.isNaN(score1Avg) ? 0 : _.round(score1Avg);
-        const score2 = _.isNaN(score1Avg) ? 0 : _.round(score2Avg);
-        return {challenge: challengeModel._id, pool: mongoose.Types.ObjectId('55cdcdc780d1afee6c4d5fdb'), participate: this.userId, score1, score2, public: true};
-    }).then((bet) => {
-        if (_.isPlainObject(bet)) {
-            return repository.createOrUpdate(bet);
+class MonkeyBot extends Bot{
+    constructor() {
+        super(2, 'monkeyBot');
+    }
+    setBet({openChallenge = []}, learningData) {
+        const myBets = _.get(learningData, 'myBets', []);
+        return _.map(openChallenge, (challenge) => {
+            const challengeBet = _.find(myBets, {challengeId: challenge.id}, ) || {};
+            const {score1, score2} = challengeBet;
+            return {
+                challengeId: challenge.id, userId: this.id,
+                score1, score2, isPublic: true
+            };
+        });
+    }
+    async learningData(openChallenge, {transaction}) {
+        const myBets = _.map(openChallenge, (challenge) => {
+            const score1 = _.get(challenge, 'odds1', 0) < 2 ? 3 : 1;
+            const score2 = _.get(challenge, 'odds2', 0) < 2 ? 3 : 1;
+            return {challengeId: challenge.id, userId: this.id,
+                score1, score2, isPublic: true};
+        });
+        return {myBets};
+    }
+    async betForOthers() {
+        const transaction = await sequelize.transaction();
+        try {
+            const pools = await poolRepository.findPoolsByUserId(this.id, {transaction});
+            const activePools = _.filter(pools, ({events}) => {
+                return _.some(events, 'isActive');
+            });
+            const closedGames = await gameRepository.findGamesByQuery({playAt: {[Op.lt]: moment()}}, {transaction});
+            const gamesById = _.keyBy(closedGames, 'id');
+            const challenges = await challengeRepository.findAllByQuery(
+                {refName: 'Game', refId: {[Op.in]: _.map(closedGames, 'id')}}, {transaction});
+            const usersBets = await repository.findUserBetsByQuery({poolId: {[Op.in]: _.map(activePools, 'poolId')}}, {transaction});
+            const betsByPoolId = _.reduce(usersBets, (acc, bet) => {
+                const pool = _.get(acc, bet.poolId, {});
+                const bets = _.get(pool, bet.challengeId, []);
+                bets.push(bet.userId);
+                _.set(pool, bet.challengeId, bets);
+                _.set(acc, bet.poolId, pool);
+                return acc;
+            }, {});
+            const monkeyBets = _.filter(usersBets, {userId: 2});
+            const challengesByEventId = _.groupBy(challenges, (c) => {
+                return  _.get(gamesById, [c.refId, 'eventId']);
+            });
+            const bets = _.reduce(activePools, (aggPools, pool) => {
+                const {poolId, events, participates} = pool;
+                const missingEventsBets = _.reduce(events, (aggEvents, event) => {
+                    const challenges = _.get(challengesByEventId, event.id);
+                    const missingChallenges = _.reduce(challenges, (aggChallenges, c) => {
+                        const monkeyBet = _.find(monkeyBets,  {userId: 2, challengeId: c.id, poolId});
+                        if (!_.isNil(monkeyBet)) {
+                            const participate = _.difference(_.map(participates, 'userId'), _.get(betsByPoolId, [poolId, c.id], []));
+                            aggChallenges.push(..._.map(participate, (userId) => {
+                                return {
+                                    challenge: c.id,
+                                    pool: poolId,
+                                    participate: userId,
+                                    score1: monkeyBet.score1,
+                                    score2: monkeyBet.score2
+                                };
+                            }));
+                        }
+                        return aggChallenges;
+                    }, []);
+                    aggEvents.push(...missingChallenges);
+                    return aggEvents;
+                }, []);
+                aggPools.push(...missingEventsBets);
+                return aggPools;
+            }, []);
+            if (bets) {
+                await repository.bulkCreate(bets, {ignoreDuplicates: true, transaction});
+            }
+            await transaction.commit();
+        } catch (e) {
+            await transaction.rollback();
         }
-        return bet;
-    })
-};
+    }
 
-util.inherits(MonkeyBot, Bot);
+}
 
 module.exports = MonkeyBot;

@@ -73,14 +73,18 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
     };
+
+    const gameSide = classNames('game-side-title', {
+        'game-side-title-main-event': factorId > 1
+    });
     const betRow = (<section style={{display: "contents"}}>
                     <div className="game-side">
                         <div className="game-side-score">
                             {!isOpen ? <Medal score={score} medal={medal}/> : ''}
                         </div>
-                        <div className="game-side-title">
+                        {/*<div className={gameSide}>
                             {factorId > 1 ? 'Main Event' : ''}
-                        </div>
+                        </div>*/}
                     </div>
                     <div className="game-center">
                         <div className="game-title">
@@ -91,7 +95,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
                             </div>
 
                             {/*<div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>*/}
-                            {/*< div className="game-more">{factorId > 1 ? 'Main Event': ''}</div>*/}
+                            < div className="match-center">{factorId > 1 ? 'Main Event': ''}</div>
                             <div className="game-hour">{moment(playAt).format('H:mm')}</div>
 
                         </div>

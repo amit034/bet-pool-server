@@ -12,8 +12,7 @@ module.exports = {
     findById,
     findActiveEventsByIds(ids, {transaction} = {}) {
         return Event.findAll({where: {id: ids, isActive: true}, transaction});
-    },
-    findActivePoolEvents({transaction} ={}) {
+    }, findActivePoolEvents({transaction} ={}) {
         return Event.findAll({where: {isActive: true}, include: [{model: Pool, as: 'pools'}], transaction});
     },
     findByName(name, {transaction}) {
@@ -22,7 +21,8 @@ module.exports = {
     findLiveGames({transaction}) {
       return Event.findAll({
           where: {
-              fapiId: {[Op.gt]: 0}
+              isActive: true,
+              fapiId: {[Op.or]:[{[Op.gt]: 0}, {[Op.ne]: null}]}
           },
           include: [{
               model: Game,
