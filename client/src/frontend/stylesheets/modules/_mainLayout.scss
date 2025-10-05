@@ -1,0 +1,147 @@
+#app{
+  background-color: $background-1;
+  height: 100%;
+  color: $title-1;
+  overflow: overlay;
+}
+.user-rank{
+  padding-left: 5px;
+  color: $title-4;
+}
+.app-wrapper{
+  height: 100%;
+  .ui.inverted.top-menu {
+    background-color: $background-1 !important;
+    .header{
+      color: $title-1 !important;
+    }
+    .menu {
+      background-color: $background-1;
+      .item{
+        color: $title-1 !important;
+        font-size: 1.1em;
+        font-weight:600;
+      }
+    }
+    .item:before{
+      background: none;
+    }
+    :hover, .active.item {
+      background-color: $background-1 !important;
+    }
+  }
+
+}
+.swiper-container{
+  .swiper-pagination{
+    width: 100% !important;
+    position: fixed;
+    bottom: 40px;
+    top: auto;
+    left: 50%;
+    background: $background-1;
+    padding: 8px 0px 4px 0px;
+  }
+}
+.ui#content{
+  padding: 40px 0 55px 0
+}
+.top-menu {
+  //background-color: $background-1 !important;
+  .item{
+    color: $title-1 !important;
+  }
+}
+.right-menu{
+  .menu{
+    box-shadow: 0px 4px 13px rgb(255 255 255 / 15%);
+  }
+
+ }
+.bottom-menu{
+  display: flex;
+  color: $title-1 !important;
+  .item{
+    flex: 1;
+    color: $title-1 !important;
+  }
+  .item.disabled {
+    color: rgba(225,225,225,.3) !important;
+  }
+  .menu a {
+    color: $title-1 !important;
+  }
+}
+
+.bet-pad{
+  position: absolute;
+  border: 1px solid;
+  display: flex;
+  width: 95%;
+  font-size: 24px;
+  background-color: lightgreen;
+  .bet-pad-score{
+    flex: 1;
+    border: 1px solid;
+  }
+  .bet-pad-score.bet-pad-score-selected{
+    background-color: lime;
+  }
+}
+.challenge-tip{
+  width: 300px;
+  max-height: 300px;
+  .users-bets-list{
+    text-align: center;
+    padding:0;
+    .user-bet-row {
+      list-style: none;
+      border: 1px solid;
+      margin-bottom: 10px;
+      .user-bet-body {
+        display: flex;
+        .user-bet-side {
+          padding: 5px;
+          flex: 1;
+          .user-bet-image {
+            width: 32px;
+            height: 32px;
+          }
+        }
+        .user-bet-center {
+          text-align: left;
+          padding-left: 5px;
+          padding-top: 5px;
+          flex: 7;
+          display: flex;
+          .user-bet-name{
+            flex: 2;
+          }
+          .user-bet-score1, .user-bet-score2{
+            text-align: right;
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  }
+}
+.ui.modal>.close {
+  color: #ffff;
+}
+
+@-webkit-keyframes blinker {
+  from {opacity: 1.0;}
+  to {opacity: 0.0;}
+}
+.blink{
+  text-decoration: blink;
+  -webkit-animation-name: blinker;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-iteration-count:infinite;
+  -webkit-animation-timing-function:ease-in-out;
+  -webkit-animation-direction: alternate;
+}
+
+
+

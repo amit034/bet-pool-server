@@ -1,0 +1,62 @@
+'use strict';
+
+module.exports = function (sequelize, DataTypes) {
+    const Game = sequelize.define('Game', {
+        id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+            field: 'gameId'
+        },
+        eventId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
+        roundId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
+        playAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        score1: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        score2: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        team1Code:{
+            type: DataTypes.STRING,
+            allowNull: false,
+            field: 'team1_code'
+        },
+        team2Code:{
+            type: DataTypes.STRING,
+            allowNull: false,
+            field: 'team2_code'
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        openFbId: {
+            type: DataTypes.INTEGER(11),
+            allowNull: true,
+        }
+    }, {
+        tableName: 'Scores',
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8'
+    });
+
+    Game.associate = function (models) {
+        models.Game.belongsTo(models.Team, { as:'team1', foreignKey: 'team1Code', targetKey: 'teamCode'});
+        models.Game.belongsTo(models.Team, { as:'team2', foreignKey: 'team2Code', targetKey: 'teamCode'});
+    };
+    return Game;
+};

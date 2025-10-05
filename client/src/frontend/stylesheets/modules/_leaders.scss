@@ -1,0 +1,120 @@
+.round-title {
+  display: block;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 19px;
+}
+.live-toggle {
+  display: flex;
+  width: 5em;
+  justify-content: space-between;
+  align-items: center;
+  .live-label{
+      color: #4C4C4C;
+     &.active {
+       color: #EAB704;
+     }
+  }
+  .live-toggle-switch {
+    border: 1px solid #EAB704;
+    height: 1em;
+    width: 2em;
+    border-radius: 0.5em;
+    .knob {
+      position: relative;
+      width: 0.8em;
+      height: 0.8em;
+      background: #EAB704;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      left: 0em;
+      transition: left 0.3s ease-out;
+      &.active {
+        left: 1em;
+      }
+    }
+  }
+}
+.leader-list{
+  text-align: center;
+  padding:0;
+  .leader-row {
+    list-style: none;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
+    background-color: $background-frame;
+    border: 1px solid $background-7;
+    // border: 1px solid #414d7e;
+    margin-bottom: 10px;
+    height: 45px;
+    font-size: 12px;
+    .leader-body {
+      display: flex;
+      height: 100%;
+      .leader-rank{
+        width: 40px;
+        justify-self: center;
+        align-self: center;
+        font-size: 1.5em;
+      }
+      .leader-side {
+        display:flex;
+        padding: 5px;
+        .leader-image {
+          width: 2.285em;
+          height: 2.285em;
+          align-self: center;
+          border-radius: 50%;
+        }
+      }
+      .leader-center {
+        text-align: left;
+        flex: 7;
+        display: flex;
+        .leader-name{
+          flex: 2;
+          align-self: center;
+          font-size: 1.2em;
+          margin-inline-start: 3%;
+        }
+        .leader-score-box{
+          text-align: right;
+          align-self: center;
+          min-width: 55px;
+          height: 100%;
+          display: flex;
+          background-color: $background-3;
+          color: $title-2;
+          justify-content: center;
+          align-items: center;
+          font-size: 1.5em;
+        }
+        .leader-medals{
+          display: flex;
+          margin-right: 15px;
+          text-align: center;
+          align-items: center;
+          gap: 5px;
+          .leader-medal{
+            i.large.icon{
+              font-size:1em
+            }
+            flex-direction: column;
+            .medals-size{
+              font-size: 0.9em;
+            }
+            .gold-medal{
+              color: #D9A441;
+            }
+            .sliver-medal{
+              color: #CCC2C2;
+            }
+            .bronze-medal{
+              color: #965A38;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
