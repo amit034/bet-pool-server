@@ -14,8 +14,10 @@ function log(level, message) {
 	winston.log(level, message);
 }
 function error(message) {
-
 	log('error', message);
+}
+function warn(message) {
+	log('warn', message);
 }
 function info(message) {
 	log('info', message);
@@ -27,5 +29,6 @@ module.exports = {
 	log,
 	info,
 	debug,
+	warn,
 	error
 }

@@ -60,6 +60,53 @@ function handleUpdateUserBets(req, res){
         });
     });
 }
+/**
+ * Core function: Create or update a bet
+ * Can be used by HTTP handlers AND bot commands
+ * 
+ * @param {number} poolId - Pool ID
+ * @param {number} userId - User ID
+ * @param {number} challengeId - Challenge ID  
+ * @param {number} score1 - Home score
+ * @param {number} score2 - Away score
+ * @returns {Promise<Object>} Created/updated bet with challenge
+ */
+async function createOrUpdateBet(poolId, userId, challengeId, score1, score2) {
+    const [challenge, participate] = await Promise.all([
+        challengeRepository.findById(challengeId),
+        poolRepository.findByParticipation(poolId, userId, {})
+    ]);
+    
+    if (!challenge || _.isEmpty(participate)) {
+        throw new Error("No challenge or participate found for pool id " + poolId);
+    }
+    
+    if (challenge.playAt < moment()) {
+        throw new Error("too late to change bet for this challenge");
+    }
+    
+    const isPublic = _.get(participate, 'isPublic');
+    const bet = await repository.createOrUpdate({
+        poolId, 
+        userId, 
+        challengeId, 
+        score1, 
+        score2, 
+        isPublic, 
+        updatedAt: moment()
+    });
+    
+    logger.log('info', 'bet for' + poolId + ' has been submitted by user ' + userId);
+    
+    return {
+        bet: bet.toJSON(),
+        challenge: challenge.toJSON()
+    };
+}
+
+/**
+ * HTTP handler: Create or update bet
+ */
 function handleCreateOrUpdateRequest(req, res) {
 	const poolId = req.params.poolId || -1;
     const userId = req.currentUser.userId || -1;
@@ -67,54 +114,28 @@ function handleCreateOrUpdateRequest(req, res) {
     const score1 = _.get(req, 'body.score1', null);
     const score2 = _.get(req, 'body.score2', null);
 
-    return Promise.all([
-        challengeRepository.findById(challengeId),
-        poolRepository.findByParticipation(poolId, userId, {})])
-    .then(function([challenge, participate]) {
-        if (challenge && !_.isEmpty(participate)){
-            if (challenge.playAt < moment()){
-                return res.status(403).send({
-                    error: "too late to change bet for this challenge"
-                });
-            }
-            const isPublic = _.get(participate, 'isPublic');
-            return repository.createOrUpdate({poolId, userId, challengeId, score1, score2, isPublic, updatedAt: moment()})
-                .then(
-                function (bet) {
-                    logger.log('info', 'bet for' + poolId + ' has been submitted.' +
-                        'Request from address ' + req.connection.remoteAddress + '.');
-                    return res.status(201).send(_.assign({}, bet.toJSON(), {challenge: challenge.toJSON()}));
-                }).catch(
-                function (err) {
-                    logger.log('error', 'An error has occurred while processing a request to create a ' +
-                        'Bet from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-                    return res.status(400).send({
-                        error: err.message
-                    });
-                }
-            );
-        }else{
-            const massage = "No challenge or participate found for pool id " + poolId;
+    return createOrUpdateBet(poolId, userId, challengeId, score1, score2)
+        .then(result => {
+            return res.status(201).send(result);
+        })
+        .catch(err => {
             logger.log('error', 'An error has occurred while processing a request to create a ' +
-                'Pool ' + massage + req.connection.remoteAddress );
-            return res.status(400).send({
-                error: massage
+                'Bet from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+            const status = err.message.includes('too late') ? 403 : 400;
+            return res.status(status).send({
+                error: err.message
             });
-        }
-
-    }).catch(function(err){
-        logger.log('error', 'An error has occurred while processing a request to create a ' +
-            'Pool from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-        res.status(400).send({
-            error: err.message
         });
-    });
 }
 
 
 module.exports = {
+    // HTTP handlers (for routes)
     createOrUpdate: handleCreateOrUpdateRequest,
     getOthersBets: handleGetOthersBets,
-    updateUserBets: handleUpdateUserBets
+    updateUserBets: handleUpdateUserBets,
+    
+    // Core functions (for bot commands to reuse)
+    createOrUpdateBet
 };
 

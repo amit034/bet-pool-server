@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const Q = require('q');
 const {Bet, Challenge, Sequelize} = require('../models');
 const {Op} = Sequelize;
@@ -9,6 +10,7 @@ const challengeRepository = require('../repositories/challengeRepository');
 const betRepository = require('../repositories/betRepository');
 const eventRepository = require('../repositories/eventRepository');
 const logger = require('../utils/logger');
+const poolUtils = require('../utils/poolUtils');
 
 // On success should return status code 201 to notify the client the account
 // creation has been successful
@@ -89,74 +91,51 @@ function handleAddGames(req, res) {
 }
 
 function handleGetParticipates(req, res) {
-    debugger; // Breakpoint here
     const poolId = req.params.poolId || null;
     const challengeId = req.query.challengeId || null;
-    const betsPromise = challengeId ? betRepository.findByChallengeId(challengeId, {}) : betRepository.findUsersBetsByPoolId(poolId);
-    return Promise.all([repository.findById(poolId), betsPromise])
-        .then(([pool, usersBets]) => {
-            debugger; // Breakpoint here - check pool and usersBets
-            return getPopulatePoolChallenges(pool, false)
-                .then((challenges) => {
-                    debugger; // Breakpoint here - check challenges
-                    pool.challenges = _.map(challenges, item => item.toJSON());
-                    return [pool, _.map(usersBets, bet => bet.toJSON())];
-                });
-        }).then(([pool, usersBets]) => {
-            debugger; // Breakpoint here - check pool.challenges before grouping
-            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-            const challengeRounds = _.groupBy(pool.challenges, c => c.game.round);
-            debugger; // Breakpoint here - check challengeRounds grouping
-            const participates = _.map(pool.participates, (participateModel) => {
-                const participate = _.pick(participateModel, ['joined']);
-                _.assign(participate, _.pick(participateModel.user, ['userId', 'username', 'picture', 'firstName', 'lastName', 'joined', 'facebookUserId', 'isBot']));
-                const userBets = _.filter(usersBets, {userId: participate.userId});
-                const challengeBets = _.keyBy(userBets, 'challengeId');
-                const poolScore = _.reduce(challengeRounds, (poolScore, challenges) => {
-                    const round = _.reduce(challenges, (roundScore, challenge) => {
-                        const bet = challengeBets[challenge.id];
-                        if(bet) {
-                            const betModel = new Bet(bet);
-                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                            const challengeFactor = _.get(challenge, 'factorId', 1);
-                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
-                            bet.closed = !challenge.isOpen;
-                            bet.status = challenge.status;
-                            bet.factor = challengeFactor;
-                            bet.medal = medal;
-                            if(bet.medal){
-                                roundScore.score += bet.score;
-                                _.set(roundScore.medals, bet.medal, _.get(roundScore.medals, bet.medal, 0) + (1 * bet.factor));
-                            }
-                            if (bet.closed || bet.isBot){
-                                roundScore.bets.push(bet);
-                            }
-                        }
-                        return roundScore;
+    poolUtils.getLeaderboard(poolId, challengeId).then((participates) => {
+        console.log('🔍 DEBUG: Final participates count:', participates.length);
+        console.log('🔍 DEBUG: Sample participate:', participates[0] ? {
+            userId: participates[0].userId,
+            username: participates[0].username,
+            roundsCount: participates[0].rounds ? participates[0].rounds.length : 0,
+            score: participates[0].score
+        } : 'No participates');
+        console.log('🔍 DEBUG: Sending response...');
+        return res.send(participates);
 
-                    }, {score: 0, medals:{1: 0, 2: 0, 3: 0}, bets: []});
-                    poolScore.score += round.score;
-                    _.forEach(round.medals, (count, medal) => {
-                        poolScore.medals[medal] += count;
-                    });
-                    poolScore.rounds.push(round);
-                    return poolScore;
-                }, {score: 0, medals:{1: 0, 2: 0, 3: 0}, rounds: []});
-                _.assign(participate, poolScore);
-                return participate;
-            });
-            console.log('🔍 DEBUG: Final participates count:', participates.length);
-            console.log('🔍 DEBUG: Sample participate:', participates[0] ? {
-                userId: participates[0].userId,
-                username: participates[0].username,
-                roundsCount: participates[0].rounds ? participates[0].rounds.length : 0,
-                score: participates[0].score
-            } : 'No participates');
-            console.log('🔍 DEBUG: Sending response...');
-            return res.send(participates);
+    }).catch((err) => {
+        logger.log('error', 'An error has occurred while processing a request to handleGetParticipates ' +
+            'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({
+            error: err.message
+        });
+    });
+}
 
-        }).catch((err) => {
-            logger.log('error', 'An error has occurred while processing a request to handleGetParticipates ' +
+function handleGetBiggestJump(req, res) {
+    const poolId = req.params.poolId || null;
+    const granularity = req.query.granularity || 'round'; // 'round' or 'pool'
+    
+    if (!poolId) {
+        return res.status(400).send({
+            error: 'Pool ID is required'
+        });
+    }
+
+    if (!['round', 'pool'].includes(granularity)) {
+        return res.status(400).send({
+            error: 'Granularity must be either "round" or "pool"'
+        });
+    }
+
+    poolUtils.getBiggestJump(poolId, granularity)
+        .then((result) => {
+            return res.send(result);
+        })
+        .catch((err) => {
+            logger.log('error', 'An error has occurred while processing a request to handleGetBiggestJump ' +
                 'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
                 '. Stack trace: ' + err.stack);
             return res.status(500).send({
@@ -165,6 +144,84 @@ function handleGetParticipates(req, res) {
         });
 }
 
+/**
+ * Core function: Get upcoming games for a pool
+ * Can be used by HTTP handlers AND bot commands
+ * 
+ * @param {number} poolId - Pool ID
+ * @returns {Promise<Array>} Array of upcoming open games
+ */
+async function getUpcomingGames(poolId) {
+    const pool = await repository.findById(poolId);
+    
+    if (!pool) {
+        throw new Error('Pool not found');
+    }
+    
+    const challenges = await poolUtils.getPopulatePoolChallenges(pool, true);
+    
+    // Filter to only upcoming open games
+    const upcomingGames = challenges.filter(challenge => {
+        const isOpen = challenge.isOpen;
+        const isFuture = moment(challenge.playAt).isAfter(moment());
+        return isOpen && isFuture;
+    });
+    
+    // Sort by playAt
+    return _.orderBy(upcomingGames, ['playAt'], ['asc']);
+}
+
+/**
+ * Core function: Get user's bets with challenges
+ * Can be used by HTTP handlers AND bot commands
+ *
+ * @param {number} poolId - Pool ID
+ * @param {number} userId - User ID  
+ * @returns {Promise<Object>} Object with bets and challenges
+ */
+async function getUserBetsWithChallenges(poolId, userId) {
+    const [account, pool, userBets] = await Promise.all([
+        accountRepository.findById(userId),
+        repository.findById(poolId),
+        betRepository.findUserBetsByQuery({userId, poolId})
+    ]);
+    
+    if (_.isNull(account) || _.isNull(pool)) {
+        throw new Error('missing account or pool');
+    }
+    
+    const challenges = await poolUtils.getPopulatePoolChallenges(pool);
+    
+    const bets = _.map(challenges, (challenge) => {
+        let betModel = _.find(userBets, {challengeId: challenge.id});
+        if (!betModel) {
+            betModel = new Bet({
+                userId: account.userId,
+                poolId: pool.id,
+                challenge,
+                score1: null,
+                score2: null,
+                score: 0
+            });
+        }
+        const bet = betModel.toJSON();
+        const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
+        const challengeFactor = _.get(challenge, 'factorId', 1);
+        const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+        bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+        bet.medal = medal;
+        bet.challenge = challenge;
+        bet.challengeId = challenge.id;
+        bet.closed = !challenge.isOpen;
+        return bet;
+    });
+    
+    return _.orderBy(bets, ['challenge.playAt'], ['asc']);
+}
+
+/**
+ * HTTP handler: Get user bets
+ */
 function handleGetUserBets(req, res) {
     const poolId = req.params.poolId || null;
     const userId = req.params.userId || null;
@@ -178,7 +235,7 @@ function handleGetUserBets(req, res) {
                 error: 'missing account'
             });
         }
-        return getPopulatePoolChallenges(pool)
+        return poolUtils.getPopulatePoolChallenges(pool)
             .then((challenges) => {
                 let bets = _.map(challenges, (challenge) => {
                     let betModel = _.find(userBets, {challengeId: challenge.id});
@@ -437,6 +494,7 @@ async function addParticipatesToPool(pool, usersIds, join, req, {transaction} = 
     const users = await accountRepository.findActiveAccountsByIds(usersIds)
     try {
         pool = await repository.setParticipates(pool.poolId, _.map(users, 'userId'), join, {transaction});
+        
         logger.log('info', 'add users to Pool' + pool.poolId + ' has been created.' +
             'Request from address ' + req.connection.remoteAddress + '.');
         return Promise.resolve(pool);
@@ -448,45 +506,23 @@ async function addParticipatesToPool(pool, usersIds, join, req, {transaction} = 
 }
 
 
-function getPopulatePoolChallenges(pool, active , challangeId) {
-    const events = _.keyBy(pool.events, 'id');
-    return gameRepository.findGamesByEventIds(_.keys(events), active)
-    .then((games) => {
-        const filter = _.filter(games, (game) => {
-            const event = _.get(events, game.eventId);
-            const filter = _.get(event, 'PoolEvent.filter', 0);
-            return _.parseInt(game.round) >= _.parseInt(filter);
-        })
-        const challengesQuery = {
-                        refId: {[Op.in]: _.map(filter, 'id')},
-                        refName: 'Game',
-                        type: Challenge.TYPES.FULL_TIME
-        };
-        const poolChallengesQuery = {
-            id: {[Op.in]: _.map(pool.challenges, 'id')},
-        };
 
-        if (challangeId){
-            challengesQuery.id = challangeId;
-            poolChallengesQuery.id = {[Op.in]: _.map(_.filter(pool.challenges,{id: challangeId}, 'id'))};
-        }
-        const fullTimeQ = challengeRepository.findAllByQuery(challengesQuery);
-        const pollChallengesQ = poolChallengesQuery ? challengeRepository.findAllByQuery(poolChallengesQuery) : Promise.resolve([]);
-        return Promise.all([fullTimeQ, pollChallengesQ]).then(([fullTime, pollChallenges]) => {
-            return  _.uniqBy(_.reject(_.concat(fullTime, pollChallenges), _.isNil), 'id');
-        });
-    });
-}
 
 module.exports = {
-        createPool: handleCreatePoolRequest,
-        addGames: handleAddGames,
-        getGames: handleGetGames,
-        addEvents: handleAddEvents,
-        addParticipates: handleAddParticipates,
-        joinToPool: handleJoinToPool,
-        getPools: handleGetUserPools,
-        getUserBets: handleGetUserBets,
-        getParticipates: handleGetParticipates
+	// HTTP handlers (for routes)
+	createPool: handleCreatePoolRequest,
+	addGames: handleAddGames,
+	getGames: handleGetGames,
+	addEvents: handleAddEvents,
+	addParticipates: handleAddParticipates,
+	joinToPool: handleJoinToPool,
+	getPools: handleGetUserPools,
+	getUserBets: handleGetUserBets,
+	getParticipates: handleGetParticipates,
+	getBiggestJump: handleGetBiggestJump,
+	
+	// Core functions (for bot commands to reuse)
+	getUpcomingGames,
+	getUserBetsWithChallenges
 };
 

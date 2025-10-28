@@ -9,6 +9,8 @@ const repository = require('../repositories/poolRepository');
 const betRepository = require('../repositories/betRepository');
 const gameRepository = require('../repositories/gameRepository');
 const challengeRepository = require('../repositories/challengeRepository');
+const poolUtils = require('../utils/poolUtils');
+
 
 class BaseAnalyticsTool extends Tool {
     constructor(name, description) {
@@ -38,7 +40,7 @@ class BaseAnalyticsTool extends Tool {
                 throw new Error(`Pool with ID ${poolId} not found`);
             }
 
-            const challenges = await this.getPopulatePoolChallenges(pool, true);
+            const challenges = await poolUtils.getPopulatePoolChallenges(pool, true);
             pool.challenges = _.map(challenges, item => item.toJSON());
             
             const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
