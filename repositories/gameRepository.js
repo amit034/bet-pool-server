@@ -31,28 +31,10 @@ module.exports = {
         return findGamesByQuery({where: {gameId: gameIds, playAt: {[Op.gte]: moment()}}}, {transaction});
     },
     findActive({transaction}) {
-        return Game.findAll({
+        return findGamesByQuery({
             where: {playAt: {[Op.gte]: moment()}} ,
             include: [{model: Team, as: 'homeTeam'},{model: Team, as: 'awayTeam'}],
-            transaction
-        });
-    },
-    findGamesByDateRange(startDate, endDate, {transaction} = {}) {
-        return Game.findAll({
-            where: {
-                playAt: {
-                    [Op.gte]: startDate,
-                    [Op.lte]: endDate
-                }
-            },
-            include: [
-                {model: Team, as: 'homeTeam'},
-                {model: Team, as: 'awayTeam'},
-                {model: Event, as: 'event'}
-            ],
-            order: [['playAt', 'ASC']],
-            transaction
-        });
+        },{transaction});
     },
     findLive({transaction}) {
         return Game.findAll({

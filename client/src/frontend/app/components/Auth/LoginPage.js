@@ -137,11 +137,6 @@ const LoginPage = ({register = false}) => {
                                 <GoogleLogin
                                     clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
                                     onSuccess={googleResponse}
-                                    onFailure={(error) => {
-                                        console.error('Google OAuth error:', error);
-                                    }}
-                                    cookiePolicy={'single_host_origin'}
-                                    isSignedIn={false}
                                     cssClass="social-login"
                                     render={renderProps => (
                                         <div className="field login-input">

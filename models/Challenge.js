@@ -44,9 +44,6 @@ module.exports = function (sequelize, DataTypes) {
             otherKey: 'poolId',
             as: 'pools'
         });
-        Model.hasMany(models.PoolChallenge, {
-            foreignKey: 'challengeId'
-        });
         Model.addScope('game', {
             where: { refName: 'Game' },
             include: [

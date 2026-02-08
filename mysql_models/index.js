@@ -6,7 +6,7 @@ var Sequelize = require('sequelize');
 var basename = path.basename(__filename);
 var db = {};
 
-const sequelize = new Sequelize('betPool', 'root', 'arotbarD!053450', {
+const sequelize = new Sequelize('betPool', 'root', 'arotbard', {
     host: 'localhost',
     dialect: 'mysql',
     port: 3306,

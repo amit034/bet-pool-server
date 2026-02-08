@@ -4,13 +4,6 @@ require('./passport')();
 const demoPools = require('./mocks/pools');
 const demoPool = require('./mocks/pool');
 const publicPath = path.join(__dirname, 'client', 'src','frontend', 'public', 'index.html');
-
-// Import Unified Engagement System
-const EngagementSystem = require('./engagement-system');
-const EngagementManager = require('./engagement-system/core/EngagementManager');
-const { InsightRegistry } = require('./engagement-system/insights');
-const { NotificationRegistry } = require('./engagement-system/notifications');
-const PollRegistry = require('./engagement-system/core/PollRegistry');
 function setup(app, handlers, authorisationPolicy) {
     app.get('/status', (req, res)=> res.send('ok'));
     app.post('/api/profiles', handlers.account.createAccount);
@@ -51,9 +44,6 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.createOrUpdate);
     app.get('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.getOthersBets);
 
-    // Note: Telegram bot commands call BotHandler methods directly (no HTTP routes needed)
-    // The BotHandler provides the same functionality with proper validation
-
     // app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
     // app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
     // app.post('/api/profiles/:userId/lists/:templateId', authorisationPolicy, handlers.list.createShoppingList);
@@ -81,7 +71,6 @@ function setup(app, handlers, authorisationPolicy) {
         req.register = true; req.authStrategy = 'google-token';return next();
         }, authorisationPolicy, handlers.auth.postLogin);
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
-    
     app.get('*', (req,res) =>{
         res.sendFile(publicPath);
     });
@@ -90,240 +79,6 @@ function setup(app, handlers, authorisationPolicy) {
         debug(req.url);
         return res.status(404).send({ msg: 'oh no! your page not found' });
     });
-
-    // Unified Engagement System API Endpoints
-    // ==========================================
-    
-    // System Status
-    app.get('/api/engagement/status', (req, res) => {
-        try {
-            const status = EngagementSystem.getStatus();
-            res.json({
-                success: true,
-                data: status,
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Manual Trigger - Run engagement cycle
-    app.post('/api/engagement/trigger', async (req, res) => {
-        try {
-            console.log('🚀 Manual engagement trigger requested');
-            await EngagementManager.run();
-            res.json({
-                success: true,
-                message: 'Engagement Manager triggered successfully',
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Trigger Specific Insight
-    app.post('/api/engagement/trigger/insight/:insightId', async (req, res) => {
-        try {
-            const { insightId } = req.params;
-            const insight = InsightRegistry.getInsight(insightId);
-            
-            if (!insight) {
-                return res.status(404).json({
-                    success: false,
-                    error: `Insight ${insightId} not found`,
-                    timestamp: new Date().toISOString()
-                });
-            }
-
-            console.log(`🎯 Manual insight trigger: ${insightId}`);
-            
-            if (await insight.shouldTrigger()) {
-                const message = await insight.buildMessage();
-                // Send via current platform
-                await EngagementManager.platform.sendMessage(message);
-                
-                res.json({
-                    success: true,
-                    message: `Insight ${insightId} triggered and sent`,
-                    data: { message },
-                    timestamp: new Date().toISOString()
-                });
-            } else {
-                res.json({
-                    success: true,
-                    message: `Insight ${insightId} triggered but conditions not met`,
-                    timestamp: new Date().toISOString()
-                });
-            }
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Trigger Specific Poll
-    app.post('/api/engagement/trigger/poll/:pollId', async (req, res) => {
-        try {
-            const { pollId } = req.params;
-            const poll = PollRegistry.getPoll(pollId);
-            
-            if (!poll) {
-                return res.status(404).json({
-                    success: false,
-                    error: `Poll ${pollId} not found`,
-                    timestamp: new Date().toISOString()
-                });
-            }
-
-            console.log(`🗳️ Manual poll trigger: ${pollId}`);
-            
-            if (await poll.shouldTrigger()) {
-                const pollData = await poll.buildMessage();
-                // Send via current platform
-                await EngagementManager.platform.sendPoll(pollData);
-                
-                res.json({
-                    success: true,
-                    message: `Poll ${pollId} triggered and sent`,
-                    data: { poll: pollData },
-                    timestamp: new Date().toISOString()
-                });
-            } else {
-                res.json({
-                    success: true,
-                    message: `Poll ${pollId} triggered but conditions not met`,
-                    timestamp: new Date().toISOString()
-                });
-            }
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Get All Insights
-    app.get('/api/engagement/insights', (req, res) => {
-        try {
-            const insights = InsightRegistry.getAllModules();
-            res.json({
-                success: true,
-                data: insights.map(insight => ({
-                    id: insight.id,
-                    name: insight.name,
-                    priority: insight.priority,
-                    schedule: insight.schedule,
-                    status: insight.status
-                })),
-                count: insights.length,
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Get All Polls
-    app.get('/api/engagement/polls', (req, res) => {
-        try {
-            const polls = PollRegistry.getAllModules();
-            res.json({
-                success: true,
-                data: polls.map(poll => ({
-                    id: poll.id,
-                    name: poll.name,
-                    priority: poll.priority,
-                    schedule: poll.schedule,
-                    status: poll.status
-                })),
-                count: polls.length,
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Start/Stop Engagement Manager
-    app.post('/api/engagement/start', async (req, res) => {
-        try {
-            await EngagementSystem.start();
-            res.json({
-                success: true,
-                message: 'Engagement Manager started',
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    app.post('/api/engagement/stop', async (req, res) => {
-        try {
-            await EngagementSystem.stop();
-            res.json({
-                success: true,
-                message: 'Engagement Manager stopped',
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
-    // Get platform status
-    app.get('/api/engagement/platform', (req, res) => {
-        try {
-            const status = EngagementSystem.getStatus();
-            res.json({
-                success: true,
-                data: {
-                    platform: status.platform,
-                    isInitialized: status.isInitialized,
-                    poolId: status.poolId
-                },
-                timestamp: new Date().toISOString()
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
-    });
-
     // 404
     // Error handler
     app.use((err, req, res, next) => {

@@ -48,8 +48,15 @@ var config = {
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
             "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
         },
+        https:{
+            minVersion: 'TLSv1.1',
+            key: fs.readFileSync(path.join(__dirname, './ssl/privkey.pem')),
+            cert: fs.readFileSync(path.join(__dirname, './ssl/fullchain.pem')),
+            passphrase: 'webpack-dev-server',
+            requestCert: true,
+        },
         proxy: {
-            '/api': 'http://localhost:8081',
+            '/api': 'http://localhost:3000',
         },
         historyApiFallback: true,
     },
@@ -102,12 +109,7 @@ var config = {
                 use: [
                     {loader: "style-loader"},
                     {loader: "css-loader" },
-                    {
-                        loader: "sass-loader",
-                        options: {
-                            implementation: require('sass')
-                        }
-                    }
+                    {loader: "sass-loader"}
                 ]
             },
             {

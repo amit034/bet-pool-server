@@ -5,8 +5,7 @@ export function getParticipatesWithRank(participates) {
     if(_.isEmpty(participates)) {
         return [];
     }
-    const sortedParticipates = _.orderBy(participates, ['score', 'medals.3', 'medals.2', 'medals.1', 'isBot'],
-        ['desc', 'desc', 'desc', 'desc', 'asc']);
+    const sortedParticipates = _.orderBy(participates, ['score', 'medals.3', 'medals.2', 'medals.1'], ['desc', 'desc', 'desc', 'desc']);
     const first = _.first(_.filter(sortedParticipates, {isBot: false}));
     const {participatesWithRank} = _.reduce(sortedParticipates, (agg, participate) => {
         if (!agg.prvIsBot){

@@ -53,7 +53,7 @@ module.exports = {
                     const {season} = _.sample(matches);
                     if (!_.isNil(season)) {
                         const {endDate} = season;
-                        if (moment().isSameOrBefore(endDate, 'days')) {
+                        if (moment().isBefore(endDate)) {
                             const currentMatches = _.filter(matches, ({matchday, lastUpdated, utcDate, homeTeam, awayTeam}) => {
                                 return moment(utcDate).isBetween(moment(), moment().add(13, "days")) && _.get(homeTeam, 'id') && _.get(awayTeam, 'id');
                             });

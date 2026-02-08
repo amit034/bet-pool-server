@@ -44,7 +44,7 @@ const Goal = ({challenge, goal}) => {
             </div>);
     };
     return (<div  className={className}>
-        <Confiti challenge={challenge} goal={goal}/>
+        <Confiti/>
         <ChallengeDetails challenge={challenge} goal={goal}/>
     </div>)
 }

@@ -4,8 +4,7 @@ import moment from "moment";
 import _ from "lodash";
 import {Form} from 'semantic-ui-react';
 import Goal from "./Goal";
-import Confiti from "./Confiti";
-const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent, isMainEvent}) => {
+const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
     const {
         score1, score2, score, medal,
         challenge} = bet;
@@ -31,7 +30,6 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent, isMainEvent})
             currentDayRef.current.scrollIntoView({behavior: 'smooth', block: 'start' })
         }
     },[currentDayRef]);
-
     const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         const val = _.toString(teamBet);
@@ -75,18 +73,14 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent, isMainEvent})
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
     };
-
-    const gameSide = classNames('game-side-title', {
-        'game-side-title-main-event': isMainEvent
-    });
     const betRow = (<section style={{display: "contents"}}>
                     <div className="game-side">
                         <div className="game-side-score">
                             {!isOpen ? <Medal score={score} medal={medal}/> : ''}
                         </div>
-                        {/*<div className={gameSide}>
-                            {isMainEvent ? 'Main Event' : ''}
-                        </div>*/}
+                        <div className="game-side-title">
+                            {factorId > 1 ? 'Main Event' : ''}
+                        </div>
                     </div>
                     <div className="game-center">
                         <div className="game-title">
@@ -97,7 +91,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent, isMainEvent})
                             </div>
 
                             {/*<div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>*/}
-                            < div className="match-center">{isMainEvent ? 'Main Event': ''}</div>
+                            {/*< div className="game-more">{factorId > 1 ? 'Main Event': ''}</div>*/}
                             <div className="game-hour">{moment(playAt).format('H:mm')}</div>
 
                         </div>
@@ -113,9 +107,7 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent, isMainEvent})
                     </div></section>)
     return (
             <li className="game-row" data={challengeId}>
-                {/* Always render confetti component - it will handle its own visibility */}
-                <Confiti challenge={challenge} goal={goal}/>
-                {goal ? <Goal challenge={challenge} goal={goal}/> : betRow}
+                {goal? <Goal challenge={challenge} goal={goal}/> : betRow}
             </li>)
 }
 

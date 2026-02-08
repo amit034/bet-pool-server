@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';;
 import _ from 'lodash';
 import moment from 'moment';
@@ -17,19 +17,6 @@ const GameList = ({poolId}) => {
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
-    // Clear goals from Redux after 8 seconds
-    useEffect(() => {
-        Object.keys(goals).forEach(challengeId => {
-            const goal = goals[challengeId];
-            if (goal) {
-                setTimeout(() => {
-                    // Clear goal from Redux after 8 seconds
-                    dispatch({ type: 'CLEAR_GOAL', challengeId });
-                }, 8000);
-            }
-        });
-    }, [goals, dispatch]);
-    
     function onBetChange(challengeId, updatedBet) {
         const bet = _.get(bets, challengeId);
         const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
@@ -90,12 +77,6 @@ const GameList = ({poolId}) => {
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
         let currentDate = null;
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
-        const maxFactorId = _.get(_.maxBy(roundBets, 'challenge.factorId'),
-            'challenge.factorId', 1);
-        const mainEvents = _.filter(roundBets, (bet) => {
-            return _.get(bet, 'challenge.factorId') === maxFactorId;
-        });
-        const mainEventIds = _.map(mainEvents, 'challenge.id');
         const currentBet = _.find(betArray, (bet) => {
             return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment().add(10, 'days'), 'day');
         });
@@ -108,10 +89,8 @@ const GameList = ({poolId}) => {
             agg.push(..._.map(bets,(bet) => {
                 const {challengeId} = bet;
                 const goal = _.get(goals, challengeId, null);
-                const isMainEvent = _.includes(mainEventIds, challengeId);
                 const gameNode = <Game bet={bet} goal={goal} isCurrent={currentBet === bet}
                                        onMatchClick={onMatchClick}
-                                       isMainEvent={isMainEvent}
                                        onBetKeyChange={onBetKeyChange}
                                        key={_.toString(challengeId)} />;
                 return (gameNode);

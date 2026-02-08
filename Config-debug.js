@@ -2,21 +2,7 @@ module.exports = {
     "db": {
         //"mongodb": "mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest"
         // Localhost
-        "mongodb": "mongodb://nodejs:node@ds045521.mongolab.com:45521/betpool",
-        "sequelize": {
-            HOST: "localhost",
-            USER: "root",
-            PASSWORD: "arotbarD!053450",
-            DB: "betPool",
-            dialect: "mysql",
-            port: 3306,
-            pool: {
-                max: 5,
-                min: 0,
-                acquire: 30000,
-                idle: 10000
-            }
-        }
+        "mongodb": "mongodb://nodejs:node@ds045521.mongolab.com:45521/betpool"
     },
     "bots": {
         "crowdBot": {

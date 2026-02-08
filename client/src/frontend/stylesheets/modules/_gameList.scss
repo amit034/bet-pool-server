@@ -88,9 +88,6 @@ font-size:16px
           box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
           line-height: 20px;
         }
-        .game-side-title-main-event{
-          background: $title-4;
-        }
       }
 
       .game-center {
@@ -111,19 +108,11 @@ font-size:16px
           padding: 0px 5px;
           .match-tip {
             margin-bottom: 2px;
-            flex: 2;
+            flex: 6;
             display: flex;
             i {
               font-size: 1em;
             }
-          }
-          .match-center {
-            flex: 8px;
-            text-align: center;
-            color: #eab704;
-            font-family: "Titillium web", sans-serif;
-            font-weight: 700;
-            font-size: 15px;
           }
           .game-day {
             flex: 11;
@@ -132,7 +121,7 @@ font-size:16px
           }
 
           .game-hour {
-            flex: 2;
+            flex: 3;
             text-align: end;
           }
 

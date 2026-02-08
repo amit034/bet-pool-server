@@ -18,7 +18,7 @@ module.exports = {
 		return Bet.findOne({where: searchQuery, transaction});
 	},
 	async createBulk(data, {transaction} = {} ) {
-		return Bet.bulkCreate(_.map(data, (bet) => _.assign({}, bet, {updatedAt: moment()})), {transaction, updateOnDuplicate: ['score1', 'score2', 'updatedAt']});
+		return Bet.bulkCreate(_.map(data, (bet) => _.assign({}, bet, {updatedAt: moment()})), {transaction, updateOnDuplicate: ['score1', 'score2', 'updated_at']});
 	},
 	async bulkUpdate(data, {transaction} = {}) {
 		return Promise.all(_.map(data, (bet) => {

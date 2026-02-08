@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {Pool, Challenge, PoolParticipant, Event, Account, Game} = require('../models');
+const {Pool, Challenge, PoolParticipant, Event, Account} = require('../models');
 
 function findByQuery(query, {transaction} = {}) {
     return Pool.findOne({where: query, transaction});
@@ -18,12 +18,7 @@ module.exports = {
     async findById(poolId) {
         const pool = await  Pool.findByPk(poolId, {include: [{model: Event, as: 'events'}]});
         const participates = await PoolParticipant.findAll({where: {poolId}, include: [{model: Account, as: 'user'}]});
-        const challenges = await Challenge.findAll({
-            include: [
-                {model: Pool, as: 'pools', attributes: [], where: {poolId}},
-                {model: Game, as: 'game', required: false}
-            ]
-        });
+        const challenges = await Challenge.findAll({include: [{model: Pool, as: 'pools', attributes: [], where: {poolId}}]});
         //const {events} = await Pool.findById(poolId, {include: [{model: Event, as: 'events'}]})
         return _.assign({}, pool.toJSON(), {participates, challenges});
     },
@@ -63,28 +58,7 @@ module.exports = {
     },
     async setParticipates(poolId, participates, joined, {transaction} = {}) {
         const pool = await Pool.findByPk(poolId, {include: [{model: PoolParticipant, as: 'participates', required: false}], transaction});
-        await pool.addAccount(participates, {through: {joined}, transaction});
-        
-        // Set welcomeSent to false for new joins so they can receive welcome messages
-        if (joined) {
-            try {
-                await PoolParticipant.update(
-                    { welcomeSent: false },
-                    {
-                        where: {
-                            poolId: poolId,
-                            userId: { [require('sequelize').Op.in]: participates }
-                        },
-                        transaction
-                    }
-                );
-                console.log(`Set welcomeSent=false for ${participates.length} users joining pool ${poolId}`);
-            } catch (error) {
-                // Log error but don't fail the main operation
-                console.error(`Failed to update welcomeSent for pool ${poolId}:`, error);
-            }
-        }
-        
+        await  pool.addAccount(participates, {through: {joined}, transaction});
         return pool.reload();
     }
 };

@@ -1,4 +1,4 @@
-const {db: {sequelize: dbConfig}} = require("../Config-debug");
+const {db: {sequelize: dbConfig}} = require("../Config-release");
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require("sequelize");

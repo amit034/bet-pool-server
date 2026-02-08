@@ -20,7 +20,7 @@ module.exports = {
                    const matches = await apiFootballSdk.getMatches(fapiId);
                    const updatedMatches = _.filter(matches, (match) => {
                        const {id: fapiId, status, score: {fullTime}} = match;
-                       const {homeTeam: homeTeamScore = 0, awayTeam: awayTeamScore = 0} = fullTime;
+                       const {home: homeTeamScore = 0, away: awayTeamScore = 0} = fullTime;
                        const game = _.find(games, {fapiId}) ;
                        const comparator = ['homeTeamScore','awayTeamScore', 'status'];
                        return game && !_.isEqual(_.pick(game.toJSON(), comparator), _.pick({homeTeamScore, awayTeamScore, status}, comparator));
@@ -32,7 +32,7 @@ module.exports = {
                            if (!_.isNil(game)) {
                                const {status, utcDate: playAt, score: {fullTime}}= match;
                                if (!_.isNil(fullTime)) {
-                                   const {homeTeam: homeTeamScore = 0, awayTeam: awayTeamScore = 0} = fullTime;
+                                   const {home: homeTeamScore = 0, away: awayTeamScore = 0} = fullTime;
                                    const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
                                    await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
                                    const challenge = await challengeRepository.updateChallengeByQuery({

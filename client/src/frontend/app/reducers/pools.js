@@ -78,12 +78,6 @@ function pools(state = {
             return update(state, {isFetching: {$set: false, bets: {$set: action.bets}, errorMessage: {$set: null}}});
         case poolActions.UPDATE_USER_BETS_FAILURE:
             return update(state, { isFetching: { $set: false }, errorMessage: { $set: action.message } });
-        case 'CLEAR_GOAL':
-            return update(state, { 
-                goals: { 
-                    $unset: [action.challengeId] 
-                } 
-            });
         default:
             return state;
     }

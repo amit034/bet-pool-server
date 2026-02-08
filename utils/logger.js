@@ -1,6 +1,4 @@
-const  winston = require('winston');
-winston.remove(winston.transports.Console);
-winston.add(winston.transports.Console, {'timestamp':true});
+var winston = require('winston');
 
 function log(level, message) {
 	// let caller = ((new Error().stack).split("at ")[4]).trim();
@@ -14,10 +12,8 @@ function log(level, message) {
 	winston.log(level, message);
 }
 function error(message) {
+
 	log('error', message);
-}
-function warn(message) {
-	log('warn', message);
 }
 function info(message) {
 	log('info', message);
@@ -29,6 +25,5 @@ module.exports = {
 	log,
 	info,
 	debug,
-	warn,
 	error
 }
