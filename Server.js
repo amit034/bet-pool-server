@@ -48,6 +48,10 @@ app.use(cors());
 
 //app.use(morgan('combined', { stream: expressLogFile }));
 
+app.get('/sw.js', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  next();
+});
 app.use(express.static(publicPath));
 app.use(favicon(publicPath + '/img/favicon.ico'));
 

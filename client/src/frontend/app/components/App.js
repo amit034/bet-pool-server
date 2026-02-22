@@ -16,6 +16,12 @@ import {getParticipatesWithRank} from "../utils";
 const App = () => {
     const user = getUserFromLocalStorage();
     const [mute, setMute] = useLocalStorage('mute', 'false');
+    const [showInstall, setShowInstall] = React.useState(false);
+    React.useEffect(() => {
+        const onInstallAvailable = () => setShowInstall(true);
+        window.addEventListener('pwa-install-available', onInstallAvailable);
+        return () => window.removeEventListener('pwa-install-available', onInstallAvailable);
+    }, []);
     const match = useRouteMatch();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -93,6 +99,15 @@ const App = () => {
                                 Your profile
                             </Dropdown.Item>
                             {muteMenu}
+                            {showInstall && (
+                                <>
+                                    <Dropdown.Divider/>
+                                    <Dropdown.Item name='install' onClick={() => window.triggerPWAInstall && window.triggerPWAInstall()}>
+                                        <Icon name='download'/>
+                                        Install app
+                                    </Dropdown.Item>
+                                </>
+                            )}
                             <Dropdown.Divider/>
                             <Dropdown.Item
                                 name='logout'

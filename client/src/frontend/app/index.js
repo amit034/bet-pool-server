@@ -9,6 +9,8 @@ import { BrowserRouter } from 'react-router-dom';
 import App from "./components/App";
 import rootReducer from './reducers';
 import thunk from 'redux-thunk';
+import { initPWA } from './utils/pwa';
+initPWA();
 const store = createStore(
     rootReducer,
     applyMiddleware(thunk)

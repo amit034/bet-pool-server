@@ -51,10 +51,12 @@
     "grunt-mocha-cov": "0.0.7",
     "mocha": "1.8.x",
     "sequelize": "^5.17.0",
+    "sharp": "^0.33.5",
     "should": "1.2.x",
     "supertest": "0.5.x"
   },
   "scripts": {
+    "generate-pwa-icons": "node scripts/generate-pwa-icons.js",
     "test": "make test",
     "start": "node Index.js",
     "start-dev": "DEBUG=dev:* node Index.js",
