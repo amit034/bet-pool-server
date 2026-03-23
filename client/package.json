@@ -7,6 +7,7 @@
     "start": "webpack-dev-server --content-base=src/frontend/public",
     "prod": "webpack:build --content-base=src/frontend/public",
     "build": "webpack -p",
+    "build:dev": "NODE_ENV=development webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

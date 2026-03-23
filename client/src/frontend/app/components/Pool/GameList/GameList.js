@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {useDispatch, useSelector} from 'react-redux';;
+import {useDispatch, useSelector} from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Form} from 'semantic-ui-react';
@@ -10,6 +10,9 @@ import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "./ViewOthers";
 import GoalSound from "./GoalSound";
 import Game from "./Game";
+import RoundHeader from "./RoundHeader";
+import {getRoundRankStats, calculatelImpact, getWeekPathWithFocused} from '../../../utils';
+import {getUserFromLocalStorage} from '../../../actions/auth';
 SwiperCore.use([Pagination]);
 
 const GameList = ({poolId}) => {
@@ -17,6 +20,10 @@ const GameList = ({poolId}) => {
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
+    const participates = useSelector(state => state.pools.participates);
+    const user = getUserFromLocalStorage();
+    const userId = _.get(user, 'userId');
+
     function onBetChange(challengeId, updatedBet) {
         const bet = _.get(bets, challengeId);
         const update = _.assign({}, bet, _.pick(updatedBet, ['score1', 'score2']));
@@ -84,27 +91,53 @@ const GameList = ({poolId}) => {
             return moment(_.get(bet, 'challenge.playAt')).format('YYYYMMDD');
 
         })
+        const roundId = roundNum;
+        const roundRankStats = userId && participates.length
+            ? getRoundRankStats(participates, roundId, userId, roundBets)
+            : {}; 
+        const assignment = calculatelImpact(userId, participates, roundBets, roundId);
+        const currentRank = _.get(_.find(_.get(assignment, `initial`), {userId: userId}), 'rank');
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
             agg.push((<div key={_.toString(playAt)} className='group-play-at'>{moment(playAt).format('dddd DD/MM')}</div>));
             agg.push(..._.map(bets,(bet) => {
-                const {challengeId} = bet;
+                const {challengeId, challenge: {status}} = bet;
                 const goal = _.get(goals, challengeId, null);
-                const gameNode = <Game bet={bet} goal={goal} isCurrent={currentBet === bet}
-                                       onMatchClick={onMatchClick}
-                                       onBetKeyChange={onBetKeyChange}
-                                       key={_.toString(challengeId)} />;
-                return (gameNode);
+                const isLive = !bet.isOpen && status !== 'FINISHED'
+                
+                const gameImpact =  getWeekPathWithFocused( userId, participates, roundBets, assignment.initial, challengeId);
+                const gameNode = (
+                    <Game
+                        bet={bet}
+                        goal={goal}
+                        isCurrent={currentBet === bet}
+                        onMatchClick={onMatchClick}
+                        onBetKeyChange={onBetKeyChange}
+                        roundRankStats={roundRankStats}
+                        matchVolatility={bet.matchVolatility || 'low'}
+                        key={_.toString(challengeId)}
+                        gameImpact={gameImpact}
+                    />
+                );
+                return gameNode;
             }));
-
-            //currentDate = moment(bet.challenge.playAt).format('YYYYMMDD');
             return agg;
         }, []);
-        return (<SwiperSlide key={roundNum}><div>
-            <span className="round-title">Round No: {roundNum}</span>
-            <Form size='large' action="/" onSubmit={processForm}>
-                <ul className="round-games">{gameNodes}</ul>
-            </Form>
-        </div></SwiperSlide>);
+        return (
+            <SwiperSlide key={roundNum}>
+                <div>
+                    <RoundHeader
+                        roundNum={roundNum}
+                        userName={user ? `${user.firstName || ''}`.trim() || user.username : ''}
+                        currentRank={currentRank}
+                        bestCaseRank={assignment?.best?.rank ?? roundRankStats.bestCaseRank}
+                        worstCaseRank={assignment?.worst?.rank ?? roundRankStats.worstCaseRank}
+                    />
+                    <Form size='large' action="/" onSubmit={processForm}>
+                        <ul className="round-games">{gameNodes}</ul>
+                    </Form>
+                </div>
+            </SwiperSlide>
+        );
     });
     return (<div>
             {<GoalSound></GoalSound>}

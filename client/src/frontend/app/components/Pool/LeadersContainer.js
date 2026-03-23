@@ -16,9 +16,12 @@ const LeadersContainer = () => {
         setLive(!live);
     };
     const LeaderList = ({participates}) => {
-        const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
-        const totals = {};
-        const roundsScore = _.map(_.range(numberOfRounds), (roundId) => {
+        const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', [])) ;
+        const totals = _.reduce(participates, (agg, participate) => {
+            agg[participate.userId] = {score: 0, medals: {1:0, 2:0, 3:0}};
+            return agg;
+        }, {});
+        const roundsScore = _.map(_.range(numberOfRounds + 1), (roundId) => {
             return _.map(participates, ({score, medals, rounds, userId, ...others}) => {
                 const {bets} = _.get(rounds, roundId, {score: 0, medals: {1:0, 2:0, 3:0}});
                 const {roundScore, roundMedals} = _.reduce(bets, (agg, bet) => {

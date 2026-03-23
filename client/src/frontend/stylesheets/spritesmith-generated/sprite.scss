@@ -11,20 +11,31 @@
 // $spritesheet: width height image $spritesheet-sprites;
 $bg-name: 'bg';
 $bg-x: 0px;
-$bg-y: 0px;
+$bg-y: 1018px;
 $bg-offset-x: 0px;
-$bg-offset-y: 0px;
+$bg-offset-y: -1018px;
 $bg-width: 452px;
 $bg-height: 754px;
-$bg-total-width: 452px;
-$bg-total-height: 754px;
+$bg-total-width: 1900px;
+$bg-total-height: 1772px;
 $bg-image: '../images/spritesmith-generated/sprite.png';
-$bg: (0px, 0px, 0px, 0px, 452px, 754px, 452px, 754px, '../images/spritesmith-generated/sprite.png', 'bg', );
-$spritesheet-width: 452px;
-$spritesheet-height: 754px;
+$bg: (0px, 1018px, 0px, -1018px, 452px, 754px, 1900px, 1772px, '../images/spritesmith-generated/sprite.png', 'bg', );
+$football-net-name: 'footballNet';
+$football-net-x: 0px;
+$football-net-y: 0px;
+$football-net-offset-x: 0px;
+$football-net-offset-y: 0px;
+$football-net-width: 1900px;
+$football-net-height: 1008px;
+$football-net-total-width: 1900px;
+$football-net-total-height: 1772px;
+$football-net-image: '../images/spritesmith-generated/sprite.png';
+$football-net: (0px, 0px, 0px, 0px, 1900px, 1008px, 1900px, 1772px, '../images/spritesmith-generated/sprite.png', 'footballNet', );
+$spritesheet-width: 1900px;
+$spritesheet-height: 1772px;
 $spritesheet-image: '../images/spritesmith-generated/sprite.png';
-$spritesheet-sprites: ($bg, );
-$spritesheet: (452px, 754px, '../images/spritesmith-generated/sprite.png', $spritesheet-sprites, );
+$spritesheet-sprites: ($bg, $football-net, );
+$spritesheet: (1900px, 1772px, '../images/spritesmith-generated/sprite.png', $spritesheet-sprites, );
 
 // The provided mixins are intended to be used with the array-like variables
 //

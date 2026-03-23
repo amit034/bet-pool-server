@@ -24,3 +24,5 @@ npm-debug.log
 /client/ssl/fullchain.pem
 /client/ssl/privkey.pem
 /sslcert/**
+.DS_Store
+.DS_Store

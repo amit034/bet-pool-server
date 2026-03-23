@@ -1,17 +1,26 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
-import {Form} from 'semantic-ui-react';
 import Goal from "./Goal";
-const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
+import LeftVerticalBar from "./LeftVerticalBar";
+import GoalImpactRow from "./GoalImpactRow";
+const Game = ({
+    bet,
+    goal,
+    onMatchClick,
+    onBetKeyChange,
+    isCurrent,
+    roundRankStats = {},
+    gameImpact
+}) => {
     const {
         score1, score2, score, medal,
         challenge} = bet;
     const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
         game: {homeTeam, awayTeam}, playAt, factorId} = challenge
     const currentDayRef = useRef(null);
-    const className = classNames('match-tip-image circular icon link small fitted', {
+    const className = classNames('match-tip-image icon link small fitted', {
         'users': !isOpen,
         'lightbulb': isOpen
     });
@@ -30,10 +39,11 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
             currentDayRef.current.scrollIntoView({behavior: 'smooth', block: 'start' })
         }
     },[currentDayRef]);
-    const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
+    const TeamScore = ({team: {flag, shortName, name}, teamBet, gameImpact, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         const val = _.toString(teamBet);
-        const editable  = (<input id="betInput" onFocus={handleFocus}
+        const inputId = `betInput-${challengeId}-${betFieldName}`;
+        const editable  = (<input id={inputId} onFocus={handleFocus}
                                   type='number'
                                   onChange={(e) => {
                                       clickOnBetKeyChange(challengeId, betFieldName, e.target.value);
@@ -51,7 +61,6 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
                         <img alt={name} title={name} src={flag}/>
                     </div>
                 </div>
-                <div className="game-body-column-footer">&nbsp;</div>
             </div>
         </div>);
     };
@@ -72,39 +81,40 @@ const Game = ({bet, goal, onMatchClick, onBetKeyChange, isCurrent}) => {
             <div className="match-result game-body-column-center">{score1} : {score2}</div>
             <div className="game-body-column-footer">&nbsp;</div>
         </div>);
-    };
-    const betRow = (<section style={{display: "contents"}}>
-                    <div className="game-side">
-                        <div className="game-side-score">
-                            {!isOpen ? <Medal score={score} medal={medal}/> : ''}
-                        </div>
-                        <div className="game-side-title">
-                            {factorId > 1 ? 'Main Event' : ''}
-                        </div>
+    };   
+    const homeTeamNext = _.get(gameImpact, 'homeTeamNext', null);
+    const awayTeamNext = _.get(gameImpact, 'awayTeamNext', null);
+    const gamePaths = _.get(gameImpact, 'gamePaths', null);
+    const currentScoreLabel = `${c_score1}-${c_score2}`;
+    const betRow = (// Game.js - בתוך ה-return של betRow
+        <section style={{ display: "flex", width: "100%", height: "100%" }}>
+            {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
+            <div className="game-side">
+                <div className="game-side-score">
+                    {!isOpen ? <Medal score={score} medal={medal} /> : ''}
+                </div>
+                
+                {!isOpen ? <LeftVerticalBar gameImpacts={gamePaths} currentScoreLabel={currentScoreLabel} challengeId={challengeId}/> : ''}
+            </div>
+        
+            {/* מרכז המשחק - מסודר ב-Column כדי שהאימפקט יהיה למטה */}
+            <div className="game-center">
+                <div className="game-title">
+                    <div className="match-tip">
+                        <i className={className} onClick={() => onMatchClick(challengeId, !isOpen)}></i>
                     </div>
-                    <div className="game-center">
-                        <div className="game-title">
-                            <div className="match-tip">
-                                <i className={className}
-                                   onClick={() => onMatchClick(challengeId, !isOpen)}></i>
-                                {/* <i className={className} onClick={() => this.onAnimation()}></i> */}
-                            </div>
-
-                            {/*<div className="game-day">{moment(playAt).format('DD/MM/YYYY')}</div>*/}
-                            {/*< div className="game-more">{factorId > 1 ? 'Main Event': ''}</div>*/}
-                            <div className="game-hour">{moment(playAt).format('H:mm')}</div>
-
-                        </div>
-                        <div className="game-body">
-                            <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} challengeId={challengeId}
-                                       betFieldName="score1"/>
-                            <MatchResult score1={c_score1} score2={c_score2} closed={!isOpen}
-                                         challengeId={challengeId}/>
-                            <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId}
-                                       betFieldName="score2"
-                                       reverse={true}/>
-                        </div>
-                    </div></section>)
+                    <div className="match-center">{factorId > 1 ? 'Main Event' : ''}</div>
+                    <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+                </div>
+        
+                <div className="game-body">
+                    <TeamScore team={homeTeam} teamBet={score1} gameImpact={homeTeamNext} closed={!isOpen} challengeId={challengeId} betFieldName="score1" />
+                    <MatchResult score1={c_score1} score2={c_score2} />
+                    <TeamScore team={awayTeam} teamBet={score2} gameImpact={awayTeamNext} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
+                </div>
+                <GoalImpactRow homeImpact={homeTeamNext} awayImpact={awayTeamNext} />
+            </div>
+        </section>)
     return (
             <li className="game-row" data={challengeId}>
                 {goal? <Goal challenge={challenge} goal={goal}/> : betRow}

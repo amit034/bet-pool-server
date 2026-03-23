@@ -45,7 +45,7 @@ const PoolContainer = (props) => {
 
     return (<div id="content" className="ui container">
              <Route exact path={`${props.match.path}/participates`} component={LeadersContainer}/>
-             <Route exact path={`${props.match.path}/`} component={() => <GameList poolId={poolId}/>}/>
+             <Route exact path={props.match.path} component={() => <GameList poolId={poolId}/>}/>
             <NavigationMenu/>
             </div>);
 }

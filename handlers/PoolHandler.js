@@ -109,6 +109,7 @@ function handleGetParticipates(req, res) {
                 const challengeBets = _.keyBy(userBets, 'challengeId');
                 const poolScore = _.reduce(challengeRounds, (poolScore, challenges) => {
                     const round = _.reduce(challenges, (roundScore, challenge) => {
+                        roundScore.round = challenge.game.round;
                         const bet = challengeBets[challenge.id];
                         if(bet) {
                             const betModel = new Bet(bet);
