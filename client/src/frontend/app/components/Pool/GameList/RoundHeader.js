@@ -16,7 +16,7 @@ const RoundHeader = ({
             <div className="round-header-stats"> 
                 {/* 1. User/Rank stat */}
                 <span className="round-stat round-stat-rank">
-                    <i className="round-stat-icon round-stat-icon--user" aria-hidden="true" />
+                    <i className="icon user round-stat-icon round-stat-icon--user" aria-hidden="true" />
                     {userName}:&nbsp;
                     Rank:&nbsp;
                     {/* Wrapped the value in a specific span for distinct styling */}

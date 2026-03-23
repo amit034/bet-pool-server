@@ -39,11 +39,11 @@ font-size:16px
     }
 
     .round-header-stats {
-      // (existing styles)
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 10px 14px;
+      justify-content: center;
+      gap: 10px 18px;
       padding: 6px 12px;
       font-size: 0.85em;
       color: rgba(255, 255, 255, 0.95);
@@ -67,8 +67,14 @@ font-size:16px
     .round-stat-icon {
       flex-shrink: 0;
       font-style: normal;
-      // Define icon glyphs, just as you had
-      &--user::before { content: '\1F464'; color: #A1A1AA; } // greyish icon
+      /* Emoji U+1F464 ignores color; Semantic .icon.user uses icon font (respects color). */
+      &--user {
+        margin: 0 !important;
+        opacity: 1;
+        &::before {
+          color: #ffffff !important;
+        }
+      }
       &--bolt::before { content: '\26A1'; color: #22C55E; } // green icon
       &--warning::before { content: '\26A0'; color: #EF4444; } // red icon
     }
@@ -105,14 +111,22 @@ font-size:16px
       height: 110px;
       display: flex;
       width: 99%;
+      /* Heatmap stays visually left even when app / parent uses RTL (flex row starts from the right). */
+      > section {
+        direction: ltr;
+        flex: 1;
+        min-width: 0;
+      }
       .game-side {
         position: relative;
         background-color: $background-3;
         width: 20px;
+        flex-shrink: 0;
         font-size: 14px;
         color: $title-2;
         display: flex;
         flex-direction: column;
+        overflow: visible;
         .left-vertical-bar {
           position: absolute;
           inset: 0;
@@ -205,7 +219,8 @@ font-size:16px
         padding-left: 5px;
         padding-right: 5px;
         .game-title {
-          flex: 3;
+          flex: 2 1 0;
+          min-height: 0;
           text-align: left;
           font-size: 12px;
           display: flex;
@@ -216,14 +231,14 @@ font-size:16px
           position: relative;
           .match-tip {
             margin-bottom: 2px;
-            flex: 6;
+            flex: 3;
             display: flex;
             i {
               font-size: 1em;
             }
           }
           .match-center {
-            flex: 8px;
+            flex: 8;
             text-align: center;
             color: #eab704;
             font-family: "Titillium web", sans-serif;
@@ -293,7 +308,8 @@ font-size:16px
         }
         .game-body {
           display: flex;
-          flex: 6;
+          flex: 6 1 0;
+          min-height: 0;
           .game-body-column{
             height: 100%;
             display: flex;
@@ -393,25 +409,102 @@ font-size:16px
             }
           }
         }
-        .goal-impact-row {
-          background-color: rgba(0, 0, 0, 0.4); // Matches the dark strip in the image
-          
-          .goal-impact-row__left {
-            color: #86EFAC; // The green color for "Up"
-            .impact-rank { color: #22C55E; font-weight: 800; }
+        .game-impact-footer {
+          flex: 2 1 0;
+          min-height: 0;
+          display: flex;
+          width: 100%;
+          align-items: stretch;
+          justify-content: stretch;
+          margin: 0;
+          padding: 0 4px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          box-sizing: border-box;
+
+          &__half {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+
+            &--home {
+              border-right: 1px solid rgba(255, 255, 255, 0.18);
+            }
           }
-        
-          .goal-impact-row__right {
-            color: #FCA5A5; // The red color for "Down"
-            .impact-rank { color: #EF4444; font-weight: 800; }
+
+          &__half-inner {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 2px 4px;
+            box-sizing: border-box;
+
+            &--up {
+              .game-impact-footer__cluster,
+              .game-impact-footer__arrow {
+                color: #7ED321;
+              }
+            }
+            &--down {
+              .game-impact-footer__cluster,
+              .game-impact-footer__arrow {
+                color: #FF5E5E;
+              }
+            }
+            &--neutral {
+              .game-impact-footer__cluster {
+                color: #9B9B9B;
+              }
+            }
           }
-        
-          .impact-next-score {
-            color: #FFFFFF;
-            background: rgba(255, 255, 255, 0.15); // The small dark box around the score
-            padding: 1px 4px;
-            border-radius: 2px;
-            margin-left: 4px;
+
+          &__cluster {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 2px;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 1.15;
+            font-family: 'Titillium web', sans-serif;
+          }
+
+          &__arrow {
+            font-size: 0.6rem !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+            font-weight: 900 !important;
+
+            &--placeholder {
+              display: inline-block;
+              width: 0.85rem;
+            }
+          }
+
+          &__rank {
+            font-size: 12px;
+            font-weight: 800;
+          }
+
+          &__points {
+            font-size: 9x;
+            font-weight: 700;
+            opacity: 0.95;
+            white-space: nowrap;
+            margin-left: -1px;
+          }
+
+          &__pred-score {
+            font-size: 9px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.15;
+            white-space: nowrap;
           }
         }
       }

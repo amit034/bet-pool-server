@@ -96,7 +96,7 @@ const GameList = ({poolId}) => {
             ? getRoundRankStats(participates, roundId, userId, roundBets)
             : {}; 
         const assignment = calculatelImpact(userId, participates, roundBets, roundId);
-        const currentRank = _.get(_.find(_.get(assignment, `initial`), {userId: userId}), 'rank');
+        const currentRank = _.get(_.find(_.get(assignment, `current`), {userId: userId}), 'rank');
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
             agg.push((<div key={_.toString(playAt)} className='group-play-at'>{moment(playAt).format('dddd DD/MM')}</div>));
             agg.push(..._.map(bets,(bet) => {
