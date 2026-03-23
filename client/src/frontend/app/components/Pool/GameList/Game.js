@@ -87,7 +87,7 @@ const Game = ({
     const gamePaths = _.get(gameImpact, 'gamePaths', null);
     const currentScoreLabel = `${c_score1}-${c_score2}`;
     const betRow = (// Game.js - בתוך ה-return של betRow
-        <section style={{ display: "flex", width: "100%", height: "100%" }}>
+        <section style={{display: "contents"}}>
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
             <div className="game-side">
                 <div className="game-side-score">

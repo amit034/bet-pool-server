@@ -16,7 +16,7 @@ const ImpactItem = ({ impact }) => {
     const impactModifier = isUp ? 'up' : isDown ? 'down' : 'neutral';
 
     const pts = impact.scoreDiff;
-    const ptsText = pts > 0 || impact.rankDiff !== 0 ? `(+${pts}pts)` : pts < 0 || impact.rankDiff < 0 ? `(${pts}pts)` : '-';
+    const ptsText = pts > 0 || impact.rankDiff !== 0 ? `(${pts}pts)` : pts < 0 || impact.rankDiff < 0 ? `(${pts}pts)` : '-';
     const rankText = impact.rankDiff !== 0 ? Math.abs(impact.rankDiff) : '-';
 
     return (
