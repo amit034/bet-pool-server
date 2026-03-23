@@ -20,6 +20,7 @@ const Game = ({
     const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
         game: {homeTeam, awayTeam}, playAt, factorId} = challenge
     const currentDayRef = useRef(null);
+    const gameSideRef = useRef(null);
     const className = classNames('match-tip-image icon link small fitted', {
         'users': !isOpen,
         'lightbulb': isOpen
@@ -89,12 +90,17 @@ const Game = ({
     const betRow = (// Game.js - בתוך ה-return של betRow
         <section style={{display: "contents"}}>
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
-            <div className="game-side">
+            <div className="game-side" ref={gameSideRef}>
                 <div className="game-side-score">
                     {!isOpen ? <Medal score={score} medal={medal} /> : ''}
                 </div>
-                
-                {!isOpen ? <LeftVerticalBar gameImpacts={gamePaths} currentScoreLabel={currentScoreLabel} challengeId={challengeId}/> : ''}
+                {!isOpen ? (
+                    <LeftVerticalBar
+                        gameSideRef={gameSideRef}
+                        gameImpacts={gamePaths}
+                        currentScoreLabel={currentScoreLabel}
+                    />
+                ) : ''}
             </div>
         
             {/* מרכז המשחק - מסודר ב-Column כדי שהאימפקט יהיה למטה */}

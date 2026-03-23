@@ -9,13 +9,14 @@ const GREEN = 'rgb(51, 160, 44)';
 
 const VISIBLE_ITEMS = 5;
 
-/** Triangle pointing left, sitting on the right edge of the strip (stays inside column — avoids game-row overflow clip). */
+/** Triangle pointing left; sits past the sidebar edge (right: -7px) so it floats into the match area. */
 const CurrentScorePointer = styled.div`
   position: absolute;
-  right: 0;
+  right: -7px;
   transform: translateY(-50%);
   width: 0;
   height: 0;
+  opacity: 0.8;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-right: 6px solid #eab704;
@@ -27,9 +28,10 @@ const CurrentScorePointer = styled.div`
 const HUDContainer = styled.div`
   width: 100%;
   height: 100%;
+  min-width: 0;
   background: #111111;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   border-radius: 0;
 `;
 
@@ -37,7 +39,7 @@ const ScrollableContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  right: -7px;
+  right: 0;
   bottom: 0;
   z-index: 0;
   overflow-y: auto;
@@ -60,7 +62,10 @@ const Row = styled.div`
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding-left: 2px;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
   color: rgba(255, 255, 255, 0.9);
   font-size: 9px;
   font-weight: 600;
@@ -68,7 +73,7 @@ const Row = styled.div`
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
 `;
 
-const LeftVerticalBar = ({ gameImpacts, currentScoreLabel }) => {
+const LeftVerticalBar = ({ gameImpacts, currentScoreLabel, gameSideRef }) => {
   const scrollRef = useRef(null);
   const hudRef = useRef(null);
   const activeRowRef = useRef(null);
@@ -113,17 +118,17 @@ const LeftVerticalBar = ({ gameImpacts, currentScoreLabel }) => {
   const showScoreMarker = currentIndex >= 0;
 
   const updatePointerTop = useCallback(() => {
-    const hud = hudRef.current;
+    const side = gameSideRef?.current;
     const row = activeRowRef.current;
-    if (!hud || !row || currentIndex < 0) {
+    if (!side || !row || currentIndex < 0) {
       setPointerTopPx(null);
       return;
     }
-    const hudRect = hud.getBoundingClientRect();
+    const sideRect = side.getBoundingClientRect();
     const rowRect = row.getBoundingClientRect();
-    const centerY = rowRect.top + rowRect.height / 2 - hudRect.top;
+    const centerY = rowRect.top + rowRect.height / 2 - sideRect.top;
     setPointerTopPx(centerY);
-  }, [currentIndex]);
+  }, [currentIndex, gameSideRef]);
 
   /** Do not use scrollIntoView — it scrolls ancestor scrollers (Swiper / window) and breaks layout. */
   useLayoutEffect(() => {
@@ -150,9 +155,10 @@ const LeftVerticalBar = ({ gameImpacts, currentScoreLabel }) => {
     window.addEventListener('resize', onScrollOrResize);
 
     let ro;
-    if (typeof ResizeObserver !== 'undefined' && hudRef.current) {
+    if (typeof ResizeObserver !== 'undefined') {
       ro = new ResizeObserver(onScrollOrResize);
-      ro.observe(hudRef.current);
+      if (hudRef.current) ro.observe(hudRef.current);
+      if (gameSideRef?.current) ro.observe(gameSideRef.current);
     }
 
     return () => {
@@ -160,26 +166,30 @@ const LeftVerticalBar = ({ gameImpacts, currentScoreLabel }) => {
       window.removeEventListener('resize', onScrollOrResize);
       if (ro) ro.disconnect();
     };
-  }, [updatePointerTop, normalizedData.length, showScoreMarker]);
+  }, [updatePointerTop, normalizedData.length, showScoreMarker, gameSideRef]);
 
   return (
-    <HUDContainer ref={hudRef}>
-      <ScrollableContent ref={scrollRef}>
-        <HeatStripWrapper gradient={gradientString}>
-          {normalizedData.map((item, index) => (
-            <Row
-              key={index}
-              ref={index === currentIndex ? activeRowRef : undefined}
-            >
-              {item.gameScoreLabel}
-            </Row>
-          ))}
-        </HeatStripWrapper>
-      </ScrollableContent>
+    <>
+      <div className="game-side-heat">
+        <HUDContainer ref={hudRef}>
+          <ScrollableContent ref={scrollRef}>
+            <HeatStripWrapper gradient={gradientString}>
+              {normalizedData.map((item, index) => (
+                <Row
+                  key={index}
+                  ref={index === currentIndex ? activeRowRef : undefined}
+                >
+                  {item.gameScoreLabel}
+                </Row>
+              ))}
+            </HeatStripWrapper>
+          </ScrollableContent>
+        </HUDContainer>
+      </div>
       {showScoreMarker && pointerTopPx != null ? (
         <CurrentScorePointer aria-hidden style={{ top: pointerTopPx }} />
       ) : null}
-    </HUDContainer>
+    </>
   );
 };
 
