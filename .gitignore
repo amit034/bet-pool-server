@@ -26,3 +26,5 @@ npm-debug.log
 /sslcert/**
 .DS_Store
 .DS_Store
+logs/api.log
+logs/exceptions.log

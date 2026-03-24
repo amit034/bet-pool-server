@@ -1,15 +1,28 @@
 #app{
   background-color: $background-1;
-  height: 100%;
+  min-height: 100%;
   color: $title-1;
-  overflow: overlay;
+  overflow: visible;
 }
 .user-rank{
   padding-left: 5px;
   color: $title-4;
 }
 .app-wrapper{
-  height: 100%;
+  min-height: 100%;
+  /* iOS standalone: safe-area + stay below Semantic dimmer/modal (~1000). */
+  .ui.fixed.menu.top-menu {
+    padding-top: env(safe-area-inset-top, 0px);
+    z-index: 999 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  .ui.fixed.menu.bottom-menu {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 999 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
   .ui.inverted.top-menu {
     background-color: $background-1 !important;
     .header{
@@ -32,11 +45,12 @@
   }
 
 }
-.swiper-container{
+.swiper-container,
+.swiper {
   .swiper-pagination{
     width: 100% !important;
     position: fixed;
-    bottom: 40px;
+    bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     top: auto;
     left: 50%;
     background: $background-1;
@@ -44,7 +58,10 @@
   }
 }
 .ui#content{
-  padding: 40px 0 55px 0
+  padding-top: calc(40px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(55px + env(safe-area-inset-bottom, 0px));
+  padding-left: 0;
+  padding-right: 0;
 }
 .top-menu {
   //background-color: $background-1 !important;

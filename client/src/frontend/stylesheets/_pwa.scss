@@ -15,7 +15,11 @@ body {
   -webkit-user-select: none;
   min-height: 100%;
   min-height: 100dvh;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* Scroll the page on body — not #app — so position:fixed menus work in iOS standalone (Add to Home Screen). */
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Only horizontal safe-area on body; top/bottom are handled by fixed menus + #content padding (avoids double inset). */
+  padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
 }
 
 body * {
@@ -28,13 +32,8 @@ input, textarea, [contenteditable="true"] {
   -webkit-user-select: text;
 }
 
-/* Hide scrollbars but keep scroll */
+/* #app must not create a scrollport — fixed Semantic UI menus would attach to it and break in iOS PWA. */
 #app {
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  overflow: visible;
   min-height: 100%;
-}
-#app::-webkit-scrollbar {
-  display: none;
 }
