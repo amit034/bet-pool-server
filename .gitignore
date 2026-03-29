@@ -28,3 +28,7 @@ npm-debug.log
 .DS_Store
 logs/api.log
 logs/exceptions.log
+logs/exceptions.log
+logs/api.log
+client/src/frontend/public/js/bundle.js
+client/src/frontend/public/js/bundle.js.map

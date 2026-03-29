@@ -2,107 +2,136 @@ import React, { useMemo, useRef, useLayoutEffect, useEffect, useCallback, useSta
 import styled from 'styled-components';
 import _ from 'lodash';
 
-const RED = 'rgb(215, 48, 39)';
-const YELLOW = 'rgb(255, 218, 0)';
-const LIGHT_GREEN = 'rgb(145, 207, 96)';
-const GREEN = 'rgb(51, 160, 44)';
+// ── RE-ENGINEERED "PREMIUM OCEAN" PALETTE ────────────────────────────────────
+// These match the sophisticated, desaturated tones in your mockup.
+const OCEAN_GREEN = 'rgba(20, 148, 120, 0.85)';  // The "Ocean Green" you requested
+const SAGE_GREEN = 'rgb(230, 255, 212)';   // Soft, desaturated mint/sage
+const BRONZE_GOLD = 'rgb(250, 248, 157)';  // Sophisticated bronze-sand
+const RUST_RED = 'rgba(158, 42, 43, 0.8)';       // Elegant, deep rust red
 
 const VISIBLE_ITEMS = 5;
 
-/** Triangle pointing left; sits past the sidebar edge (right: -7px) so it floats into the match area. */
+// ── STYLED COMPONENTS ────────────────────────────────────────────────────────
+const HUDContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000; /* Deep base for color pop */
+`;
+
+// THIS IS THE NEW VANILLA LAYER
+const VanillaGlassOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* Sits above the gradient, below the text */
+  pointer-events: none;
+
+  /* 1. The "Milky" tint and blur */
+  background: linear-gradient(
+    135deg, 
+    rgba(255, 255, 255, 0.18) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    transparent 100%
+  );
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+
+  /* 2. The Specular highlight (the white edge shine) */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent 20%);
+  }
+`;
+
+const HeatStripWrapper = styled.div`
+  width: 100%;
+  min-height: 100%;
+  background: ${({ gradient }) => gradient || 'transparent'};
+  display: flex;
+  flex-direction: column;
+  z-index: 1; /* Lowest layer */
+`;
+
+const Row = styled.div`
+  height: 22px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF; /* Brighter text to cut through the frost */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  position: relative;
+  z-index: 3; /* Highest layer - floats ON the glass */
+  transition: all 0.2s ease;
+`;
+
 const CurrentScorePointer = styled.div`
   position: absolute;
   right: -7px;
   transform: translateY(-50%);
   width: 0;
   height: 0;
-  opacity: 0.8;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-right: 6px solid #eab704;
-  filter: drop-shadow(0 0 3px rgba(234, 183, 4, 0.85));
-  z-index: 4;
+  filter: drop-shadow(0 0 5px rgba(234, 183, 4, 0.9));
+  z-index: 10;
   pointer-events: none;
-`;
-
-const HUDContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  background: #111111;
-  position: relative;
-  overflow: hidden;
-  border-radius: 0;
 `;
 
 const ScrollableContent = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  inset: 0;
+  overflow-y: scroll;
   scrollbar-width: none;
+  -ms-overflow-style: none;
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-const HeatStripWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background: ${(props) => props.gradient};
-`;
-
-const Row = styled.div`
-  height: ${100 / VISIBLE_ITEMS}%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 0;
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 9px;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-`;
-
-const LeftVerticalBar = ({ gameImpacts, currentScoreLabel, gameSideRef }) => {
+// ── MAIN COMPONENT ───────────────────────────────────────────────────────────
+const LeftVerticalBar = ({
+  gameImpacts = [],
+  currentIndex = -1,
+  showScoreMarker = true,
+  gameSideRef
+}) => {
   const scrollRef = useRef(null);
   const hudRef = useRef(null);
   const activeRowRef = useRef(null);
   const [pointerTopPx, setPointerTopPx] = useState(null);
 
+  // 1. Calculate Tiered Colors using the "Premium Ocean" Palette
   const { normalizedData, gradientString } = useMemo(() => {
     if (!gameImpacts || gameImpacts.length === 0) {
       return { normalizedData: [], gradientString: 'transparent' };
     }
 
-    const maxGreenImpact = _.maxBy(gameImpacts, ({ impactValue }) => impactValue);
-    const maxRedImpact = _.maxBy(gameImpacts, ({ impactValue }) => -impactValue);
+    const maxPos = _.maxBy(gameImpacts, (i) => i.impactValue)?.impactValue || 1;
+    const maxNeg = Math.abs(_.minBy(gameImpacts, (i) => i.impactValue)?.impactValue || -1);
     const denom = Math.max(gameImpacts.length - 1, 1);
 
     const data = gameImpacts.map((item, index) => {
-      const val =
-        item.impactValue > 0
-          ? item.impactValue / (maxGreenImpact?.impactValue || 1)
-          : item.impactValue / Math.abs(maxRedImpact?.impactValue || 1);
+      const val = item.impactValue >= 0 
+        ? item.impactValue / maxPos 
+        : item.impactValue / maxNeg;
 
-      let color = YELLOW;
-      if (val <= -0.75) color = RED;
-      else if (val < 0) color = YELLOW;
-      else if (val < 0.75) color = LIGHT_GREEN;
-      else color = GREEN;
+      // Logic to assign the new sophisticated colors
+      let color = BRONZE_GOLD;
+      if (item.impactValue > 0) {
+        color = val >= 0.8 ? OCEAN_GREEN : SAGE_GREEN;
+      } else if (item.impactValue < 0) {
+        color = val <= -0.8 ? RUST_RED : BRONZE_GOLD;
+      }
 
       const stopPosition = (index / denom) * 100;
-
-      return { ...item, color, stopPosition };
+      return { ...item, color, val, stopPosition };
     });
 
     const stops = data.map((item) => `${item.color} ${item.stopPosition}%`);
@@ -111,62 +140,36 @@ const LeftVerticalBar = ({ gameImpacts, currentScoreLabel, gameSideRef }) => {
     return { normalizedData: data, gradientString: gradient };
   }, [gameImpacts]);
 
-  const currentIndex =
-    normalizedData.length > 0
-      ? normalizedData.findIndex((item) => item.gameScoreLabel === currentScoreLabel)
-      : -1;
-  const showScoreMarker = currentIndex >= 0;
-
+  // 2. Position the Golden Pointer
   const updatePointerTop = useCallback(() => {
-    const side = gameSideRef?.current;
-    const row = activeRowRef.current;
-    if (!side || !row || currentIndex < 0) {
-      setPointerTopPx(null);
-      return;
-    }
-    const sideRect = side.getBoundingClientRect();
-    const rowRect = row.getBoundingClientRect();
-    const centerY = rowRect.top + rowRect.height / 2 - sideRect.top;
-    setPointerTopPx(centerY);
-  }, [currentIndex, gameSideRef]);
+    if (!activeRowRef.current || !hudRef.current) return;
+    const rowRect = activeRowRef.current.getBoundingClientRect();
+    const hudRect = hudRef.current.getBoundingClientRect();
+    const relativeTop = rowRect.top - hudRect.top + rowRect.height / 2;
+    setPointerTopPx(relativeTop);
+  }, []);
 
-  /** Do not use scrollIntoView — it scrolls ancestor scrollers (Swiper / window) and breaks layout. */
+  // 3. Sync Scroll Position
   useLayoutEffect(() => {
-    const sc = scrollRef.current;
-    const row = activeRowRef.current;
-    if (!sc || !row || currentIndex < 0) return;
-
-    const rowTop = row.offsetTop;
-    const rowH = row.offsetHeight;
-    const ch = sc.clientHeight;
-    const ideal = rowTop + rowH / 2 - ch / 2;
-    const maxScroll = Math.max(0, sc.scrollHeight - ch);
-    sc.scrollTop = Math.min(Math.max(0, ideal), maxScroll);
-
-    updatePointerTop();
-  }, [currentIndex, currentScoreLabel, normalizedData, updatePointerTop]);
+    if (currentIndex >= 0 && scrollRef.current && activeRowRef.current) {
+      const rowHeight = 22;
+      const centerOffset = (VISIBLE_ITEMS * rowHeight) / 2 - rowHeight / 2;
+      scrollRef.current.scrollTop = currentIndex * rowHeight - centerOffset;
+      updatePointerTop();
+    }
+  }, [currentIndex, normalizedData.length, updatePointerTop]);
 
   useEffect(() => {
     const sc = scrollRef.current;
     if (!sc) return;
-
-    const onScrollOrResize = () => updatePointerTop();
-    sc.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize);
-
-    let ro;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(onScrollOrResize);
-      if (hudRef.current) ro.observe(hudRef.current);
-      if (gameSideRef?.current) ro.observe(gameSideRef.current);
-    }
-
+    const onUpdate = () => updatePointerTop();
+    sc.addEventListener('scroll', onUpdate, { passive: true });
+    window.addEventListener('resize', onUpdate);
     return () => {
-      sc.removeEventListener('scroll', onScrollOrResize);
-      window.removeEventListener('resize', onScrollOrResize);
-      if (ro) ro.disconnect();
+      sc.removeEventListener('scroll', onUpdate);
+      window.removeEventListener('resize', onUpdate);
     };
-  }, [updatePointerTop, normalizedData.length, showScoreMarker, gameSideRef]);
+  }, [updatePointerTop]);
 
   return (
     <>
@@ -174,17 +177,27 @@ const LeftVerticalBar = ({ gameImpacts, currentScoreLabel, gameSideRef }) => {
         <HUDContainer ref={hudRef}>
           <ScrollableContent ref={scrollRef}>
             <HeatStripWrapper gradient={gradientString}>
-              {normalizedData.map((item, index) => (
-                <Row
-                  key={index}
-                  ref={index === currentIndex ? activeRowRef : undefined}
-                >
-                  {item.gameScoreLabel}
-                </Row>
-              ))}
+              {normalizedData.map((item, index) => {
+                const isCurrent = index === currentIndex;
+                return (
+                  <Row
+                    key={index}
+                    ref={isCurrent ? activeRowRef : undefined}
+                    style={isCurrent ? {
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      color: '#ffffff',
+                      fontWeight: 900,
+                      opacity: 1
+                    } : undefined}
+                  >
+                    {item.gameScoreLabel}
+                  </Row>
+                );
+              })}
             </HeatStripWrapper>
           </ScrollableContent>
         </HUDContainer>
+        <VanillaGlassOverlay />
       </div>
       {showScoreMarker && pointerTopPx != null ? (
         <CurrentScorePointer aria-hidden style={{ top: pointerTopPx }} />

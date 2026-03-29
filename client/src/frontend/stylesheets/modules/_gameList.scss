@@ -1,5 +1,8 @@
 @import '../spritesmith-generated/sprite';
 
+$frosted-bg-light: rgba(255, 255, 255, 0.05);
+$frosted-bg-dark: rgba(17, 17, 17, 0.6);
+$frosted-blur: blur(8px);
 .listSwiper {
   font-size: 16px;
 }
@@ -32,10 +35,11 @@
     .round-title {
       color: $title-4;
       display: block;
-      font-size: 1.35em;
+      font-size: 16px;
       font-weight: 700;
+      font-style: italic;
       letter-spacing: 0.02em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .round-header-stats {
@@ -46,14 +50,14 @@
       gap: 10px 8px;
       width: 100%;
       box-sizing: border-box;
-      padding: 8px 0px 8px 8px;
-      font-size: 0.82em;
-      color: rgba(255, 255, 255, 0.92);
-      background: rgba(30, 30, 30, 0.85);
-      border-radius: 10px;
+      padding: 7px 6px 7px 8px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.88);
+      background: $background-1;
+      border-radius: 5px;
       border: 1px solid rgba(234, 183, 4, 0.18);
-      backdrop-filter: blur(4px);
-      opacity: 0.8;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .round-stat {
@@ -136,24 +140,223 @@
     }
   }
 
+  .round-summary {
+    margin: 12px 10px;
+    padding: 16px 20px 18px;
+    position: relative;
+    overflow: hidden;
+  
+    // 1. THE REFRACTIVE BASE (FROSTING)
+    // Radial gradient creates the grey-to-dark depth you observed
+    background: radial-gradient(
+      circle at center, 
+      rgba(20, 20, 24, 0.94) 0%, 
+      rgba(45, 45, 50, 0.88) 100%
+    );
+  
+    // 2. THE GLASS MORPHISM
+    // High blur creates the premium "acrylic" feel
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-radius: 5px;
+  
+    // 3. THE GLOWING RIM (LIGHT SOURCE)
+    // Subtle border combined with box-shadows to create "light bleed"
+    border: 1px solid rgba(234, 183, 4, 0.35);
+    box-shadow: 
+      0 0 20px rgba(234, 183, 4, 0.12), // Outer ambient glow
+      inset 0 0 15px rgba(234, 183, 4, 0.08), // Inner light bleed
+      0 12px 40px rgba(0, 0, 0, 0.6); // Base shadow for lift
+  
+    // 4. THE BEVEL HIGHLIGHT (RIM LIGHT)
+    // This microscopic line at the top makes the edge "catch" light
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.12), 
+        transparent
+      );
+      pointer-events: none;
+    }
+  
+    &__title {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #FFFFFF;
+      text-transform: none; // Title Case as per mockup
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+      opacity: 0.95;
+    }
+  
+    &__body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  
+    &__stat {
+      display: flex;
+      align-items: baseline;
+      
+      &-number {
+        font-size: 38px;
+        font-weight: 800;
+        color: #EAB704; // $title-4 gold
+        line-height: 1;
+        // High-end "bloom" effect on the gold text
+        filter: drop-shadow(0 0 12px rgba(234, 183, 4, 0.4));
+      }
+  
+      &-suffix, &-unit {
+        font-size: 18px; // Scaled up to match mockup hierarchy
+        font-weight: 700;
+        color: #EAB704;
+        margin-left: 2px;
+      }
+    }
+  
+    &__middle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+  
+    &__label {
+      font-size: 9px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.2;
+      text-align: left;
+    }
+  
+    &__wave {
+      flex: 1;
+      height: 34px;
+      svg path {
+        stroke: #EAB704;
+        stroke-width: 2.5;
+        fill: none;
+        filter: drop-shadow(0 0 6px rgba(234, 183, 4, 0.5));
+      }
+    }
+  }
+
+  // ── Active Bets banner ────────────────────────────────
+  .active-bets-banner {
+    display: flex;
+    align-items: center;
+    margin: 6px 6px 12px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(42, 42, 46, 0.95), rgba(36, 36, 40, 0.95));
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    gap: 10px;
+
+    i.icon {
+      font-size: 1.2em !important;
+      color: $title-4;
+      margin: 0 !important;
+      width: auto !important;
+      filter: drop-shadow(0 0 3px rgba(234, 183, 4, 0.4));
+    }
+
+    &__text {
+      flex: 1;
+      font-size: 0.88em;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-align: left;
+    }
+
+    &__btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.85);
+      border-radius: 8px;
+      padding: 5px 16px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+
+      &:hover, &:active {
+        background: rgba(255, 255, 255, 0.18);
+      }
+    }
+  }
+
   // ── Round games container ─────────────────────────────
   .round-games {
-    padding: 0 2px;
-
+    padding: 0 6px;
+    list-style: none;
+    .game-glass-row {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 16px;
+      border-radius: 5px;
+      list-style: none;
+      
+      /* 1. THE MILKY BASE */
+      background: rgba(255, 255, 255, 0.07);
+      
+      /* 2. THE FROST */
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+  
+      /* 3. THE VANILLA OVERLAY (Top-left shine) */
+      background-image: linear-gradient(
+          135deg, 
+          rgba(255, 255, 255, 0.1) 0%, 
+          rgba(255, 255, 255, 0.02) 50%, 
+          rgba(255, 255, 255, 0) 100%
+      );
+  
+      /* 4. THE BORDER */
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      
+      /* 5. SOFT SHADOW */
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                  inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      
+      transition: transform 0.2s ease;
+  }
+  
+  .game-glass-row:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.1);
+  }
     .group-play-at {
       color: $title-4;
-      padding: 10px 6px 4px;
+      padding: 10px 4px 4px;
       font-weight: 700;
-      font-size: 0.92em;
-      letter-spacing: 0.03em;
+      font-size: 13px;
+      letter-spacing: 0.02em;
       text-align: right;
       clear: both;
     }
 
     // ── Individual game card ────────────────────────────
     .game-row {
-      background: linear-gradient(135deg, rgba(44, 44, 44, 0.95), rgba(38, 38, 38, 0.95));
-      margin-bottom: 8px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      margin-bottom: 10px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+  
+      border: 2px solid rgba(255, 255, 255, 0.05);
       min-height: 110px;
       display: flex;
       width: 100%;
@@ -174,7 +377,7 @@
       // ── Left side bar (medal + heatmap) ───────────────
       .game-side {
         position: relative;
-        width: 22px;
+        width: 20px;
         flex-shrink: 0;
         font-size: 14px;
         color: rgba(255, 255, 255, 0.9);
@@ -185,15 +388,21 @@
         overflow: visible;
         z-index: 1;
         box-sizing: border-box;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
 
         .game-side-heat {
-          flex: 1 1 0;
-          min-width: 0;
-          min-height: 0;
           width: 100%;
-          overflow: hidden;
+          height: 100%;
           position: relative;
-          opacity: 0.8;
+          background: #000; // Deep black base to make the colors pop
+          // Adds the subtle inner shadow seen in the mockup
+          &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+          }
         }
 
         .left-vertical-bar {
@@ -265,28 +474,34 @@
           align-items: center;
           justify-content: center;
           font-weight: 700;
-          font-size: 11px;
+          font-size: 10px;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           border-radius: 0;
         }
 
         .no-medal {
-          background: rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.5);
+          background: rgba(255, 255, 255, 0.04);
+          color: rgba(255, 255, 255, 0.4);
         }
 
         .gold-medal {
-          background: linear-gradient(135deg, #ffd700, #c9a600);
-          color: #1a1a1a;
+          background: rgba(234, 183, 4, 0.1);
+          color: #eab704;
+          font-weight: 800;
+          font-size: 11px;
+          text-shadow: 0 0 4px rgba(234, 183, 4, 0.4);
         }
 
         .sliver-medal {
-          background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
-          color: #1a1a1a;
+          background-color: transparent;
+          color: #c0c0c0;
+          filter: drop-shadow(0 0 2px rgba(192, 192, 192, 0.7));
         }
 
         .bronze-medal {
-          background: linear-gradient(135deg, #cd7f32, #a56428);
-          color: #1a1a1a;
+          background-color: transparent;
+          color: #cd7f32;
+          filter: drop-shadow(0 0 2px rgba(205, 127, 50, 0.6));
         }
 
         .game-side-title {
@@ -296,7 +511,7 @@
           padding: 0;
           font-weight: 600;
           letter-spacing: 0.1em;
-          line-height: 22px;
+          line-height: 28px;
         }
       }
 
@@ -304,7 +519,7 @@
       .game-center {
         flex: auto;
         display: flex;
-        height: 110px;
+        min-height: 100px;
         flex-direction: column;
         padding: 0 8px;
 
@@ -339,9 +554,10 @@
             text-align: center;
             color: $title-4;
             font-family: 'Titillium Web', sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.04em;
+            font-weight: 800;
+            font-size: 12px;
+            font-style: italic;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
           }
 
@@ -354,8 +570,8 @@
           .game-hour {
             flex: 0 0 auto;
             text-align: end;
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
             font-weight: 500;
           }
 
@@ -452,10 +668,10 @@
           }
 
           .match-result {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
-            color: rgba(255, 255, 255, 0.95);
-            letter-spacing: 1px;
+            color: #ffffff;
+            letter-spacing: 1.5px;
           }
 
           .team-score {
@@ -473,11 +689,11 @@
 
               .team-flag {
                 border-radius: 50%;
-                height: 38px;
-                width: 38px;
+                height: 40px;
+                width: 40px;
                 background: #ffffff;
-                padding: 5px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                padding: 4px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -491,10 +707,10 @@
               }
 
               .team-name {
-                font-size: 11px;
+                font-size: 10px;
                 word-break: break-word;
                 white-space: pre-wrap;
-                color: rgba(255, 255, 255, 0.85);
+                color: rgba(255, 255, 255, 0.75);
                 margin-top: 2px;
                 line-height: 1.2;
               }
@@ -524,8 +740,8 @@
               }
 
               .team-bet-closed {
-                font-size: 1.6em;
-                font-weight: 700;
+                font-size: 1.7em;
+                font-weight: 800;
                 color: $title-1;
               }
 
@@ -566,7 +782,6 @@
           padding: 3px 6px;
           border-top: 1px solid rgba(255, 255, 255, 0.06);
           box-sizing: border-box;
-          opacity: 0.8;
           &__half {
             flex: 1;
             display: flex;
@@ -593,14 +808,14 @@
             &--up {
               .game-impact-footer__cluster,
               .game-impact-footer__arrow {
-                color: #4ADE80;
+                color: rgba(20, 148, 120, 0.85)
               }
             }
 
             &--down {
               .game-impact-footer__cluster,
               .game-impact-footer__arrow {
-                color: #F87171;
+                color: rgba(208, 42,43,0.8)
               }
             }
 
@@ -616,14 +831,13 @@
             flex-direction: row;
             align-items: center;
             gap: 2px;
-            font-weight: 700;
-            font-size: 12px;
+            font-weight: 600;
+            font-size: 10px;
             line-height: 1.15;
-            font-family: 'Titillium Web', sans-serif;
           }
 
           &__arrow {
-            font-size: 0.4rem !important;
+            font-size: 0.6rem !important;
             margin: 0 !important;
             line-height: 1 !important;
             font-weight: 900 !important;
@@ -635,22 +849,22 @@
           }
 
           &__rank {
-            font-size: 9px;
-            font-weight: 800;
+            font-size: 12px;
+            font-weight: 700;
           }
 
           &__points {
-            font-size: 9px;
-            font-weight: 700;
-            opacity: 0.85;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.9;
             white-space: nowrap;
             margin-left: -1px;
           }
 
           &__pred-score {
-            font-size: 9px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.65);
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
             line-height: 1.15;
             white-space: nowrap;
           }
@@ -670,7 +884,7 @@
 }
 
 // ── Responsive: larger screens ────────────────────────────
-@media (min-width: 600px) {
+@media (min-width: 3600px) {
   .game-list {
     .round-games {
       .game-row {
@@ -713,7 +927,7 @@
                 }
 
                 .team-bet-closed {
-                  font-size: 1.8em;
+                  font-size: 1.9em;
                 }
               }
             }
@@ -721,5 +935,92 @@
         }
       }
     }
+  }
+}
+
+// ── Mobile: small devices (Galaxy S22 360px, iPhone SE 375px) ──
+@media (max-width: 374px) {
+  .game-list {
+    .round-summary {
+      padding: 8px 12px 10px;
+      margin: 0 4px 8px;
+
+      .round-summary__stat-number {
+        font-size: 22px;
+      }
+
+      .round-summary__label {
+        font-size: 7px;
+      }
+    }
+
+    .round-header {
+      padding: 0 4px;
+
+      .round-title {
+        font-size: 1.15em;
+      }
+
+      .round-header-stats {
+        font-size: 0.75em;
+        padding: 6px 4px;
+        gap: 6px 4px;
+      }
+    }
+
+    .round-games {
+      padding: 0 4px;
+
+      .game-row {
+        .game-center .game-body {
+          .team-score {
+            .team-bet {
+              input {
+                width: 42px;
+                height: 34px;
+                font-size: 1.2em;
+              }
+              .team-bet-closed {
+                font-size: 1.3em;
+              }
+            }
+            .team-details .team-flag {
+              height: 32px;
+              width: 32px;
+              padding: 4px;
+            }
+          }
+          .match-result {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ── Mobile: standard devices (iPhone 14 390px, Galaxy S22+ 393px) ──
+@media (max-width: 428px) {
+  .game-list {
+    .round-games .group-play-at {
+      padding: 8px 6px 4px;
+    }
+
+    .game-impact-footer {
+      &__cluster {
+        font-size: 10px;
+      }
+      &__rank, &__points, &__pred-score {
+        font-size: 8px;
+      }
+    }
+  }
+}
+
+// ── Ensure safe rendering on notch/island devices ──────────
+@supports (padding: env(safe-area-inset-bottom)) {
+  .game-list {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 }
