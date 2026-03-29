@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useMemo} from 'react';
 import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
@@ -87,6 +87,11 @@ const Game = ({
     const awayTeamNext = _.get(gameImpact, 'awayTeamNext', null);
     const gamePaths = _.get(gameImpact, 'gamePaths', null);
     const currentScoreLabel = `${c_score1}-${c_score2}`;
+    const heatStripCurrentIndex = useMemo(() => {
+        if (!Array.isArray(gamePaths) || gamePaths.length === 0) return -1;
+        const idx = _.findIndex(gamePaths, {gameScoreLabel: currentScoreLabel});
+        return idx >= 0 ? idx : -1;
+    }, [gamePaths, currentScoreLabel]);
     const betRow = (// Game.js - בתוך ה-return של betRow
         <section style={{display: "contents"}}>
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
@@ -98,7 +103,7 @@ const Game = ({
                     <LeftVerticalBar
                         gameSideRef={gameSideRef}
                         gameImpacts={gamePaths}
-                        currentScoreLabel={currentScoreLabel}
+                        currentIndex={heatStripCurrentIndex}
                     />
                 ) : ''}
             </div>

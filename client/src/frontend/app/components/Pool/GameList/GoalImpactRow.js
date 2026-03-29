@@ -23,10 +23,10 @@ const ImpactItem = ({ impact }) => {
         <div className={`game-impact-footer__half-inner game-impact-footer__half-inner--${impactModifier}`}>
             <span className="game-impact-footer__cluster">
                 {isUp && (
-                    <Icon name="arrow circle up" className="game-impact-footer__arrow" fitted />
+                    <Icon name="star" className="game-impact-footer__arrow" fitted />
                 )}
                 {isDown && (
-                    <Icon name="arrow circle down" className="game-impact-footer__arrow" fitted />
+                    <Icon name="exclamation circle" className="game-impact-footer__arrow" fitted />
                 )}
                 {!isUp && !isDown && (
                     <span className="game-impact-footer__arrow game-impact-footer__arrow--placeholder" />

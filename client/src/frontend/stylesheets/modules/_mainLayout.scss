@@ -1,19 +1,89 @@
+// Frosted “shine” overlay (use with background-color, not `background:` shorthand)
+$menu-glass-shine: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.1) 0%,
+  rgba(255, 255, 255, 0.02) 50%,
+  rgba(255, 255, 255, 0) 100%
+);
+
 #app{
   background-color: $background-1;
+  background-image: $menu-glass-shine;
   min-height: 100%;
   color: $title-1;
   overflow: visible;
+  font-family: $font-ui;
 }
 .user-rank{
-  padding-left: 5px;
+  padding-left: 0;
   color: $title-4;
+  font-weight: 500;
+  font-size: 1em;
+  letter-spacing: 0.02em;
 }
 .top-menu .ui.avatar.image,
-.right-menu .ui.avatar.image {
+.right-menu .ui.avatar.image,
+.top-menu-user-dropdown .ui.avatar.image,
+.top-menu .top-menu-user-avatar.ui.avatar.image {
   border: 2px solid $title-4 !important;
   box-shadow: 0 0 8px rgba(234, 183, 4, 0.3);
   width: 36px !important;
   height: 36px !important;
+}
+
+.top-menu .top-menu-user-dropdown.item {
+  display: flex;
+  align-items: center;
+  padding-left: 10px !important;
+  padding-right: 12px !important;
+}
+
+/* Semantic Dropdown defaults to icon="dropdown" after the trigger — hide if prop is overridden */
+.top-menu .top-menu-user-dropdown.dropdown > i.dropdown.icon {
+  display: none !important;
+}
+
+.top-menu-user-trigger {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-menu-user-chevron.icon {
+  margin: 0 !important;
+  opacity: 0.55;
+  font-size: 0.85rem !important;
+  line-height: 1 !important;
+}
+
+.top-menu-user-text {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.2;
+  max-width: 52vw;
+  justify-content: center;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.top-menu-user-name {
+  color: $title-1 !important;
+  font-weight: 600;
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.top-menu-user-text .user-rank {
+  margin-top: 1px;
+  font-weight: 100;
+  opacity: 0.6;
 }
 .app-wrapper{
   min-height: 100%;
@@ -30,27 +100,62 @@
     left: 0 !important;
     right: 0 !important;
   }
+  /* Top bar: never use `background:` shorthand here — it resets background-image in some cases */
+  .ui.inverted.top-menu.menu,
+  .ui.fixed.inverted.menu.top-menu,
   .ui.inverted.top-menu {
-    background: $background-1 !important;
+    background-color: $background-1 !important;
+    background-image: $menu-glass-shine !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    .header{
+
+    .header {
       color: $title-1 !important;
     }
+
+    /* Nested Semantic `.menu` (e.g. submenus) — don’t paint an opaque layer over the bar */
     .menu {
       background-color: $background-1;
+      background-image: linear-gradient(
+        135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.02) 50%, 
+        rgba(255, 255, 255, 0) 100%
+    ) !important; 
       .item{
+        background-color: $background-1;
+        background-image: linear-gradient(
+          135deg, 
+          rgba(255, 255, 255, 0.1) 0%, 
+          rgba(255, 255, 255, 0.02) 50%, 
+          rgba(255, 255, 255, 0) 100%
+      ) !important;
+        font-family: $font-ui;
         color: $title-1 !important;
-        font-size: 1.1em;
-        font-weight:600;
+        font-size: 1.05em;
+        font-weight: 600;
       }
     }
-    .item:before{
+
+    .item:before {
       background: none;
     }
-    :hover, .active.item {
-      background-color: $background-1 !important;
+
+    /* Direct row items: transparent so the bar gradient shows through */
+    & > .item,
+    & > .ui.dropdown.item {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    & > .item:hover,
+    & > .ui.dropdown.item:hover,
+    & > .item.active {
+      background-color: rgba(255, 255, 255, 0.07) !important;
+      background-image: none !important;
     }
   }
 
@@ -63,7 +168,7 @@
     bottom: calc(42px + env(safe-area-inset-bottom, 0px));
     top: auto;
     left: 50%;
-    background: rgba(32, 32, 32, 0.92);
+    background: $background-1;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     padding: 6px 0px 4px 0px;
@@ -76,34 +181,64 @@
   padding-left: 0;
   padding-right: 0;
 }
-.top-menu {
-  //background-color: $background-1 !important;
-  .item{
+/* #app + attribute match: beats Semantic `.ui.inverted.menu{background:#1b1c1d}` and `ui fluid inverted top fixed … menu` */
+#app .ui.menu.top-menu.ui.inverted,
+#app .ui.menu.inverted.top-menu,
+#app .ui.inverted.menu.top-menu,
+#app .ui.inverted[class*="top fixed"].menu.top-menu {
+  background-color: $background-1 !important;
+  background-image: $menu-glass-shine !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  & > .item,
+  & > .ui.dropdown.item {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  .item {
     color: $title-1 !important;
   }
 }
-.right-menu{
-  .menu{
-    box-shadow: 0px 4px 13px rgb(255 255 255 / 15%);
-  }
+.top-menu-user-dropdown.ui.dropdown .menu {
+  box-shadow: 0px 4px 13px rgb(255 255 255 / 15%);
+}
 
- }
 .bottom-menu{
   display: flex;
   color: $title-1 !important;
-  background: rgba(20, 20, 20, 0.95) !important;
+  background-color: $background-1 !important;
+  background-image: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.02) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            ) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  font-family: $font-ui;
   .item{
     flex: 1;
     color: rgba(255, 255, 255, 0.55) !important;
     font-size: 0.82em;
-    transition: color 0.15s;
+    font-weight: 600;
+    transition: color 0.15s, text-shadow 0.15s;
     &.active {
-      color: $title-4 !important;
+      color: $accent-mint !important;
       background: transparent !important;
+      text-shadow: 0 0 10px $accent-mint-glow, 0 0 20px rgba(94, 234, 212, 0.25);
     }
+  }
+  .ui.inverted.menu .active.item,
+  .item.active .icon{
+    color: $accent-mint !important;
+    text-shadow: 0 0 10px $accent-mint-glow, 0 0 20px rgba(94, 234, 212, 0.25);
   }
   .item.disabled {
     color: rgba(225,225,225,.3) !important;

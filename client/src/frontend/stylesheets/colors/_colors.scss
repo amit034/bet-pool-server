@@ -11,6 +11,14 @@ $background-frame: #2C2C2C;
 $title-1: #FFFFFF;
 $title-2:#0C4262;
 $title-3: #608ba8;
-$title-4: #EAB704;
+$title-4: #a9905c;
 $title-5: #2C2C2C;
 
+// Nav / status accents (mock: mint active tab, semantic greens/reds)
+$accent-mint: #5eead4;
+$accent-mint-glow: rgba(94, 234, 212, 0.45);
+$stat-best: rgba(20, 148, 120, 0.85);
+$stat-worst: rgba(208, 42,43,0.8);
+
+// Single UI font stack (loaded in index.html)
+$font-ui: 'Titillium Web', sans-serif;

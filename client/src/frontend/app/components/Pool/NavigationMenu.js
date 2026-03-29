@@ -11,7 +11,7 @@ const NavigationMenu = () => {
                 Bettings
             </Menu.Item>
             <Menu.Item name='leaders' as={NavLink} exact to={`/pools/${match.params.id}/participates`}>
-                <Icon name='cubes' />
+                <Icon name='trophy' />
                 Leaders
             </Menu.Item>
             <Menu.Item name='pools' as={NavLink} exact to={`/pools`}>

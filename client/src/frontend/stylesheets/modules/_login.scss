@@ -33,7 +33,7 @@
   top: 0;
   width: 100%;
   color: white;
-  font-family: 'Titillium web', sans-serif;
+  font-family: $font-ui;
   font-weight: 400;
   font-size: 14px;
   padding: 20px;
@@ -48,7 +48,7 @@
     margin: auto;
   }
   .login-button {
-    font-family: 'Titillium web', sans-serif;
+    font-family: $font-ui;
     background-color: white !important;
     color: $title-3 !important;
     border-radius: 0 !important;
@@ -84,12 +84,12 @@
     }
   }
   .login-header{
-    font-family: 'Titillium web', sans-serif;
+    font-family: $font-ui;
     color: white !important;
     font-size: 24px;
   }
   .login-sub-header{
-    font-family: 'Titillium web', sans-serif;
+    font-family: $font-ui;
     color: white !important;
     font-size: 16px;
   }
@@ -108,7 +108,7 @@
     margin: 0 0 0.2em !important;
     input {
       background-color: $background-3 !important;
-      font-family: 'Titillium web', sans-serif !important;
+      font-family: $font-ui !important;
       font-style: italic;
       border-radius: 0px !important;
     }
@@ -128,7 +128,7 @@
       background-color: white !important;
       border-radius: 0px;
       margin-bottom: 5px;
-      font-family: 'Titillium web', sans-serif;
+      font-family: $font-ui;
       font-weight: 700;
       i {
         color: inherit !important;

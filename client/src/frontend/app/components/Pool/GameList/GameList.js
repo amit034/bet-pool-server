@@ -138,7 +138,7 @@ const GameList = ({poolId}) => {
                     />
                     {openBetsCount > 0 && (
                         <div className="active-bets-banner">
-                            <i className="bell outline icon"></i>
+                            <i className="list ul icon" aria-hidden="true"></i>
                             <span className="active-bets-banner__text">
                                 Active Bets &middot; {openBetsCount} Open Bets
                             </span>

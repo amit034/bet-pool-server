@@ -7,12 +7,10 @@ const RoundHeader = ({
     bestCaseRank,
     worstCaseRank,
 }) => {
-    // We don't need volatility for this minimal version
     return (
         <div className="round-header">
             <span className="round-title">Round No: {roundNum}</span>
-            <div className="round-header-stats"> 
-                {/* 1. User/Rank stat */}
+            <div className="round-header-stats">
                 <span className="round-stat round-stat-rank">
                     <i className="user icon round-stat-icon round-stat-icon--user" aria-hidden="true" />
                     <span className="round-stat__body">
@@ -23,7 +21,7 @@ const RoundHeader = ({
                     </span>
                 </span>
 
-                <span className="round-stat">
+                <span className="round-stat round-stat-best">
                     <i className="lightning icon round-stat-icon round-stat-icon--bolt" aria-hidden="true" />
                     <span className="round-stat__body">
                         <span className="round-stat__label">Best case:&nbsp;</span>
@@ -33,7 +31,7 @@ const RoundHeader = ({
                     </span>
                 </span>
 
-                <span className="round-stat">
+                <span className="round-stat round-stat-worst">
                     <i className="exclamation triangle icon round-stat-icon round-stat-icon--warning" aria-hidden="true" />
                     <span className="round-stat__body">
                         <span className="round-stat__label">Worst case:&nbsp;</span>
