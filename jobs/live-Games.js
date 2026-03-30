@@ -9,6 +9,7 @@ const apiFootballSdk = require('../lib/apiFootballSDK');
 const eventRepository = require('../repositories/eventRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const gameRepository  =require('../repositories/gameRepository');
+const goalLogRepository = require('../repositories/goalLogRepository');
 module.exports = {
 
     async start(io) {
@@ -33,8 +34,16 @@ module.exports = {
                                const {status, utcDate: playAt, score: {fullTime}}= match;
                                if (!_.isNil(fullTime)) {
                                    const {home: homeTeamScore = 0, away: awayTeamScore = 0} = fullTime;
-                                   const changed = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore || status !== game.status;
+                                   const scoreChanged = homeTeamScore !== game.homeTeamScore || awayTeamScore !== game.awayTeamScore;
+                                   const changed = scoreChanged || status !== game.status;
                                    await game.update({playAt, homeTeamScore, awayTeamScore, status}, {transaction});
+                                   if (scoreChanged) {
+                                       await goalLogRepository.createEntry({
+                                           gameId: game.id,
+                                           score1: homeTeamScore,
+                                           score2: awayTeamScore
+                                       }, {transaction});
+                                   }
                                    const challenge = await challengeRepository.updateChallengeByQuery({
                                            refName: 'Game',
                                            refId: game.id,

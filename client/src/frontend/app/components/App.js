@@ -73,7 +73,7 @@ const App = () => {
 
     const menu = isAuthenticated ?
         (<Menu fixed='top' inverted fluid className="top-menu">
-                {match.params.id > 0 &&
+                {match.params.id > 0 && (
                 <Menu.Item
                     name='pools'
                     as={NavLink} exact to={`/pools`}
@@ -81,48 +81,55 @@ const App = () => {
                     <Icon name='angle left'/>
                     Back to Pools
                 </Menu.Item>
-                }
-                <Menu.Menu className='right-menu'>
-                    <Dropdown item trigger={(
-                        <span>
-                                <Image avatar src={user.picture}/>
-                              </span>
-                    )}>
-                        <Dropdown.Menu>
-                            <Dropdown.Header icon='tags' content={`Signed In as ${user.firstName} ${user.lastName}`}/>
-                            <Dropdown.Divider/>
-                            <Dropdown.Item
-                                name='profile'
-                                disabled
-                            >
-                                <Icon name='user'/>
-                                Your profile
-                            </Dropdown.Item>
-                            {muteMenu}
-                            {showInstall && (
-                                <>
-                                    <Dropdown.Divider/>
-                                    <Dropdown.Item name='install' onClick={() => window.triggerPWAInstall && window.triggerPWAInstall()}>
-                                        <Icon name='download'/>
-                                        Install app
-                                    </Dropdown.Item>
-                                </>
-                            )}
-                            <Dropdown.Divider/>
-                            <Dropdown.Item
-                                name='logout'
-                                onClick={logout}
-                            >
-                                <Icon name='log out'/>
-                                Sign out
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Menu.Menu>
-                <Menu.Item>
-                    <div>{user.firstName} {user.lastName} </div>
-                        {rank && <div className='user-rank'>Rank: {rank}</div>}
-                </Menu.Item>
+                )}
+                <Dropdown
+                    item
+                    className="top-menu-user-dropdown"
+                    trigger={(
+                        <span className="top-menu-user-trigger">
+                            <Image avatar src={user.picture} className="top-menu-user-avatar" />
+                            <Icon name="chevron down" className="top-menu-user-chevron" />
+                            <span className="top-menu-user-text">
+                                <span className="top-menu-user-name">
+                                    {user.firstName} {user.lastName}
+                                </span>
+                                {rank != null && (
+                                    <span className="user-rank">Rank: {rank}</span>
+                                )}
+                            </span>
+                        </span>
+                    )}
+                >
+                    <Dropdown.Menu>
+                        <Dropdown.Header icon='tags' content={`Signed In as ${user.firstName} ${user.lastName}`}/>
+                        <Dropdown.Divider/>
+                        <Dropdown.Item
+                            name='profile'
+                            disabled
+                        >
+                            <Icon name='user'/>
+                            Your profile
+                        </Dropdown.Item>
+                        {muteMenu}
+                        {showInstall && (
+                            <>
+                                <Dropdown.Divider/>
+                                <Dropdown.Item name='install' onClick={() => window.triggerPWAInstall && window.triggerPWAInstall()}>
+                                    <Icon name='download'/>
+                                    Install app
+                                </Dropdown.Item>
+                            </>
+                        )}
+                        <Dropdown.Divider/>
+                        <Dropdown.Item
+                            name='logout'
+                            onClick={logout}
+                        >
+                            <Icon name='log out'/>
+                            Sign out
+                        </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </Menu>) : '';
     return (<div className="app-wrapper">
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}

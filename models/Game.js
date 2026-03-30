@@ -40,6 +40,10 @@ module.exports = function (sequelize, DataTypes) {
             foreignKey: 'awayTeamId',
             as: 'awayTeam'
         });
+        Model.hasMany(models.GoalLog, {
+            foreignKey: 'gameId',
+            as: 'goalLogs'
+        });
     };
     return Model;
 }

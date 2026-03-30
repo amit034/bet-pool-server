@@ -40,6 +40,12 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/join', authorisationPolicy, handlers.pools.joinToPool);
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
     app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
+    app.get('/api/:userId/pools/:poolId/goals', authorisationPolicy, (req, res, next) => {
+        if (req.isDemo) {
+            return res.json([]);
+        }
+        next();
+    }, handlers.pools.getPoolGoals);
     app.get('/api/:userId/pools/:poolId/challenges', authorisationPolicy, handlers.pools.getUserBets);
     app.post('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.createOrUpdate);
     app.get('/api/:userId/pools/:poolId/challenges/:challengeId', authorisationPolicy, handlers.bets.getOthersBets);

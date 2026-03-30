@@ -122,3 +122,213 @@
   }
 }
 
+/* Floating replay: fixed only, no extra page padding — sits above pagination & tab bar visually */
+.leader-replay-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+  z-index: 998;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.leader-replay-dock__inner {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 640px;
+  filter: drop-shadow(0 -6px 18px rgba(0, 0, 0, 0.42));
+}
+
+/* Slim swipe target: large touch area, tiny visible chevron (mobile) */
+.leader-replay-dock__handle {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 18px 48px 10px;
+  border: none;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.leader-replay-dock__handle:active {
+  cursor: grabbing;
+}
+
+.leader-replay-dock__handle-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(28, 37, 49, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.leader-replay-dock__handle-icon {
+  margin: 0 !important;
+  opacity: 0.85;
+  font-size: 0.75rem !important;
+  color: $accent-mint !important;
+}
+
+.leader-replay-dock__panel {
+  padding: 8px 12px 12px;
+  border-radius: 14px 14px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  background: rgba(28, 37, 49, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: $font-ui;
+}
+
+.leader-replay-dock__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.leader-replay-dock__board {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leader-replay-dock__active-label {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.leader-replay-dock__caption {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.leader-replay-dock__scoreline {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leader-replay-dock__you {
+  color: $accent-mint;
+}
+
+.leader-replay-dock__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.leader-replay-dock__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: $title-1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leader-replay-dock__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.leader-replay-dock__icon-btn .icon {
+  margin: 0 !important;
+  font-size: 1.1rem !important;
+}
+
+.leader-replay-dock__speed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.leader-replay-dock__speed-btn {
+  min-width: 36px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: $font-ui;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leader-replay-dock__speed-btn--active {
+  color: $title-1;
+  border-color: rgba(94, 234, 212, 0.45);
+  box-shadow: 0 0 12px rgba(94, 234, 212, 0.2);
+}
+
+.leader-replay-dock__close-text {
+  margin-left: auto;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: $font-ui;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leader-replay-dock__scrub {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  height: 8px;
+  accent-color: $accent-mint;
+}
+
+.leader-replay-dock__times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.leader-replay-dock__empty {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.35;
+}
+

@@ -175,6 +175,7 @@ $menu-glass-shine: linear-gradient(
     z-index: 998;
   }
 }
+
 .ui#content{
   padding-top: calc(40px + env(safe-area-inset-top, 0px));
   padding-bottom: calc(55px + env(safe-area-inset-bottom, 0px));

@@ -25,6 +25,8 @@ export const GET_CHALLENGE_PARTICIPATES_REQUEST = 'GET_CHALLENGE_PARTICIPATES_RE
 export const GET_CHALLENGE_PARTICIPATES_SUCCESS = 'GET_CHALLENGE_PARTICIPATES_SUCCESS';
 export const UPDATE_CHALLEGE_SUCCESS = 'UPDATE_CHALLEGE_SUCCESS';
 export const CLEAR_GOAL_ANIMA = 'CLEAR_GOAL_ANIMA';
+export const GET_POOL_GOALS_SUCCESS = 'GET_POOL_GOALS_SUCCESS';
+export const GET_POOL_GOALS_FAILURE = 'GET_POOL_GOALS_FAILURE';
 
 
 function requestUserPools(userId) {
@@ -356,6 +358,47 @@ export function getPoolParticipates(poolId) {
                 dispatch(authErr);
             }
         });
+    };
+}
+
+function receivePoolGoals(poolId, entries) {
+    return {type: GET_POOL_GOALS_SUCCESS, poolId, entries};
+}
+
+function getPoolGoalsFail(poolId, message) {
+    return {type: GET_POOL_GOALS_FAILURE, poolId, message};
+}
+
+function normalisePoolGoalsPayload(data) {
+    if (Array.isArray(data)) {
+        return data;
+    }
+    if (typeof data === 'string' && /<\s*html[\s>]/i.test(data)) {
+        return null;
+    }
+    return [];
+}
+
+export function getPoolGoals(poolId) {
+    return dispatch => {
+        const userId = getUserFromLocalStorage().userId;
+        return axios.get(`/api/${userId}/pools/${poolId}/goals`, {headers: authHeader()})
+            .then((response) => {
+                const entries = normalisePoolGoalsPayload(response.data);
+                if (entries === null) {
+                    dispatch(getPoolGoalsFail(poolId,
+                        'Goals request returned HTML instead of JSON (check API URL / dev proxy).'));
+                    return;
+                }
+                dispatch(receivePoolGoals(poolId, entries));
+            })
+            .catch((err) => {
+                const authErr = authError(err);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
+                dispatch(getPoolGoalsFail(poolId, err.message));
+            });
     };
 }
 

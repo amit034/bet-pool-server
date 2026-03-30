@@ -10,7 +10,9 @@ function pools(state = {
     games: {},
     bets: {},
     participates: {},
-    goals: {}
+    goals: {},
+    goalsLogByPool: {},
+    goalsLogError: null
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
@@ -78,6 +80,14 @@ function pools(state = {
             return update(state, {isFetching: {$set: false, bets: {$set: action.bets}, errorMessage: {$set: null}}});
         case poolActions.UPDATE_USER_BETS_FAILURE:
             return update(state, { isFetching: { $set: false }, errorMessage: { $set: action.message } });
+        case poolActions.GET_POOL_GOALS_SUCCESS:
+            return update(state, {
+                goalsLogByPool: {$merge: {[String(action.poolId)]: action.entries}},
+                goalsLogError: {$set: null},
+                errorMessage: {$set: null}
+            });
+        case poolActions.GET_POOL_GOALS_FAILURE:
+            return update(state, {goalsLogError: {$set: action.message}});
         default:
             return state;
     }

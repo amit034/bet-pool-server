@@ -55,8 +55,13 @@ var config = {
             passphrase: 'webpack-dev-server',
             requestCert: true,
         },
+        /* API lives on Server.js httpServer (port 8080), not PORT/3000 */
         proxy: {
-            '/api': 'http://localhost:3000',
+            '/api': {
+                target: process.env.API_PROXY_TARGET || 'http://localhost:8080',
+                changeOrigin: true,
+                secure: false
+            }
         },
         historyApiFallback: true,
     },

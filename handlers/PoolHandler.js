@@ -8,6 +8,7 @@ const gameRepository = require('../repositories/gameRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const betRepository = require('../repositories/betRepository');
 const eventRepository = require('../repositories/eventRepository');
+const goalLogRepository = require('../repositories/goalLogRepository');
 const logger = require('../utils/logger');
 
 // On success should return status code 201 to notify the client the account
@@ -466,6 +467,41 @@ function getPopulatePoolChallenges(pool, active , challangeId) {
     });
 }
 
+async function handleGetPoolGoals(req, res) {
+    const poolId = _.parseInt(req.params.poolId, 10);
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        const eventIds = _.map(pool.events, 'id');
+        if (_.isEmpty(eventIds)) {
+            return res.send([]);
+        }
+        const logs = await goalLogRepository.findByPoolEventIds(eventIds);
+        const challenges = _.filter(pool.challenges, {refName: 'Game'});
+        const byGameId = _.keyBy(challenges, (c) => _.toInteger(c.refId));
+        const rows = _.map(logs, (log) => {
+            const row = log.toJSON();
+            const game = row.game || {};
+            const ch = byGameId[row.gameId];
+            return {
+                roundId: game.round,
+                gameId: row.gameId,
+                challengeId: ch ? ch.id : null,
+                score1: row.score1,
+                score2: row.score2,
+                createdAt: row.createdAt
+            };
+        });
+        return res.send(rows);
+    } catch (err) {
+        logger.log('error', 'handleGetPoolGoals pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
 module.exports = {
         createPool: handleCreatePoolRequest,
         addGames: handleAddGames,
@@ -475,6 +511,7 @@ module.exports = {
         joinToPool: handleJoinToPool,
         getPools: handleGetUserPools,
         getUserBets: handleGetUserBets,
-        getParticipates: handleGetParticipates
+        getParticipates: handleGetParticipates,
+        getPoolGoals: handleGetPoolGoals
 };
 
