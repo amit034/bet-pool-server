@@ -66,7 +66,8 @@
   display: block;
 }
 
-.leaders-layout--games {
+/* Always applied so toggling Games does not change outer height / flex chain */
+.leaders-layout {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 188px);
@@ -125,16 +126,13 @@
   flex-direction: column;
   min-height: 0;
   box-sizing: border-box;
-  padding-left: 10px;
-  margin-left: 10px;
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  padding-left: 5;
   border-radius: 0 10px 10px 0;
   box-shadow: none;
 }
 
 /* Extra wrapper clips Swiper when it measures wider than the flex main column */
-.leaders-layout--games .leader-swiper-host {
+.leaders-layout .leader-swiper-host {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
@@ -146,7 +144,7 @@
   position: relative;
 }
 
-.leaders-layout--games .leader-swiper-host__viewport {
+.leaders-layout .leader-swiper-host__viewport {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
@@ -159,8 +157,8 @@
 }
 
 /* Swiper root: .swiper.swiper-container.swiper-container-horizontal.swiper-container-ios … */
-.leaders-layout--games .leader-swiper-host__viewport > .swiper,
-.leaders-layout--games .leader-swiper-host__viewport > .swiper-container {
+.leaders-layout .leader-swiper-host__viewport > .swiper,
+.leaders-layout .leader-swiper-host__viewport > .swiper-container {
   flex: 1 1 auto;
   width: 100% !important;
   max-width: 100% !important;
@@ -173,11 +171,11 @@
   position: relative;
 }
 
-.leaders-layout--games .leader-swiper-host__viewport .swiper-wrapper {
+.leaders-layout .leader-swiper-host__viewport .swiper-wrapper {
   box-sizing: border-box;
 }
 
-.leaders-layout--games .leader-swiper-host__viewport .swiper-slide {
+.leaders-layout .leader-swiper-host__viewport .swiper-slide {
   max-width: 100%;
   width: 100% !important;
   box-sizing: border-box;
@@ -190,12 +188,6 @@
 .leader-swiper-host__viewport {
   width: 100%;
   min-width: 0;
-}
-
-.leaders-slide--split .leader-list .leader-row {
-  background: rgba(30, 33, 38, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: none;
 }
 
 .leaders-slide--split .leader-list .leader-center {
@@ -273,7 +265,6 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    /* Single rgba = easy to tune opacity; ~charcoal glass over page bg */
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 10px;
     margin-bottom: 4px;
@@ -577,24 +568,32 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  padding: 6px 4px 8px;
+  /* Top aligns with .round-title on the left (no extra inset) */
+  padding: 0 2px 8px;
   background: transparent;
   border: none;
   box-shadow: none;
 }
 
+/* Match .round-title so game rows line up with leader rows */
 .leaders-slide--split .round-games-panel__title {
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+  display: block;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 12px;
   padding: 0 2px;
   line-height: 1.25;
-  color: rgba(255, 255, 255, 0.55);
+  color: $title-4;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
 .leaders-slide--split .round-games-panel__scroll {
-  gap: 6px;
-  padding-right: 2px;
+  gap: 4px;
+  padding-right: 10px;
+  padding-left: 8px;
+  margin-left: 5px;
+  margin-top: 10px;
 }
 
 .leaders-slide--split .round-games-panel__empty {
@@ -606,7 +605,6 @@
 .round-games-panel__title {
   font-size: 0.68rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255, 255, 255, 0.45);
   margin-bottom: 8px;
@@ -622,6 +620,8 @@
   flex-direction: column;
   gap: 6px;
   padding-right: 2px;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  margin-top: 10px;
 }
 
 .round-games-panel__empty {
@@ -639,23 +639,23 @@
   gap: 4px;
   padding: 6px 6px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.35s ease, border-color 0.35s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
 .leaders-slide--split .round-games-row {
-  min-height: 42px;
-  padding: 5px 4px;
+  min-height: 48px;
+  height: 48px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  margin-bottom: 0px;
   gap: 4px;
 }
 
 .leaders-slide--split .round-games-row__flag {
   flex: 0 0 26px;
-  width: 26px;
-  height: 18px;
 }
 
 .leaders-slide--split .round-games-row__score {
@@ -681,8 +681,6 @@
 
 .round-games-row__flag {
   flex: 0 0 28px;
-  width: 28px;
-  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;

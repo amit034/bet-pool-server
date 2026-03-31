@@ -170,7 +170,7 @@ const RoundGamesPanel = ({
         return () => window.clearTimeout(t);
     }, [ordered, replayOpen]);
 
-    const title = boardKind === 'all' ? 'All matches' : 'Live scores';
+    const title = boardKind === 'all' ? 'Matches' : 'Matches';
 
     return (
         <div className="round-games-panel">

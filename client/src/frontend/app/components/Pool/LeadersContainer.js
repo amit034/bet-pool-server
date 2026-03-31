@@ -223,7 +223,7 @@ const LeadersContainer = () => {
     };
 
     return (
-        <div className={classNames('leaders-layout', {'leaders-layout--games': showRoundGames})}>
+        <div className="leaders-layout">
             <div className="leaders-toolbar">
                 <div className="live-toggle">
                     <div onClick={handleClick} className="live-toggle-switch">
