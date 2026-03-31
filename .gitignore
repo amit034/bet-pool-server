@@ -30,5 +30,4 @@ logs/api.log
 logs/exceptions.log
 logs/exceptions.log
 logs/api.log
-client/src/frontend/public/js/bundle.js
-client/src/frontend/public/js/bundle.js.map
+/client/src/frontend/public/js/bundle.js.map

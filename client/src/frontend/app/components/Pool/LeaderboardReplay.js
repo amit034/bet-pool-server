@@ -10,11 +10,9 @@ const SWIPE_UP_MIN_PX = 32;
 const MAX_HORIZONTAL_DRIFT_PX = 64;
 
 /**
- * Fixed floating dock above the tab bar — does not change page layout.
- * Closed: slim chevron; swipe up (or pointer drag up) opens replay.
+ * Minimal floating dock: closed = long grip line + swipe up; open = transport + scrub + close.
  */
 const LeaderboardReplay = ({
-    boardLabel,
     open,
     onOpen,
     onClose,
@@ -26,9 +24,6 @@ const LeaderboardReplay = ({
     onReset,
     speedIdx,
     onSpeedChange,
-    caption,
-    youDeltaPts,
-    youDeltaRank,
     emptyLogMessage
 }) => {
     const safeMax = Math.max(0, maxStep);
@@ -137,37 +132,14 @@ const LeaderboardReplay = ({
                             }
                         }}
                     >
-                        <span className="leader-replay-dock__handle-arrow" aria-hidden>
-                            <Icon name="chevron up" className="leader-replay-dock__handle-icon" />
-                        </span>
+                        <span className="leader-replay-dock__handle-line" aria-hidden />
                     </div>
                 ) : (
-                    <div className="leader-replay-dock__panel">
-                        <div className="leader-replay-dock__head">
-                            {boardLabel ? (
-                                <span className="leader-replay-dock__board">{boardLabel}</span>
-                            ) : null}
-                            <span className="leader-replay-dock__active-label">Replay Active</span>
-                        </div>
-                        {(caption || youDeltaPts !== 0 || youDeltaRank !== 0) && (
-                            <div className="leader-replay-dock__caption">
-                                {caption ? <span className="leader-replay-dock__scoreline">{caption}</span> : null}
-                                {youDeltaPts !== 0 || youDeltaRank !== 0 ? (
-                                    <span className="leader-replay-dock__you">
-                                        {youDeltaPts !== 0 && (
-                                            <span> You {youDeltaPts > 0 ? '+' : ''}{youDeltaPts} pts</span>
-                                        )}
-                                        {youDeltaRank !== 0 && (
-                                            <span> · Rank {youDeltaRank > 0 ? '↑' : '↓'}{Math.abs(youDeltaRank)}</span>
-                                        )}
-                                    </span>
-                                ) : null}
-                            </div>
-                        )}
+                    <div className="leader-replay-dock__panel leader-replay-dock__panel--minimal">
                         <div className="leader-replay-dock__controls">
                             <button
                                 type="button"
-                                className="leader-replay-dock__icon-btn"
+                                className="leader-replay-dock__icon-btn leader-replay-dock__icon-btn--sm"
                                 onClick={onReset}
                                 aria-label="Reset replay"
                             >
@@ -175,7 +147,7 @@ const LeaderboardReplay = ({
                             </button>
                             <button
                                 type="button"
-                                className="leader-replay-dock__icon-btn"
+                                className="leader-replay-dock__icon-btn leader-replay-dock__icon-btn--sm"
                                 onClick={onTogglePlay}
                                 aria-label={playing ? 'Pause' : 'Play'}
                             >
@@ -201,8 +173,13 @@ const LeaderboardReplay = ({
                                     2x
                                 </button>
                             </div>
-                            <button type="button" className="leader-replay-dock__close-text" onClick={onClose}>
-                                Close
+                            <button
+                                type="button"
+                                className="leader-replay-dock__icon-btn leader-replay-dock__icon-btn--sm leader-replay-dock__close-btn"
+                                onClick={onClose}
+                                aria-label="Close replay"
+                            >
+                                <Icon name="close" />
                             </button>
                         </div>
                         <input
@@ -215,12 +192,8 @@ const LeaderboardReplay = ({
                                 onStepChange(parseInt(e.target.value, 10));
                             }}
                         />
-                        <div className="leader-replay-dock__times">
-                            <span>{safeStep}s</span>
-                            <span>{safeMax}s</span>
-                        </div>
                         {emptyLogMessage ? (
-                            <p className="leader-replay-dock__empty">{emptyLogMessage}</p>
+                            <p className="leader-replay-dock__empty leader-replay-dock__empty--minimal">{emptyLogMessage}</p>
                         ) : null}
                     </div>
                 )}

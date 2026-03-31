@@ -49,8 +49,16 @@ export function buildChallengeMetaFromBets(betsMap) {
     return meta;
 }
 
+function scorePairForGame(gameScores, gameId) {
+    if (gameId == null || gameId === '') {
+        return undefined;
+    }
+    return gameScores[gameId] ?? gameScores[String(gameId)] ?? gameScores[Number(gameId)];
+}
+
 /**
- * Leaderboard rows for a simulated score map (live-style: every bet counts with current lines).
+ * Leaderboard rows for a simulated score map. Bets only count once that game has a score
+ * in `gameScores` (replay starts at 0; games join as the goal log advances).
  */
 export function computeLeaderboardSnapshot(participates, poolFactors, gameScores, challengeMeta, {roundIndex} = {}) {
     const factors = poolFactors || DEFAULT_FACTORS;
@@ -73,9 +81,12 @@ export function computeLeaderboardSnapshot(participates, poolFactors, gameScores
                 if (!m) {
                     return;
                 }
-                const pair = gameScores[m.gameId];
-                const ah = pair ? pair[0] : 0;
-                const aa = pair ? pair[1] : 0;
+                const pair = scorePairForGame(gameScores, m.gameId);
+                if (!pair) {
+                    return;
+                }
+                const ah = pair[0];
+                const aa = pair[1];
                 const medal = medalFromPrediction(bet.score1, bet.score2, ah, aa);
                 if (!medal) {
                     return;
