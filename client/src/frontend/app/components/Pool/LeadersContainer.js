@@ -15,8 +15,6 @@ import SwiperCore, {Pagination} from 'swiper';
 
 SwiperCore.use([Pagination]);
 
-const ROW_HEIGHT = 55;
-
 function buildSlideRows(participates, live, numberOfRounds) {
     const roundSlides = _.map(_.range(numberOfRounds), (roundId) => {
         return _.map(participates, ({rounds, userId, ...others}) => {
@@ -60,7 +58,7 @@ function buildSlideRows(participates, live, numberOfRounds) {
     return {roundSlides, allTimeRow};
 }
 
-function LeaderRow({participate, rank, replayLayout, rowIndex, isCurrentUser}) {
+function LeaderRow({participate, rank, isCurrentUser}) {
     const medals = _.map(_.forOwnRight(participate.medals), (medal, idx) => {
         const medalClass = classNames('icon star large fitted', {
             'bronze-medal': idx === '1',
@@ -77,13 +75,8 @@ function LeaderRow({participate, rank, replayLayout, rowIndex, isCurrentUser}) {
     return (
         <li
             className={classNames('leader-row', {
-                'leader-row--replay-anim': replayLayout,
                 'leader-row--current-user': isCurrentUser,
             })}
-            style={replayLayout ? {
-                top: `${rowIndex * ROW_HEIGHT}px`,
-                transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-            } : undefined}
         >
             <div className="leader-body">
                 <div className="leader-rank">{rank}.</div>
@@ -258,24 +251,16 @@ const LeadersContainer = () => {
                             const leaders = isThisBoardReplay && snapshots.length
                                 ? currentSnap.leaders
                                 : getParticipatesWithRank(slide.roundScore);
-                            const listAnim = isThisBoardReplay && snapshots.length > 0;
                             const activeSlide = revIdx === swiperActiveIndex;
                             const listBlock = (
                                 <>
                                     <div className="round-title">{slide.title} Leaders</div>
-                                    <ul
-                                        className={classNames('leader-list', {
-                                            'leader-list--replay': listAnim
-                                        })}
-                                        style={listAnim ? {minHeight: `${Math.max(1, leaders.length) * ROW_HEIGHT}px`} : undefined}
-                                    >
-                                        {_.map(leaders, (participate, idx) => (
+                                    <ul className="leader-list">
+                                        {_.map(leaders, (participate) => (
                                             <LeaderRow
                                                 key={participate.userId}
                                                 participate={participate}
                                                 rank={participate.rank}
-                                                replayLayout={listAnim}
-                                                rowIndex={idx}
                                                 isCurrentUser={Number(participate.userId) === Number(me)}
                                             />
                                         ))}
