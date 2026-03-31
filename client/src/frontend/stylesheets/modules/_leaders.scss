@@ -193,10 +193,9 @@
 }
 
 .leaders-slide--split .leader-list .leader-row {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(30, 33, 38, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
-  background-image: none;
 }
 
 .leaders-slide--split .leader-list .leader-center {
@@ -271,14 +270,52 @@
   padding:0;
   .leader-row {
     list-style: none;
+    position: relative;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(135deg, rgba(44, 44, 44, 0.95), rgba(38, 38, 38, 0.90));
+    /* Single rgba = easy to tune opacity; ~charcoal glass over page bg */
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 10px;
-    margin-bottom: 10px;
-    height: 45px;
+    margin-bottom: 4px;
+    height: 48px;
     font-size: 12px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      opacity: 0.55;
+    }
+
+    &--rank-1::before {
+      background: radial-gradient(
+        ellipse 90% 140% at 0% 50%,
+        rgba(234, 183, 4, 0.42) 0%,
+        transparent 62%
+      );
+    }
+
+    &--rank-2::before {
+      background: radial-gradient(
+        ellipse 90% 140% at 0% 50%,
+        rgba(210, 215, 225, 0.38) 0%,
+        transparent 62%
+      );
+    }
+
+    &--rank-3::before {
+      background: radial-gradient(
+        ellipse 90% 140% at 0% 50%,
+        rgba(200, 115, 65, 0.4) 0%,
+        transparent 62%
+      );
+    }
+
     .leader-body {
+      position: relative;
+      z-index: 1;
       display: flex;
       height: 100%;
       .leader-rank{
@@ -286,6 +323,12 @@
         justify-self: center;
         align-self: center;
         font-size: 1.5em;
+        background: rgba(0, 0, 0, 0.25);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px 0 0 10px;
       }
       .leader-side {
         display:flex;
@@ -308,17 +351,21 @@
           margin-inline-start: 3%;
         }
         .leader-score-box{
-          text-align: right;
-          align-self: center;
+          box-sizing: border-box;
+          text-align: center;
+          align-self: stretch;
           min-width: 55px;
-          height: 100%;
           display: flex;
-          background: rgba(234, 183, 4, 0.12);
-          color: $title-4;
+          /* Darker than .leader-row (rgba(30,33,38,0.8)) so it reads as inset */
+          background: rgba(12, 14, 18, 0.88);
+          border-left: 1px solid rgba(0, 0, 0, 0.5);
+          color: #a8c8d4;
           justify-content: center;
           align-items: center;
+          font-family: $font-ui;
           font-size: 1.5em;
           font-weight: 700;
+          letter-spacing: 0.02em;
           border-radius: 0 10px 10px 0;
         }
         .leader-medals{

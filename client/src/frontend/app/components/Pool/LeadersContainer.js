@@ -78,7 +78,7 @@ function LeaderRow({participate, rank, replayLayout, rowIndex, isCurrentUser}) {
         <li
             className={classNames('leader-row', {
                 'leader-row--replay-anim': replayLayout,
-                'leader-row--current-user': isCurrentUser
+                'leader-row--current-user': isCurrentUser,
             })}
             style={replayLayout ? {
                 top: `${rowIndex * ROW_HEIGHT}px`,
