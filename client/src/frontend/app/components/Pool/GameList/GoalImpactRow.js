@@ -16,17 +16,18 @@ const ImpactItem = ({ impact }) => {
     const impactModifier = isUp ? 'up' : isDown ? 'down' : 'neutral';
 
     const pts = impact.scoreDiff;
-    const ptsText = pts > 0 || impact.rankDiff !== 0 ? `(${pts}pts)` : pts < 0 || impact.rankDiff < 0 ? `(${pts}pts)` : '-';
+    const ptsText = pts > 0 || impact.rankDiff !== 0 ? `(${pts} pts)` : pts < 0 || impact.rankDiff < 0 ? `(${pts} pts)` : '-';
     const rankText = impact.rankDiff !== 0 ? Math.abs(impact.rankDiff) : '-';
 
     return (
         <div className={`game-impact-footer__half-inner game-impact-footer__half-inner--${impactModifier}`}>
             <span className="game-impact-footer__cluster">
                 {isUp && (
-                    <Icon name="star" className="game-impact-footer__arrow" fitted />
+                    <Icon name="caret up 
+                    " className="game-impact-footer__arrow" fitted />
                 )}
                 {isDown && (
-                    <Icon name="exclamation circle" className="game-impact-footer__arrow" fitted />
+                    <Icon name="caret down" className="game-impact-footer__arrow" fitted />
                 )}
                 {!isUp && !isDown && (
                     <span className="game-impact-footer__arrow game-impact-footer__arrow--placeholder" />

@@ -341,16 +341,18 @@ function getOptionalPredictions(playersPredictions) {
  * @returns {Array} - week day scenarios
  */
 function createWeekDaySenarios(targetId, players, bets, initialState) {
-    const TOTAL_GAMES = 8 * 11;
+    const factorSum = _.sumBy(bets, 'challenge.factorId');
     return _.map(_.filter(bets, 'closed'), (bet) => {
-        const { challengeId, challenge: { factorId = 1, game:{ homeTeamScore, awayTeamScore, round}}} = bet;
-        const gamesPlayed = (round - 1) * 8;
-        const gamesRemaining = TOTAL_GAMES - gamesPlayed;
-        const urgency = 1 / (gamesRemaining + 1);
+        const { challengeId, challenge: { factorId = 1, game:{ homeTeamScore, awayTeamScore, status}}} = bet;
+        // const gamesPlayed = (round - 1) * 8;
+        // const gamesRemaining = TOTAL_GAMES - gamesPlayed;
+        const hTeamScore = homeTeamScore || 0;
+        const aTeamScore = awayTeamScore || 0;
+        const urgency = factorId / factorSum;
         const playersPredictions = getChallangePredictions(initialState, challengeId);
-        const currentScoreLine = [homeTeamScore, awayTeamScore];
-        const homeTeamNextScoreLine = [homeTeamScore + 1, awayTeamScore];
-        const awayTeamNextScoreLine = [homeTeamScore, awayTeamScore + 1];
+        const currentScoreLine = [hTeamScore, aTeamScore];
+        const homeTeamNextScoreLine = [hTeamScore + 1, aTeamScore];
+        const awayTeamNextScoreLine = [hTeamScore, aTeamScore + 1];
         const preds = getOptionalPredictions(_.uniqWith(_.values(playersPredictions), _.isEqual));
         const uniqueScores = _.uniqWith(_.concat( preds, [currentScoreLine, homeTeamNextScoreLine, awayTeamNextScoreLine]), _.isEqual);
         const gameResults = uniqueScores.map((score) => {
@@ -360,9 +362,9 @@ function createWeekDaySenarios(targetId, players, bets, initialState) {
                 factorId
             };
         });
-        const worst = _.minBy(gameResults, 'targetState.score');
-        const best = _.maxBy(gameResults, 'targetState.score');
         const current = _.find(gameResults, { gameScoreLabel: `${currentScoreLine[0]}-${currentScoreLine[1]}` });
+        const worst = status !== 'FINISHED' ? _.minBy(gameResults, 'targetState.score') : current;
+        const best = status !== 'FINISHED' ? _.maxBy(gameResults, 'targetState.score') : current;
         return { challengeId, factorId, best, worst, current, gameResults, bet, urgency};
     });
 }
@@ -455,6 +457,9 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
         return null;
     }
     const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState);
+    if (!_.find(weekdayScenarios, {challengeId})) {
+        return null;
+    }
     const [[focused], others] = _.partition(weekdayScenarios, { challengeId });
     const urgency = _.get(focused, 'urgency');
     const gameResults = _.get(focused, 'gameResults');
@@ -466,12 +471,13 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
     });
     const factorId = _.get(focused, 'factorId');
     const sortedGamePaths = sortAddDiffRankAndScore(initialState, gamePaths, targetId, factorId, urgency);
+    const status = _.get(focused, 'bet.challenge.game.status');
     const [home, away] =  _.get(focused, 'current.gameScore', [0, 0]);
     const currentScore = [home, away];
     const nextHomeTeamScore = [home + 1, away];
     const nextAwayTeamScore = [home, away + 1];
-    const homeTeamNext = getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore);
-    const awayTeamNext = getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore);
+    const homeTeamNext = status !== 'FINISHED' ? getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore) : null;
+    const awayTeamNext = status !== 'FINISHED' ? getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore) : null;
     return {gamePaths: sortedGamePaths, homeTeamNext, awayTeamNext};
 }
 

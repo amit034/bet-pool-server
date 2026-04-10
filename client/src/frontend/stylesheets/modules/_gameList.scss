@@ -411,7 +411,8 @@ $frosted-blur: blur(8px);
 
         .game-side-heat {
           width: 100%;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
           position: relative;
           background: #000; // Deep black base to make the colors pop
           // Adds the subtle inner shadow seen in the mockup
@@ -669,7 +670,7 @@ $frosted-blur: blur(8px);
             align-items: center;
 
             .game-body-column-center {
-              flex: 3;
+              flex: 8;
               display: flex;
               align-items: center;
             }
@@ -742,10 +743,10 @@ $frosted-blur: blur(8px);
 
               input {
                 padding: 0;
-                width: 54px;
-                height: 38px;
+                width: 40px;
+                height: 30px;
                 font-weight: 800;
-                font-size: 1.4em;
+                font-size: 1em;
                 text-align: center;
                 border-radius: 8px;
                 background: rgba(255, 255, 255, 0.95);
@@ -860,7 +861,7 @@ $frosted-blur: blur(8px);
           }
 
           &__arrow {
-            font-size: 0.6rem !important;
+            font-size: 0.9rem !important;
             margin: 0 !important;
             line-height: 1 !important;
             font-weight: 900 !important;
@@ -1043,6 +1044,20 @@ $frosted-blur: blur(8px);
   .game-list {
     .round-games .group-play-at {
       padding: 8px 6px 4px;
+    }
+
+    /* Heat strip + score labels: no dedicated rules before — narrow 20px + iOS flex
+       quirks could hide gradient/text; widen slightly and lock text sizing. */
+    .round-games .game-row .game-side {
+      width: 24px;
+      min-width: 24px;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    .round-games .game-row .game-side-heat {
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .game-impact-footer {

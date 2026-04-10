@@ -81,7 +81,6 @@ $menu-glass-shine: linear-gradient(
 }
 
 .top-menu-user-text .user-rank {
-  margin-top: 1px;
   font-weight: 100;
   opacity: 0.6;
 }
@@ -165,9 +164,10 @@ $menu-glass-shine: linear-gradient(
   .swiper-pagination{
     width: 100% !important;
     position: fixed;
-    bottom: calc(42px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     top: auto;
     left: 50%;
+    opacity: 0;
     background: $background-1;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -231,15 +231,15 @@ $menu-glass-shine: linear-gradient(
     font-weight: 600;
     transition: color 0.15s, text-shadow 0.15s;
     &.active {
-      color: $accent-mint !important;
+      color: $accent-gold !important;
       background: transparent !important;
-      text-shadow: 0 0 10px $accent-mint-glow, 0 0 20px rgba(94, 234, 212, 0.25);
+      text-shadow: 0 0 10px $accent-gold, 0 0 20px $accent-gold-glow;
     }
   }
   .ui.inverted.menu .active.item,
   .item.active .icon{
-    color: $accent-mint !important;
-    text-shadow: 0 0 10px $accent-mint-glow, 0 0 20px rgba(94, 234, 212, 0.25);
+    color: $accent-gold !important;
+    text-shadow: 0 0 10px $accent-gold, 0 0 20px $accent-gold-glow;
   }
   .item.disabled {
     color: rgba(225,225,225,.3) !important;

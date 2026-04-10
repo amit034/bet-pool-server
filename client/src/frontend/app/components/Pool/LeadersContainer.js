@@ -113,7 +113,7 @@ const LeadersContainer = () => {
     const [replayStep, setReplayStep] = useState(0);
     const [replayPlaying, setReplayPlaying] = useState(false);
     const [replaySpeedIdx, setReplaySpeedIdx] = useState(1);
-    const [showRoundGames, setShowRoundGames] = useState(false);
+    const [showRoundGames, setShowRoundGames] = useState(1);
 
     const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
@@ -160,6 +160,13 @@ const LeadersContainer = () => {
         };
     }, [logicalSlide]);
 
+    useEffect(() => {
+        const hasLiveGames = _.some(bets, bet => {
+            const challengeStatus = _.get(bet, 'challenge.status');
+            return _.includes(['IN_PLAY', 'PAUSED', 'EXTRA_TIME'], challengeStatus);
+        });
+        setShowRoundGames(hasLiveGames || replayPlaying || safeStep > 0 ? 1 : 0);
+    }, [bets, replayPlaying, safeStep]);
     const snapshots = useMemo(() => {
         if (_.isEmpty(participates)) {
             return [];
@@ -204,9 +211,20 @@ const LeadersContainer = () => {
         setReplayPlaying(false);
     }, []);
 
+    /* Reset scrubber when changing round/board — not when goals load (e.g. opening replay dock) */
     useEffect(() => {
         resetReplay();
-    }, [swiperActiveIndex, replayScope.roundId, replayScope.roundIndex, sortedLogs, resetReplay]);
+    }, [swiperActiveIndex, replayScope.roundId, replayScope.roundIndex, resetReplay]);
+
+    const onToggleReplayPlay = useCallback(() => {
+        setReplayPlaying((wasPlaying) => {
+            if (!wasPlaying) {
+                //setReplayStep(0);
+                return true;
+            }
+            return false;
+        });
+    }, []);
 
     const me = getUserFromLocalStorage().userId;
 
@@ -225,7 +243,7 @@ const LeadersContainer = () => {
                     <div className={live ? 'live-label active' : 'live-label'}>Live</div>
                 </div>
                 {logicalSlide && (
-                    <div className="live-toggle live-toggle--games">
+                    <div className="live-toggle live-toggle--show-games">
                         <div
                             onClick={() => setShowRoundGames((v) => !v)}
                             className="live-toggle-switch"
@@ -234,7 +252,7 @@ const LeadersContainer = () => {
                         >
                             <div className={classNames('knob', {active: showRoundGames})} />
                         </div>
-                        <div className={classNames('live-label', {active: showRoundGames})}>Games</div>
+                        <div className="live-label active">Show games</div>
                     </div>
                 )}
             </div>
@@ -247,11 +265,16 @@ const LeadersContainer = () => {
                         onAfterInit={(swiper) => setSwiperActiveIndex(swiper.activeIndex)}
                     >
                         {_.map(slidesForSwiper, (slide, revIdx) => {
-                            const isThisBoardReplay = replayOpen && revIdx === swiperActiveIndex;
-                            const leaders = isThisBoardReplay && snapshots.length
+                            /* Live at step 0 with dock open (swipe); snapshot once playing, scrubbed, or paused mid-run */
+                            const activeSlide = revIdx === swiperActiveIndex;
+                            const useReplaySnapshot =
+                                replayOpen &&
+                                activeSlide &&
+                                snapshots.length > 0 &&
+                                (replayPlaying || safeStep > 0);
+                            const leaders = useReplaySnapshot
                                 ? currentSnap.leaders
                                 : getParticipatesWithRank(slide.roundScore);
-                            const activeSlide = revIdx === swiperActiveIndex;
                             const listBlock = (
                                 <>
                                     <div className="round-title">{slide.title} Leaders</div>
@@ -284,7 +307,7 @@ const LeadersContainer = () => {
                                                         replayOpen={replayOpen && activeSlide}
                                                         replayStep={safeStep}
                                                         replayGameScores={
-                                                            replayOpen && activeSlide
+                                                            useReplaySnapshot && activeSlide
                                                                 ? (currentSnap.gameScores || {})
                                                                 : null
                                                         }
@@ -315,7 +338,7 @@ const LeadersContainer = () => {
                     setReplayStep(n);
                 }}
                 playing={replayPlaying}
-                onTogglePlay={() => setReplayPlaying((p) => !p)}
+                onTogglePlay={onToggleReplayPlay}
                 onReset={resetReplay}
                 speedIdx={replaySpeedIdx}
                 onSpeedChange={setReplaySpeedIdx}

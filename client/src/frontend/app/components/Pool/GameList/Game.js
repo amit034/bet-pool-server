@@ -11,7 +11,6 @@ const Game = ({
     onMatchClick,
     onBetKeyChange,
     isCurrent,
-    roundRankStats = {},
     gameImpact
 }) => {
     const {

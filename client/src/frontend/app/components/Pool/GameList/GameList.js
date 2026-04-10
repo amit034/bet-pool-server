@@ -12,7 +12,7 @@ import GoalSound from "./GoalSound";
 import Game from "./Game";
 import RoundHeader from "./RoundHeader";
 import RoundSummary from "./RoundSummary";
-import {getRoundRankStats, calculatelImpact, getWeekPathWithFocused} from '../../../utils';
+import {calculatelImpact, getWeekPathWithFocused} from '../../../utils';
 import {getUserFromLocalStorage} from '../../../actions/auth';
 SwiperCore.use([Pagination]);
 
@@ -93,13 +93,11 @@ const GameList = ({poolId}) => {
 
         })
         const roundId = roundNum;
-        const roundRankStats = userId && participates.length
-            ? getRoundRankStats(participates, roundId, userId, roundBets)
-            : {}; 
+        const [closedBets, openBets] = _.partition(roundBets, bet => _.get(bet, 'closed'));
         const assignment = calculatelImpact(userId, participates, roundBets, roundId);
         const currentRank = _.get(_.find(_.get(assignment, `current`), {userId: userId}), 'rank');
         const totalRoundPoints = _.sumBy(roundBets, bet => bet.score || 0);
-        const openBetsCount = _.filter(roundBets, bet => _.get(bet, 'challenge.isOpen')).length;
+        const openBetsCount = _.size(openBets);
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
             agg.push((<div key={_.toString(playAt)} className='group-play-at'>{moment(playAt).format('dddd DD/MM')}</div>));
             agg.push(..._.map(bets,(bet) => {
@@ -115,7 +113,6 @@ const GameList = ({poolId}) => {
                             isCurrent={currentBet === bet}
                             onMatchClick={onMatchClick}
                             onBetKeyChange={onBetKeyChange}
-                            roundRankStats={roundRankStats}
                             matchVolatility={bet.matchVolatility || 'low'}
                             key={_.toString(challengeId)}
                             gameImpact={gameImpact}
@@ -133,18 +130,9 @@ const GameList = ({poolId}) => {
                         roundNum={roundNum}
                         userName={user ? `${user.firstName || ''}`.trim() || user.username : ''}
                         currentRank={currentRank}
-                        bestCaseRank={assignment?.best?.rank ?? roundRankStats.bestCaseRank}
-                        worstCaseRank={assignment?.worst?.rank ?? roundRankStats.worstCaseRank}
+                        bestCaseRank={assignment?.best?.rank}
+                        worstCaseRank={assignment?.worst?.rank}
                     />
-                    {openBetsCount > 0 && (
-                        <div className="active-bets-banner">
-                            <i className="list ul icon" aria-hidden="true"></i>
-                            <span className="active-bets-banner__text">
-                                Active Bets &middot; {openBetsCount} Open Bets
-                            </span>
-                            <button className="active-bets-banner__btn" type="button">View</button>
-                        </div>
-                    )}
                     <Form size='large' action="/" onSubmit={processForm}>
                         <ul className="round-games">{gameNodes}</ul>
                     </Form>

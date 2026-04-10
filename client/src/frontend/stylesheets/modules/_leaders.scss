@@ -39,19 +39,10 @@
   }
 }
 
-.live-toggle--games {
-  .live-label {
-    &.active {
-      color: $accent-mint;
-    }
-  }
-  .live-toggle-switch {
-    border-color: rgba(94, 234, 212, 0.65);
-    .knob {
-      background: $accent-mint;
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-  }
+/* Label always reads as “on”; switch still toggles panel visibility */
+.live-toggle--show-games {
+  width: auto;
+  min-width: 8.5em;
 }
 
 .leaders-toolbar {
@@ -305,8 +296,8 @@
     }
 
     &--current-user {
-      border: 1px solid $accent-mint;
-      box-shadow: 0 0 10px rgba(94, 234, 212, 0.18);
+      border: 1px solid $title-4;
+      box-shadow: 0 0 10px  rgba(234,183,4,.3);
     }
 
     .leader-body {
@@ -529,8 +520,8 @@
 
 .leader-replay-dock__speed-btn--active {
   color: $title-1;
-  border-color: rgba(94, 234, 212, 0.45);
-  box-shadow: 0 0 10px rgba(94, 234, 212, 0.18);
+  border-color: $title-4;
+  box-shadow: 0 0 10px $accent-gold-glow;
 }
 
 .leader-replay-dock__scrub {
@@ -538,7 +529,7 @@
   width: 100%;
   margin-top: 6px;
   height: 6px;
-  accent-color: $accent-mint;
+  accent-color: $accent-gold;
 }
 
 .leader-replay-dock__empty {

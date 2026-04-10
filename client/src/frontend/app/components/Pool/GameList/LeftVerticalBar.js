@@ -4,12 +4,39 @@ import _ from 'lodash';
 
 // ── RE-ENGINEERED "PREMIUM OCEAN" PALETTE ────────────────────────────────────
 // These match the sophisticated, desaturated tones in your mockup.
-const OCEAN_GREEN = 'rgba(20, 148, 120, 0.85)';  // The "Ocean Green" you requested
-const SAGE_GREEN = 'rgb(230, 255, 212)';   // Soft, desaturated mint/sage
-const BRONZE_GOLD = 'rgb(250, 248, 157)';  // Sophisticated bronze-sand
-const RUST_RED = 'rgba(158, 42, 43, 0.8)';       // Elegant, deep rust red
+const COLOR_POS_10 = 'rgba(20, 148, 120, 0.85)';  // Your Ocean Green (Anchor)
+const COLOR_POS_08 = 'rgba(85, 153, 125, 0.85)';  // Deep Teal-Sage
+const COLOR_POS_06 = 'rgba(147, 159, 138, 0.85)'; // Your Sea Green
 
+// +0.4 to +0.2: The Transition Range
+const COLOR_POS_04 = 'rgba(174, 175, 136, 0.85)'; // Muted Moss
+const COLOR_POS_02 = 'rgba(205, 215, 160, 0.85)'; // Soft Sage
+
+// 0.0: The Neutral Midpoint
+const COLOR_NEUTRAL = 'rgba(225, 210, 140, 0.85)'; // Soft Golden Yellow
+
+// -0.2 to -0.6: The "Negative" Warm Range
+const COLOR_NEG_02 = 'rgba(205, 189, 133, 0.95)'; // Your Bronze Gold
+const COLOR_NEG_04 = 'rgba(182, 159, 105, 0.95)'; // Your Yellow_4 (Golden Sand)
+const COLOR_NEG_06 = 'rgba(153, 120, 81, 0.95)';  // Your Mouse Beige (Bronze-Sand)
+
+// -1.0: The Warning/Negative Anchor
+const COLOR_NEG_10 = 'rgba(158, 42, 43, 0.8)';    // Elegant, deep rust red
+
+const IMPACT_PALETTE = [
+  COLOR_NEG_10, // -1.0 (Rust Red)
+  COLOR_NEG_06, // -0.8
+  COLOR_NEG_04, // -0.6
+  COLOR_NEG_02, // -0.4
+  COLOR_NEUTRAL, // -0.2 to 0.1 (The "Soft Yellow" Midpoint)
+  COLOR_POS_02, // 0.2
+  COLOR_POS_04, // 0.4
+  COLOR_POS_06, // 0.6
+  COLOR_POS_08, // 0.8
+  COLOR_POS_10  // 1.0 (Ocean Green)
+]
 const VISIBLE_ITEMS = 5;
+const SCORE_HEADER_HEIGHT = 20;
 
 // ── STYLED COMPONENTS ────────────────────────────────────────────────────────
 const HUDContainer = styled.div`
@@ -24,7 +51,7 @@ const HUDContainer = styled.div`
 const VanillaGlassOverlay = styled.div`
   position: absolute;
   inset: 0;
-  z-index: 2; /* Sits above the gradient, below the text */
+  z-index: 2;
   pointer-events: none;
 
   /* 1. The "Milky" tint and blur */
@@ -47,26 +74,48 @@ const VanillaGlassOverlay = styled.div`
   }
 `;
 
-const HeatStripWrapper = styled.div`
-  width: 100%;
+/* One stacking context: gradient → frosted glass → text. iOS Safari / Simulator often drops
+   text that sits *under* a backdrop-filter layer even when the gradient still shows through. */
+const HeatScrollInner = styled.div`
+  position: relative;
   min-height: 100%;
-  background: ${({ gradient }) => gradient || 'transparent'};
+  width: 100%;
   display: flex;
   flex-direction: column;
-  z-index: 1; /* Lowest layer */
+`;
+
+const HeatGradientBg = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: #000;
+  background-image: ${({ gradient }) =>
+    gradient && gradient !== 'transparent' ? gradient : 'none'};
+  pointer-events: none;
+`;
+
+const RowsLayer = styled.div`
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 const Row = styled.div`
-  height: 22px; 
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  /* 10px is below iOS Safari’s comfortable minimum; 11px + text-size-adjust avoids missing/invisible labels */
+  font-size: 11px;
   font-weight: 700;
-  color: #FFFFFF; /* Brighter text to cut through the frost */
+  color: #ffffff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   position: relative;
-  z-index: 3; /* Highest layer - floats ON the glass */
+  z-index: 3;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   transition: all 0.2s ease;
 `;
 
@@ -115,22 +164,22 @@ const LeftVerticalBar = ({
 
     const maxPos = _.maxBy(gameImpacts, (i) => i.impactValue)?.impactValue || 1;
     const maxNeg = Math.abs(_.minBy(gameImpacts, (i) => i.impactValue)?.impactValue || -1);
-    const denom = Math.max(gameImpacts.length - 1, 1);
+    const denom = Math.max(gameImpacts.length, 1);
 
     const data = gameImpacts.map((item, index) => {
+      // 1. Normalize val to -1 to +1 range
       const val = item.impactValue >= 0 
-        ? item.impactValue / maxPos 
-        : item.impactValue / maxNeg;
-
-      // Logic to assign the new sophisticated colors
-      let color = BRONZE_GOLD;
-      if (item.impactValue > 0) {
-        color = val >= 0.8 ? OCEAN_GREEN : SAGE_GREEN;
-      } else if (item.impactValue < 0) {
-        color = val <= -0.8 ? RUST_RED : BRONZE_GOLD;
-      }
-
-      const stopPosition = (index / denom) * 100;
+        ? (maxPos !== 0 ? item.impactValue / maxPos : 0)
+        : (maxNeg !== 0 ? item.impactValue / Math.abs(maxNeg) : 0);
+    
+      /** * 2. Pick Color from Palette
+       * We map -1 to 1 into an index range of 0 to 9.
+       * Formula: ((val + 1) / 2) * (Palette Length - 1)
+       */
+      const colorIndex = Math.round(((val + 1) / 2) * (IMPACT_PALETTE.length - 1));
+      const color = IMPACT_PALETTE[colorIndex];
+    
+      const stopPosition = ((index + 0.5) / denom) * 100;
       return { ...item, color, val, stopPosition };
     });
 
@@ -146,7 +195,7 @@ const LeftVerticalBar = ({
     const rowRect = activeRowRef.current.getBoundingClientRect();
     const hudRect = hudRef.current.getBoundingClientRect();
     const relativeTop = rowRect.top - hudRect.top + rowRect.height / 2;
-    setPointerTopPx(relativeTop);
+    setPointerTopPx(relativeTop + SCORE_HEADER_HEIGHT);
   }, []);
 
   // 3. Sync Scroll Position
@@ -154,7 +203,7 @@ const LeftVerticalBar = ({
     if (currentIndex >= 0 && scrollRef.current && activeRowRef.current) {
       const rowHeight = 22;
       const centerOffset = (VISIBLE_ITEMS * rowHeight) / 2 - rowHeight / 2;
-      scrollRef.current.scrollTop = currentIndex * rowHeight - centerOffset;
+      scrollRef.current.scrollTop = currentIndex * rowHeight - centerOffset + SCORE_HEADER_HEIGHT;
       updatePointerTop();
     }
   }, [currentIndex, normalizedData.length, updatePointerTop]);
@@ -176,28 +225,31 @@ const LeftVerticalBar = ({
       <div className="game-side-heat">
         <HUDContainer ref={hudRef}>
           <ScrollableContent ref={scrollRef}>
-            <HeatStripWrapper gradient={gradientString}>
-              {normalizedData.map((item, index) => {
-                const isCurrent = index === currentIndex;
-                return (
-                  <Row
-                    key={index}
-                    ref={isCurrent ? activeRowRef : undefined}
-                    style={isCurrent ? {
-                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                      color: '#ffffff',
-                      fontWeight: 900,
-                      opacity: 1
-                    } : undefined}
-                  >
-                    {item.gameScoreLabel}
-                  </Row>
-                );
-              })}
-            </HeatStripWrapper>
+            <HeatScrollInner>
+              <HeatGradientBg gradient={gradientString} aria-hidden />
+              <VanillaGlassOverlay />
+              <RowsLayer>
+                {normalizedData.map((item, index) => {
+                  const isCurrent = index === currentIndex;
+                  return (
+                    <Row
+                      key={index}
+                      ref={isCurrent ? activeRowRef : undefined}
+                      style={isCurrent ? {
+                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        fontWeight: 900,
+                        opacity: 1
+                      } : undefined}
+                    >
+                      {item.gameScoreLabel}
+                    </Row>
+                  );
+                })}
+              </RowsLayer>
+            </HeatScrollInner>
           </ScrollableContent>
         </HUDContainer>
-        <VanillaGlassOverlay />
       </div>
       {showScoreMarker && pointerTopPx != null ? (
         <CurrentScorePointer aria-hidden style={{ top: pointerTopPx }} />
