@@ -211,3 +211,5 @@
 {"level":"info","message":"User  is not authorised. Request from address ::ffff:127.0.0.1.","timestamp":"2025-12-09T10:59:49.373Z"}
 {"level":"info","message":"http://api.football-data.org/v4/competitions/CL/matches","timestamp":"2026-01-19T18:09:00.192Z"}
 {"level":"info","message":"User  is not authorised. Request from address ::ffff:127.0.0.1.","timestamp":"2026-01-19T19:23:23.042Z"}
+{"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-04-10T20:10:09.661Z"}
+{"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-04-10T20:10:09.664Z"}

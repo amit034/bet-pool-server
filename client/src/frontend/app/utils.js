@@ -363,8 +363,8 @@ function createWeekDaySenarios(targetId, players, bets, initialState) {
             };
         });
         const current = _.find(gameResults, { gameScoreLabel: `${currentScoreLine[0]}-${currentScoreLine[1]}` });
-        const worst = status !== 'FINISHED' ? _.minBy(gameResults, 'targetState.score') : current;
-        const best = status !== 'FINISHED' ? _.maxBy(gameResults, 'targetState.score') : current;
+        const worst = status !== 'FINISHED1' ? _.minBy(gameResults, 'targetState.score') : current;
+        const best = status !== 'FINISHED1' ? _.maxBy(gameResults, 'targetState.score') : current;
         return { challengeId, factorId, best, worst, current, gameResults, bet, urgency};
     });
 }
@@ -476,8 +476,8 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
     const currentScore = [home, away];
     const nextHomeTeamScore = [home + 1, away];
     const nextAwayTeamScore = [home, away + 1];
-    const homeTeamNext = status !== 'FINISHED' ? getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore) : null;
-    const awayTeamNext = status !== 'FINISHED' ? getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore) : null;
+    const homeTeamNext = status !== 'FINISHED1' ? getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore) : null;
+    const awayTeamNext = status !== 'FINISHED1' ? getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore) : null;
     return {gamePaths: sortedGamePaths, homeTeamNext, awayTeamNext};
 }
 

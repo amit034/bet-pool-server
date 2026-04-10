@@ -10,7 +10,7 @@ import SwiperCore, {Pagination} from 'swiper';
 import ViewOthers from "./ViewOthers";
 import GoalSound from "./GoalSound";
 import Game from "./Game";
-import RoundHeader from "./RoundHeader";
+import DateGroupHeader from "./DateGroupHeader";
 import RoundSummary from "./RoundSummary";
 import {calculatelImpact, getWeekPathWithFocused} from '../../../utils';
 import {getUserFromLocalStorage} from '../../../actions/auth';
@@ -83,7 +83,6 @@ const GameList = ({poolId}) => {
         </Modal>)
 
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
-        let currentDate = null;
         let roundNum = _.get(_.first(roundBets), 'challenge.game.round', 0);
         const currentBet = _.find(betArray, (bet) => {
             return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment().add(10, 'days'), 'day');
@@ -93,13 +92,20 @@ const GameList = ({poolId}) => {
 
         })
         const roundId = roundNum;
-        const [closedBets, openBets] = _.partition(roundBets, bet => _.get(bet, 'closed'));
-        const assignment = calculatelImpact(userId, participates, roundBets, roundId);
-        const currentRank = _.get(_.find(_.get(assignment, `current`), {userId: userId}), 'rank');
-        const totalRoundPoints = _.sumBy(roundBets, bet => bet.score || 0);
-        const openBetsCount = _.size(openBets);
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
-            agg.push((<div key={_.toString(playAt)} className='group-play-at'>{moment(playAt).format('dddd DD/MM')}</div>));
+            const playAtKey = _.toString(playAt);
+            const hasOpenBets = _.some(bets, (bet) => !_.get(bet, 'closed'));
+            const assignment = calculatelImpact(userId, participates, bets, roundId);
+            agg.push(
+                <li key={`date-hdr-${playAtKey}`} className="date-group-header-wrap">
+                    <DateGroupHeader
+                        dateLabel={moment(playAtKey, 'YYYYMMDD').format('dddd DD/MM')}
+                        bestCaseRank={assignment?.best?.rank}
+                        worstCaseRank={assignment?.worst?.rank}
+                        pending={hasOpenBets}
+                    />
+                </li>
+            );
             agg.push(..._.map(bets,(bet) => {
                 const {challengeId, challenge: {status}} = bet;
                 const goal = _.get(goals, challengeId, null);
@@ -126,13 +132,6 @@ const GameList = ({poolId}) => {
             <SwiperSlide key={roundNum}>
                 <div>
                     {/* <RoundSummary currentRank={currentRank} totalPoints={totalRoundPoints} /> */}
-                    <RoundHeader
-                        roundNum={roundNum}
-                        userName={user ? `${user.firstName || ''}`.trim() || user.username : ''}
-                        currentRank={currentRank}
-                        bestCaseRank={assignment?.best?.rank}
-                        worstCaseRank={assignment?.worst?.rank}
-                    />
                     <Form size='large' action="/" onSubmit={processForm}>
                         <ul className="round-games">{gameNodes}</ul>
                     </Form>

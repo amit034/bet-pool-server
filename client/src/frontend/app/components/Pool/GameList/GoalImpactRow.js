@@ -8,7 +8,7 @@ const formatScoreLabel = (label) => {
 
 const ImpactItem = ({ impact }) => {
     if (!impact) {
-        return <div className="game-impact-footer__half-inner" />;
+        return <div className="game-impact-footer__half-inner game-impact-footer__half-inner--neutral" />;
     }
 
     const isUp = impact.rankDiff > 0;
@@ -23,8 +23,7 @@ const ImpactItem = ({ impact }) => {
         <div className={`game-impact-footer__half-inner game-impact-footer__half-inner--${impactModifier}`}>
             <span className="game-impact-footer__cluster">
                 {isUp && (
-                    <Icon name="caret up 
-                    " className="game-impact-footer__arrow" fitted />
+                    <Icon name="caret up" className="game-impact-footer__arrow" fitted />
                 )}
                 {isDown && (
                     <Icon name="caret down" className="game-impact-footer__arrow" fitted />
