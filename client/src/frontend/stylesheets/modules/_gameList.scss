@@ -182,116 +182,6 @@ $frosted-blur: blur(8px);
     }
   }
 
-  .round-summary {
-    margin: 12px 10px;
-    padding: 16px 20px 18px;
-    position: relative;
-    overflow: hidden;
-  
-    // 1. THE REFRACTIVE BASE (FROSTING)
-    // Radial gradient creates the grey-to-dark depth you observed
-    background: radial-gradient(
-      circle at center, 
-      rgba(20, 20, 24, 0.94) 0%, 
-      rgba(45, 45, 50, 0.88) 100%
-    );
-  
-    // 2. THE GLASS MORPHISM
-    // High blur creates the premium "acrylic" feel
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border-radius: 5px;
-  
-    // 3. THE GLOWING RIM (LIGHT SOURCE)
-    // Subtle border combined with box-shadows to create "light bleed"
-    border: 1px solid rgba(234, 183, 4, 0.35);
-    box-shadow: 
-      0 0 20px rgba(234, 183, 4, 0.12), // Outer ambient glow
-      inset 0 0 15px rgba(234, 183, 4, 0.08), // Inner light bleed
-      0 12px 40px rgba(0, 0, 0, 0.6); // Base shadow for lift
-  
-    // 4. THE BEVEL HIGHLIGHT (RIM LIGHT)
-    // This microscopic line at the top makes the edge "catch" light
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(
-        90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.12), 
-        transparent
-      );
-      pointer-events: none;
-    }
-  
-    &__title {
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-      color: #FFFFFF;
-      text-transform: none; // Title Case as per mockup
-      letter-spacing: 0.02em;
-      margin-bottom: 12px;
-      opacity: 0.95;
-    }
-  
-    &__body {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-  
-    &__stat {
-      display: flex;
-      align-items: baseline;
-      
-      &-number {
-        font-size: 38px;
-        font-weight: 800;
-        color: #EAB704; // $title-4 gold
-        line-height: 1;
-        // High-end "bloom" effect on the gold text
-        filter: drop-shadow(0 0 12px rgba(234, 183, 4, 0.4));
-      }
-  
-      &-suffix, &-unit {
-        font-size: 18px; // Scaled up to match mockup hierarchy
-        font-weight: 700;
-        color: #EAB704;
-        margin-left: 2px;
-      }
-    }
-  
-    &__middle {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-  
-    &__label {
-      font-size: 9px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.55);
-      line-height: 1.2;
-      text-align: left;
-    }
-  
-    &__wave {
-      flex: 1;
-      height: 34px;
-      svg path {
-        stroke: #EAB704;
-        stroke-width: 2.5;
-        fill: none;
-        filter: drop-shadow(0 0 6px rgba(234, 183, 4, 0.5));
-      }
-    }
-  }
-
   // ── Active Bets banner ────────────────────────────────
   .active-bets-banner {
     display: flex;
@@ -835,7 +725,7 @@ $frosted-blur: blur(8px);
           width: 100%;
           align-items: stretch;
           justify-content: stretch;
-          gap: 6px;
+          gap: 50px;
           margin: 0;
           padding: 4px 6px 5px;
           border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -917,6 +807,19 @@ $frosted-blur: blur(8px);
 
               .game-impact-footer__arrow.icon {
                 filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
+              }
+            }
+
+            &--clickable {
+              cursor: pointer;
+
+              &:hover {
+                border-color: rgba(255, 255, 255, 0.38);
+              }
+
+              &:focus {
+                outline: 1px solid rgba(234, 183, 4, 0.65);
+                outline-offset: 2px;
               }
             }
           }
@@ -1035,19 +938,6 @@ $frosted-blur: blur(8px);
 // ── Mobile: small devices (Galaxy S22 360px, iPhone SE 375px) ──
 @media (max-width: 374px) {
   .game-list {
-    .round-summary {
-      padding: 8px 12px 10px;
-      margin: 0 4px 8px;
-
-      .round-summary__stat-number {
-        font-size: 22px;
-      }
-
-      .round-summary__label {
-        font-size: 7px;
-      }
-    }
-
     .date-group-header {
       padding: 7px 8px;
       margin: 6px 0 5px;

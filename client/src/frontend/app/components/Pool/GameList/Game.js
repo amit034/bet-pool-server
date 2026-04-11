@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useMemo} from 'react';
+import React, {useEffect, useRef, useMemo, useCallback} from 'react';
 import classNames from "classnames";
 import moment from "moment";
 import _ from "lodash";
@@ -11,7 +11,9 @@ const Game = ({
     onMatchClick,
     onBetKeyChange,
     isCurrent,
-    gameImpact
+    gameImpact,
+    onNextGoalPreviewOpen,
+    roundId,
 }) => {
     const {
         score1, score2, score, medal,
@@ -39,7 +41,7 @@ const Game = ({
             currentDayRef.current.scrollIntoView({behavior: 'smooth', block: 'start' })
         }
     },[currentDayRef]);
-    const TeamScore = ({team: {flag, shortName, name}, teamBet, gameImpact, closed, challengeId, betFieldName, reverse}) => {
+    const TeamScore = ({team: {flag, shortName, name}, teamBet, closed, challengeId, betFieldName, reverse}) => {
         const className = classNames('team-score', {'team-reverse': reverse});
         const val = _.toString(teamBet);
         const inputId = `betInput-${challengeId}-${betFieldName}`;
@@ -86,6 +88,23 @@ const Game = ({
     const awayTeamNext = _.get(gameImpact, 'awayTeamNext', null);
     const gamePaths = _.get(gameImpact, 'gamePaths', null);
     const currentScoreLabel = `${c_score1}-${c_score2}`;
+
+    const baselineFinalState = useMemo(() => {
+        if (!Array.isArray(gamePaths) || gamePaths.length === 0) return null;
+        return _.find(gamePaths, { gameScoreLabel: currentScoreLabel })?.finalState ?? null;
+    }, [gamePaths, currentScoreLabel]);
+
+    const onOpenScenario = useCallback(({ impact }) => {
+        if (!impact?.finalState?.length || !onNextGoalPreviewOpen) return;
+        onNextGoalPreviewOpen({
+            challenge,
+            impact,
+            baselineFinalState,
+            challengeId,
+            roundId,
+        });
+    }, [challenge, baselineFinalState, challengeId, roundId, onNextGoalPreviewOpen]);
+
     const heatStripCurrentIndex = useMemo(() => {
         if (!Array.isArray(gamePaths) || gamePaths.length === 0) return -1;
         const idx = _.findIndex(gamePaths, {gameScoreLabel: currentScoreLabel});
@@ -118,11 +137,15 @@ const Game = ({
                 </div>
         
                 <div className="game-body">
-                    <TeamScore team={homeTeam} teamBet={score1} gameImpact={homeTeamNext} closed={!isOpen} challengeId={challengeId} betFieldName="score1" />
+                    <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} challengeId={challengeId} betFieldName="score1" />
                     <MatchResult score1={c_score1} score2={c_score2} />
-                    <TeamScore team={awayTeam} teamBet={score2} gameImpact={awayTeamNext} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
+                    <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
                 </div>
-                <GoalImpactRow homeImpact={homeTeamNext} awayImpact={awayTeamNext} />
+                <GoalImpactRow
+                    homeImpact={homeTeamNext}
+                    awayImpact={awayTeamNext}
+                    onOpenScenario={onOpenScenario}
+                />
             </div>
         </section>)
     return (

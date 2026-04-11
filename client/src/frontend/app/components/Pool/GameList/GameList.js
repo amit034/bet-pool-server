@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
 import {Modal, Form} from 'semantic-ui-react';
-import {getChallengeParticipates, getPoolParticipates, updateUserBet} from '../../../actions/pools';
+import {getChallengeParticipates, updateUserBet} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
 import SwiperCore, {Pagination} from 'swiper';
@@ -11,7 +11,6 @@ import ViewOthers from "./ViewOthers";
 import GoalSound from "./GoalSound";
 import Game from "./Game";
 import DateGroupHeader from "./DateGroupHeader";
-import RoundSummary from "./RoundSummary";
 import {calculatelImpact, getWeekPathWithFocused} from '../../../utils';
 import {getUserFromLocalStorage} from '../../../actions/auth';
 SwiperCore.use([Pagination]);
@@ -19,9 +18,12 @@ SwiperCore.use([Pagination]);
 const GameList = ({poolId}) => {
     const dispatch = useDispatch();
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
+    const [nextGoalPreview, setNextGoalPreview] = useState(null);
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
     const participates = useSelector(state => state.pools.participates);
+    const pool = useSelector(state => state.pools.pools[poolId]);
+    const poolFactors = _.get(pool, 'factors', { 0: 0, 1: 10, 2: 20, 3: 30 });
     const user = getUserFromLocalStorage();
     const userId = _.get(user, 'userId');
 
@@ -35,16 +37,27 @@ const GameList = ({poolId}) => {
     };
     const handleViewOthersClose = useCallback (() => {
         setViewOthersOpen(false);
+        setNextGoalPreview(null);
     },[]);
     const onMatchClick = useCallback((challengeId, close) =>  {
+        setNextGoalPreview(null);
         if (!close) {
             setViewOthersOpen(true);
         } else {
             setViewOthersOpen(true);
-            //dispatch(getPoolParticipates(poolId));
         }
         dispatch(getChallengeParticipates(poolId, challengeId));
-    }, []);
+    }, [poolId, dispatch]);
+    const onNextGoalPreviewOpen = useCallback(
+        (payload) => {
+            setNextGoalPreview({
+                ...payload,
+                poolFactors,
+            });
+            setViewOthersOpen(true);
+        },
+        [poolFactors]
+    );
     const clickOnBetChange = useCallback ((challengeId, score1, score2) => {
         handleViewOthersClose();
         onBetChange(challengeId, {score1, score2});
@@ -79,7 +92,7 @@ const GameList = ({poolId}) => {
             onClose={handleViewOthersClose}
             size='small'
         >
-            <ViewOthers clickOnBetChange={clickOnBetChange}/>
+            <ViewOthers clickOnBetChange={clickOnBetChange} nextGoalPreview={nextGoalPreview} />
         </Modal>)
 
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
@@ -107,10 +120,8 @@ const GameList = ({poolId}) => {
                 </li>
             );
             agg.push(..._.map(bets,(bet) => {
-                const {challengeId, challenge: {status}} = bet;
+                const {challengeId} = bet;
                 const goal = _.get(goals, challengeId, null);
-                const isLive = !bet.isOpen && status !== 'FINISHED'
-                
                 const gameImpact =  getWeekPathWithFocused( userId, participates, roundBets, assignment.initial, challengeId);
                 const gameNode = (
                         <Game
@@ -119,9 +130,10 @@ const GameList = ({poolId}) => {
                             isCurrent={currentBet === bet}
                             onMatchClick={onMatchClick}
                             onBetKeyChange={onBetKeyChange}
-                            matchVolatility={bet.matchVolatility || 'low'}
                             key={_.toString(challengeId)}
                             gameImpact={gameImpact}
+                            onNextGoalPreviewOpen={onNextGoalPreviewOpen}
+                            roundId={roundNum}
                         />
                 );
                 return gameNode;
@@ -131,7 +143,6 @@ const GameList = ({poolId}) => {
         return (
             <SwiperSlide key={roundNum}>
                 <div>
-                    {/* <RoundSummary currentRank={currentRank} totalPoints={totalRoundPoints} /> */}
                     <Form size='large' action="/" onSubmit={processForm}>
                         <ul className="round-games">{gameNodes}</ul>
                     </Form>
