@@ -7,6 +7,69 @@ import classNames from 'classnames';
 import { Modal } from 'semantic-ui-react';
 import { buildNextGoalViewOthersRows } from './viewOthersNextGoalPreview';
 
+function NextGoalSplitHeader({ challenge, splitScores, side }) {
+    const {
+        id,
+        game: { homeTeam, awayTeam },
+        playAt,
+        status,
+    } = challenge;
+    const { currentH, currentA, proposedH, proposedA } = splitScores;
+    const scoringLabel =
+        side === 'home'
+            ? homeTeam.shortName || homeTeam.name || 'Home'
+            : awayTeam.shortName || awayTeam.name || 'Away';
+    const isLive = ['IN_PLAY', 'PAUSED', 'EXTRA_TIME'].includes(status);
+
+    return (
+        <Modal.Header>
+            <li className="challenge-row challenge-row--score-split" key={id}>
+                <div className="game-title game-title--score-split">
+                    <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
+                    <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+                </div>
+                <div className="view-others-score-split">
+                    <div className="view-others-score-split__inner">
+                        <div className="view-others-score-split__current">
+                            <div className="view-others-score-split__watermarks" aria-hidden>
+                                <img src={homeTeam.flag} alt="" className="view-others-score-split__wm view-others-score-split__wm--l" />
+                                <img src={awayTeam.flag} alt="" className="view-others-score-split__wm view-others-score-split__wm--r" />
+                            </div>
+                            <div className="view-others-score-split__current-row">
+                                <div className="view-others-score-split__mini-flag">
+                                    <img src={homeTeam.flag} alt="" />
+                                </div>
+                                <div className="view-others-score-split__current-center">
+                                    <div className="view-others-score-split__score-live">
+                                        {currentH} : {currentA}
+                                    </div>
+                                    <div className="view-others-score-split__live-tag">
+                                        {isLive ? 'Live match' : 'Current score'}
+                                    </div>
+                                </div>
+                                <div className="view-others-score-split__mini-flag">
+                                    <img src={awayTeam.flag} alt="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={classNames('view-others-score-split__next', `view-others-score-split__next--${side}`)}>
+                            <div className="view-others-score-split__watermarks view-others-score-split__watermarks--next" aria-hidden>
+                                <img src={homeTeam.flag} alt="" className="view-others-score-split__wm" />
+                                <img src={awayTeam.flag} alt="" className="view-others-score-split__wm" />
+                            </div>
+                            <div className="view-others-score-split__next-kicker">If {scoringLabel} scores next…</div>
+                            <div className="view-others-score-split__next-title">Hypothetical</div>
+                            <div className="view-others-score-split__next-score">
+                                {proposedH} : {proposedA}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </Modal.Header>
+    );
+}
+
 const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
     const MatchResult = ({ challenge: { score1, score2, isOpen, odds1, odds2, oddsX } }) => {
         return !isOpen ? (
@@ -96,14 +159,14 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
                     </div>
                     <div className="user-bet-rank">
                         Rank: {participate.rank}{' '}
-                        <span style={{ color: 'rgb(156 161 164)' }}>({participate.score}pts).</span>
+                        <span className="view-others-shell__pts-muted">({participate.score}pts).</span>
                         {showPtsDelta && participate.ptsDelta != null && participate.ptsDelta !== 0 ? (
                             <span
-                                style={{
-                                    marginLeft: 6,
-                                    color: participate.ptsDelta > 0 ? '#5eead4' : '#fca5a5',
-                                    fontWeight: 600,
-                                }}
+                                className={
+                                    participate.ptsDelta > 0
+                                        ? 'view-others-shell__pts-delta view-others-shell__pts-delta--up'
+                                        : 'view-others-shell__pts-delta view-others-shell__pts-delta--down'
+                                }
                             >
                                 {participate.ptsDelta > 0 ? '+' : ''}
                                 {participate.ptsDelta}
@@ -167,11 +230,16 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
     }, [nextGoalPreview, participates]);
 
     if (previewBuilt) {
-        const { headerChallenge, usersBets: previewBets, participatesWithRank: previewRanked } = previewBuilt;
+        const { splitScores, usersBets: previewBets, participatesWithRank: previewRanked } = previewBuilt;
+        const side = nextGoalPreview.side === 'away' ? 'away' : 'home';
         return (
-            <div id="content" style={{ margin: '35px 8px 8px 8px' }}>
+            <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
                 <section>
-                    <ChallengeDetails challenge={headerChallenge} />
+                    <NextGoalSplitHeader
+                        challenge={nextGoalPreview.challenge}
+                        splitScores={splitScores}
+                        side={side}
+                    />
                     <BetsList
                         usersBets={previewBets}
                         participates={previewRanked}
@@ -188,7 +256,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
         _.includes(viewableUsersIds, userId)
     );
     return (
-        <div id="content" style={{ margin: '35px 8px 8px 8px' }}>
+        <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
             {challenge ? (
                 <section>
                     <ChallengeDetails challenge={challenge} />

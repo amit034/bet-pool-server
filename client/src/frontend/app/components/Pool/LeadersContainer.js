@@ -72,10 +72,14 @@ function LeaderRow({participate, rank, isCurrentUser}) {
             </div>
         );
     });
+    const rankNum = Number(rank);
+    const topThreeHighlight = Number.isFinite(rankNum) && rankNum >= 1 && rankNum <= 3;
+
     return (
         <li
             className={classNames('leader-row', {
                 'leader-row--current-user': isCurrentUser,
+                [`leader-row--rank-${rankNum}`]: topThreeHighlight,
             })}
         >
             <div className="leader-body">

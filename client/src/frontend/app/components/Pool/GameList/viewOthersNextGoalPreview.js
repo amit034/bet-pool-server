@@ -60,12 +60,9 @@ export function buildNextGoalViewOthersRows(participates, { challenge, impact, b
     const [proposedH, proposedA] = String(impact.gameScoreLabel || '0-0')
         .split('-')
         .map((x) => Number(x));
-    const headerChallenge = {
-        ...challenge,
-        score1: proposedH,
-        score2: proposedA,
-        isOpen: false,
-    };
+    const currentH = Number(challenge.score1) || 0;
+    const currentA = Number(challenge.score2) || 0;
+    const splitScores = { currentH, currentA, proposedH, proposedA };
     const factorId = challenge.factorId || 1;
     const getProfile = profileLookup(participates);
     const getBaseline = baselineByUserId(baselineFinalState);
@@ -105,5 +102,5 @@ export function buildNextGoalViewOthersRows(participates, { challenge, impact, b
         };
     });
 
-    return { headerChallenge, usersBets, participatesWithRank };
+    return { splitScores, usersBets, participatesWithRank };
 }

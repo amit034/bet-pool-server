@@ -94,7 +94,7 @@ const Game = ({
         return _.find(gamePaths, { gameScoreLabel: currentScoreLabel })?.finalState ?? null;
     }, [gamePaths, currentScoreLabel]);
 
-    const onOpenScenario = useCallback(({ impact }) => {
+    const onOpenScenario = useCallback(({ side, impact }) => {
         if (!impact?.finalState?.length || !onNextGoalPreviewOpen) return;
         onNextGoalPreviewOpen({
             challenge,
@@ -102,6 +102,7 @@ const Game = ({
             baselineFinalState,
             challengeId,
             roundId,
+            side,
         });
     }, [challenge, baselineFinalState, challengeId, roundId, onNextGoalPreviewOpen]);
 
