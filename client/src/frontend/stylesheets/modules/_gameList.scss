@@ -163,6 +163,15 @@ $frosted-blur: blur(8px);
         text-shadow: none;
       }
     }
+
+    .date-group-header__pill[role='button'] {
+      cursor: pointer;
+    }
+
+    .date-group-header__pill[role='button']:focus-visible {
+      outline: 2px solid rgba(234, 183, 4, 0.5);
+      outline-offset: 2px;
+    }
   }
 
   @media (max-width: 380px) {

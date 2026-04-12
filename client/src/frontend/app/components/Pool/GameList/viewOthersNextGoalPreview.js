@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getOutcome } from '../../../utils';
+import { rankDeltaFromBaseline } from './viewOthersRankDelta';
 
 const DEFAULT_FACTORS = { 0: 0, 1: 10, 2: 20, 3: 30 };
 
@@ -36,7 +37,7 @@ function baselineByUserId(baselineFinalState) {
     return (userId) => byKey[userId] ?? byKey[String(userId)] ?? byKey[Number(userId)];
 }
 
-function findBetOnChallenge(participate, challengeId, roundId) {
+export function findBetOnChallenge(participate, challengeId, roundId) {
     const round = _.find(participate.rounds, (r) => r.round === roundId);
     if (!round || !round.bets) return {};
     return (
@@ -44,7 +45,7 @@ function findBetOnChallenge(participate, challengeId, roundId) {
     );
 }
 
-function medalFromOutcome(o) {
+export function medalFromOutcome(o) {
     if (!o) return 0;
     if (o.g) return 3;
     if (o.s) return 2;
@@ -93,12 +94,14 @@ export function buildNextGoalViewOthersRows(participates, { challenge, impact, b
         if (base && _.isFinite(base.score) && _.isFinite(fs.score)) {
             ptsDelta = fs.score - base.score;
         }
+        const rankDelta = rankDeltaFromBaseline(base, fs);
         return {
             ...profile,
             userId: fs.userId,
             rank: fs.rank,
             score: fs.score,
             ptsDelta,
+            rankDelta,
         };
     });
 

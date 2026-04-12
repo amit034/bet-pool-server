@@ -137,7 +137,7 @@
     }
   }
 
-  // Next-goal: current score | hypothetical (diagonal blend), pool gold / mint / coral
+  // Next-goal / weekday preview: gold title bar + diagonal split (current list | scenario list)
   .challenge-row--score-split {
     padding-bottom: 0;
     overflow: hidden;
@@ -167,91 +167,149 @@
         color: rgba(255, 248, 230, 0.96);
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
       }
+
+      .game-hour--scenario {
+        font-size: 0.82em;
+        font-weight: 700;
+        color: rgba(255, 248, 230, 0.78);
+        letter-spacing: 0.04em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+      }
+    }
+
+    &.challenge-row--score-split-panels {
+      padding-bottom: 0;
     }
 
     .view-others-score-split {
       overflow: hidden;
       border-radius: 0 0 9px 9px;
+      position: relative;
+    }
+
+    .view-others-score-split__strip-kicker {
+      position: relative;
+      z-index: 2;
+      padding: 8px 14px 10px;
+      font-size: 0.74em;
+      font-weight: 600;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.28);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     .view-others-score-split__inner {
+      position: relative;
+      min-height: 56px;
+    }
+
+    // “Slash” = diagonal color boundary only: left panel is clip-path’d so its fill meets the hypo panel along an angled edge (no overlay stripe).
+    // Left column: slate / blue (current scores), diagonal into scenario column
+    .view-others-score-split__col-bg--current {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: calc(50% + 30px);
+      z-index: 1;
+      clip-path: polygon(0 0, 100% 0, calc(100% - 48px) 100%, 0 100%);
+      box-shadow: 8px 0 22px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(
+        195deg,
+        #1c2836 0%,
+        #141c28 38%,
+        #0e141c 72%,
+        #0a0f14 100%
+      );
+      border-right: 1px solid rgba(0, 0, 0, 0.45);
+    }
+
+    .view-others-score-split__col-bg--hypo {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      left: calc(50% - 18px);
+      z-index: 0;
+    }
+
+    .view-others-score-split__col-bg--hypo-best {
+      background: linear-gradient(200deg, #124a3a 0%, #0c3529 42%, #082820 100%);
+    }
+
+    .view-others-score-split__col-bg--hypo-worst {
+      background: linear-gradient(200deg, #4a1a22 0%, #321016 45%, #220a10 100%);
+    }
+
+    .view-others-score-split__matrix {
+      position: relative;
+      z-index: 2;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: 128px;
-      position: relative;
-      background: linear-gradient(
-        118deg,
-        #3c4140 0%,
-        #2f3532 39%,
-        #2a3036 42.5%,
-        #1c2531 43.2%,
-        #151b24 100%
-      );
+      align-items: stretch;
     }
 
-    .view-others-score-split__current,
-    .view-others-score-split__next {
-      position: relative;
-      z-index: 1;
-      padding: 14px 12px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .view-others-score-split__watermarks {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    .view-others-score-split__wm {
-      position: absolute;
-      width: 76px;
-      height: 76px;
-      object-fit: contain;
-      opacity: 0.07;
-    }
-
-    .view-others-score-split__wm--l {
-      left: 6%;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .view-others-score-split__wm--r {
-      right: 6%;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .view-others-score-split__watermarks--next .view-others-score-split__wm:first-child {
-      left: 4%;
-      top: 18%;
-    }
-
-    .view-others-score-split__watermarks--next .view-others-score-split__wm:last-child {
-      right: 4%;
-      bottom: 12%;
-    }
-
-    .view-others-score-split__current-row {
+    .view-others-score-split__matrix-cell {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      position: relative;
-      z-index: 2;
+      padding: 10px 14px;
+      min-height: 48px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+
+      &--current {
+        padding-right: 24px;
+      }
+
+      &--hypo {
+        padding-left: 28px;
+      }
+    }
+
+    .view-others-score-split__matrix .view-others-score-split__matrix-cell:nth-last-child(-n + 2) {
+      border-bottom: none;
+    }
+
+    .view-others-score-split__line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .view-others-score-split__stack-score {
+      font-size: 1.55em;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: 0.03em;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .view-others-score-split__stack-score--on-current-panel {
+      color: rgba(240, 248, 255, 0.96);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .view-others-score-split__stack-score--on-hypo-best {
+      color: rgba(255, 255, 255, 0.96);
+      text-shadow: 0 0 14px rgba(94, 234, 212, 0.35);
+    }
+
+    .view-others-score-split__stack-score--on-hypo-worst {
+      color: rgba(255, 250, 250, 0.96);
+      text-shadow: 0 0 12px rgba(252, 165, 165, 0.35);
     }
 
     .view-others-score-split__mini-flag {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.92);
-      padding: 5px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      padding: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
       flex-shrink: 0;
 
       img {
@@ -261,67 +319,18 @@
         display: block;
       }
     }
+  }
 
-    .view-others-score-split__current-center {
-      text-align: center;
-      min-width: 0;
-    }
+  .challenge-row--weekday-lines {
+    &.challenge-row--weekday-lines--worst {
+      border-color: rgba(252, 165, 165, 0.32);
+      box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.35),
+        0 0 14px rgba(252, 165, 165, 0.08);
 
-    .view-others-score-split__score-live {
-      font-size: 1.75em;
-      font-weight: 800;
-      color: $title-1;
-      letter-spacing: 0.03em;
-      text-shadow: 0 0 14px rgba(234, 183, 4, 0.28);
-      line-height: 1.1;
-    }
-
-    .view-others-score-split__live-tag {
-      margin-top: 6px;
-      font-size: 0.72em;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.58);
-      letter-spacing: 0.02em;
-    }
-
-    .view-others-score-split__next-kicker {
-      font-size: 0.72em;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.72);
-      margin-bottom: 6px;
-      line-height: 1.25;
-      position: relative;
-      z-index: 2;
-    }
-
-    .view-others-score-split__next-title {
-      font-size: 0.68em;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 4px;
-      color: rgba(255, 255, 255, 0.48);
-      position: relative;
-      z-index: 2;
-    }
-
-    .view-others-score-split__next-score {
-      font-size: 1.65em;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: 0.03em;
-      position: relative;
-      z-index: 2;
-    }
-
-    .view-others-score-split__next--home .view-others-score-split__next-score {
-      color: $accent-mint;
-      text-shadow: 0 0 16px $accent-mint-glow;
-    }
-
-    .view-others-score-split__next--away .view-others-score-split__next-score {
-      color: #fca5a5;
-      text-shadow: 0 0 14px rgba(252, 165, 165, 0.35);
+      .game-title--score-split {
+        border-bottom-color: rgba(252, 165, 165, 0.25);
+      }
     }
   }
 
@@ -369,6 +378,7 @@
 
       .user-bet-center {
         text-align: left;
+        align-items: flex-start;
         flex: 1 1 auto;
         min-width: 0;
         line-height: 1.35;
@@ -391,6 +401,16 @@
           font-size: 0.78em;
           font-weight: 500;
           color: rgba(255, 255, 255, 0.52);
+        }
+
+        .user-bet-viewer-picks {
+          margin-top: 4px;
+          font-size: 0.72em;
+          font-weight: 600;
+          color: rgba(168, 200, 212, 0.88);
+          line-height: 1.35;
+          max-width: 100%;
+          word-break: break-word;
         }
       }
 
@@ -490,6 +510,21 @@
   .view-others-shell__pts-delta--down {
     color: #fca5a5;
   }
+
+  .view-others-shell__rank-delta {
+    margin-left: 6px;
+    font-weight: 700;
+    font-size: 1em;
+  }
+
+  .view-others-shell__rank-delta--up {
+    color: $accent-mint;
+  }
+
+  .view-others-shell__rank-delta--down {
+    color: #fca5a5;
+  }
+
 }
 
 // Let leaderboard-style rows sit on the pool modal dark chrome (Semantic defaults to light panels)

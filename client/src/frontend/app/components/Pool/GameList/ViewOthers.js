@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { getParticipatesWithRank } from '../../../utils';
@@ -6,71 +6,160 @@ import { useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { Modal } from 'semantic-ui-react';
 import { buildNextGoalViewOthersRows } from './viewOthersNextGoalPreview';
+import { buildWeekdayPathViewRows } from './viewOthersWeekdayPathPreview';
 
-function NextGoalSplitHeader({ challenge, splitScores, side }) {
+function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName }) {
+    return (
+        <div className="view-others-score-split__line">
+            <div className="view-others-score-split__mini-flag">
+                <img src={homeTeam.flag} alt="" />
+            </div>
+            <div className={classNames('view-others-score-split__stack-score', scoreClassName)}>{scoreText}</div>
+            <div className="view-others-score-split__mini-flag">
+                <img src={awayTeam.flag} alt="" />
+            </div>
+        </div>
+    );
+}
+
+function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
+    return (
+        <div className="view-others-score-split">
+            {kickerText ? (
+                <div className="view-others-score-split__strip-kicker">{kickerText}</div>
+            ) : null}
+            <div className="view-others-score-split__inner">
+                <div
+                    className="view-others-score-split__col-bg view-others-score-split__col-bg--current"
+                    aria-hidden
+                />
+                <div
+                    className={classNames(
+                        'view-others-score-split__col-bg',
+                        'view-others-score-split__col-bg--hypo',
+                        hypoAccentClass
+                    )}
+                    aria-hidden
+                />
+                <div className="view-others-score-split__matrix">
+                    {_.map(pairs, ({ key, homeTeam, awayTeam, currentText, hypoText, hypoScoreClass }) => (
+                        <Fragment key={key}>
+                            <div className="view-others-score-split__matrix-cell view-others-score-split__matrix-cell--current">
+                                <ScoreLineCell
+                                    homeTeam={homeTeam}
+                                    awayTeam={awayTeam}
+                                    scoreText={currentText}
+                                    scoreClassName="view-others-score-split__stack-score--on-current-panel"
+                                />
+                            </div>
+                            <div className="view-others-score-split__matrix-cell view-others-score-split__matrix-cell--hypo">
+                                <ScoreLineCell
+                                    homeTeam={homeTeam}
+                                    awayTeam={awayTeam}
+                                    scoreText={hypoText}
+                                    scoreClassName={hypoScoreClass}
+                                />
+                            </div>
+                        </Fragment>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function NextGoalSplitPanelHeader({ challenge, splitScores, side }) {
     const {
         id,
         game: { homeTeam, awayTeam },
         playAt,
-        status,
     } = challenge;
     const { currentH, currentA, proposedH, proposedA } = splitScores;
     const scoringLabel =
         side === 'home'
             ? homeTeam.shortName || homeTeam.name || 'Home'
             : awayTeam.shortName || awayTeam.name || 'Away';
-    const isLive = ['IN_PLAY', 'PAUSED', 'EXTRA_TIME'].includes(status);
+    const hypoAccentClass =
+        side === 'away'
+            ? 'view-others-score-split__col-bg--hypo-worst'
+            : 'view-others-score-split__col-bg--hypo-best';
+    const hypoScoreClass =
+        side === 'away'
+            ? 'view-others-score-split__stack-score--on-hypo-worst'
+            : 'view-others-score-split__stack-score--on-hypo-best';
 
     return (
         <Modal.Header>
-            <li className="challenge-row challenge-row--score-split" key={id}>
+            <li className="challenge-row challenge-row--score-split challenge-row--score-split-panels" key={id}>
                 <div className="game-title game-title--score-split">
                     <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                     <div className="game-hour">{moment(playAt).format('H:mm')}</div>
                 </div>
-                <div className="view-others-score-split">
-                    <div className="view-others-score-split__inner">
-                        <div className="view-others-score-split__current">
-                            <div className="view-others-score-split__watermarks" aria-hidden>
-                                <img src={homeTeam.flag} alt="" className="view-others-score-split__wm view-others-score-split__wm--l" />
-                                <img src={awayTeam.flag} alt="" className="view-others-score-split__wm view-others-score-split__wm--r" />
-                            </div>
-                            <div className="view-others-score-split__current-row">
-                                <div className="view-others-score-split__mini-flag">
-                                    <img src={homeTeam.flag} alt="" />
-                                </div>
-                                <div className="view-others-score-split__current-center">
-                                    <div className="view-others-score-split__score-live">
-                                        {currentH} : {currentA}
-                                    </div>
-                                    <div className="view-others-score-split__live-tag">
-                                        {isLive ? 'Live match' : 'Current score'}
-                                    </div>
-                                </div>
-                                <div className="view-others-score-split__mini-flag">
-                                    <img src={awayTeam.flag} alt="" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className={classNames('view-others-score-split__next', `view-others-score-split__next--${side}`)}>
-                            <div className="view-others-score-split__watermarks view-others-score-split__watermarks--next" aria-hidden>
-                                <img src={homeTeam.flag} alt="" className="view-others-score-split__wm" />
-                                <img src={awayTeam.flag} alt="" className="view-others-score-split__wm" />
-                            </div>
-                            <div className="view-others-score-split__next-kicker">If {scoringLabel} scores next…</div>
-                            <div className="view-others-score-split__next-title">Hypothetical</div>
-                            <div className="view-others-score-split__next-score">
-                                {proposedH} : {proposedA}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ScoreSplitBody
+                    kickerText={`If ${scoringLabel} scores next…`}
+                    hypoAccentClass={hypoAccentClass}
+                    pairs={[
+                        {
+                            key: 'next-goal',
+                            homeTeam,
+                            awayTeam,
+                            currentText: `${currentH} : ${currentA}`,
+                            hypoText: `${proposedH} : ${proposedA}`,
+                            hypoScoreClass,
+                        },
+                    ]}
+                />
             </li>
         </Modal.Header>
     );
 }
 
-const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
+function WeekdayPathSplitPanelHeader({ variant, dateLabel, segments }) {
+    const scenarioLabel = variant === 'worst' ? 'Worst case path' : 'Best case path';
+    const hypoAccentClass =
+        variant === 'worst'
+            ? 'view-others-score-split__col-bg--hypo-worst'
+            : 'view-others-score-split__col-bg--hypo-best';
+    const hypoScoreClass =
+        variant === 'worst'
+            ? 'view-others-score-split__stack-score--on-hypo-worst'
+            : 'view-others-score-split__stack-score--on-hypo-best';
+
+    const pairs = _.map(segments, ({ bet, proposedH, proposedA, currentH, currentA }) => {
+        const challenge = bet.challenge || {};
+        const game = challenge.game || {};
+        return {
+            key: bet.challengeId,
+            homeTeam: game.homeTeam || {},
+            awayTeam: game.awayTeam || {},
+            currentText: `${currentH} : ${currentA}`,
+            hypoText: `${proposedH} : ${proposedA}`,
+            hypoScoreClass,
+        };
+    });
+
+    return (
+        <Modal.Header>
+            <li
+                className={classNames(
+                    'challenge-row',
+                    'challenge-row--score-split',
+                    'challenge-row--score-split-panels',
+                    'challenge-row--weekday-lines',
+                    variant === 'worst' && 'challenge-row--weekday-lines--worst'
+                )}
+            >
+                <div className="game-title game-title--score-split">
+                    <div className="game-day">{dateLabel}</div>
+                    <div className="game-hour game-hour--scenario">{scenarioLabel}</div>
+                </div>
+                <ScoreSplitBody hypoAccentClass={hypoAccentClass} pairs={pairs} />
+            </li>
+        </Modal.Header>
+    );
+}
+
+const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) => {
     const MatchResult = ({ challenge: { score1, score2, isOpen, odds1, odds2, oddsX } }) => {
         return !isOpen ? (
             <div className="game-result">
@@ -142,7 +231,28 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
             </div>
         );
     };
-    const UserBet = ({ participate, bet, isOpen, showPtsDelta }) => {
+    const UserBet = ({
+        participate,
+        bet,
+        isOpen,
+        showPtsDelta,
+        viewerUserId,
+        viewerPicks,
+        multiGameDay,
+    }) => {
+        const showViewerPickStrip =
+            multiGameDay &&
+            viewerUserId != null &&
+            String(participate.userId) === String(viewerUserId) &&
+            _.size(viewerPicks) > 0;
+        const pickStrip = showViewerPickStrip
+            ? _.map(viewerPicks, (vp) => {
+                  const s1 = vp.score1 != null && vp.score1 !== '' ? vp.score1 : '–';
+                  const s2 = vp.score2 != null && vp.score2 !== '' ? vp.score2 : '–';
+                  return `${s1} : ${s2}`;
+              }).join(' · ')
+            : null;
+
         return (
             <li className="user-bet-row">
                 <div className="user-bet-side">
@@ -172,7 +282,21 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
                                 {participate.ptsDelta}
                             </span>
                         ) : null}
+                        {showPtsDelta && participate.rankDelta != null && participate.rankDelta !== 0 ? (
+                            <span
+                                className={
+                                    participate.rankDelta > 0
+                                        ? 'view-others-shell__rank-delta view-others-shell__rank-delta--up'
+                                        : 'view-others-shell__rank-delta view-others-shell__rank-delta--down'
+                                }
+                            >
+                                {participate.rankDelta > 0
+                                    ? ` ↑${participate.rankDelta}`
+                                    : ` ↓${Math.abs(participate.rankDelta)}`}
+                            </span>
+                        ) : null}
                     </div>
+                    {pickStrip ? <div className="user-bet-viewer-picks">{pickStrip}</div> : null}
                 </div>
                 <div className="user-bet-medal">{!isOpen ? <Medal score={bet.score} medal={bet.medal} /> : ''}</div>
                 <div className="user-bet-score">
@@ -199,7 +323,15 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
         );
     };
 
-    const BetsList = ({ usersBets, participates, isOpen, showPtsDelta }) => {
+    const BetsList = ({
+        usersBets,
+        participates,
+        isOpen,
+        showPtsDelta,
+        viewerUserId,
+        viewerPicks,
+        multiGameDay,
+    }) => {
         const userBetsNode = _.map(_.orderBy(participates, 'rank'), (participate) => {
             return (
                 <UserBet
@@ -207,6 +339,9 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
                     key={participate.userId}
                     isOpen={isOpen}
                     showPtsDelta={showPtsDelta}
+                    viewerUserId={viewerUserId}
+                    viewerPicks={viewerPicks}
+                    multiGameDay={multiGameDay}
                     bet={
                         _.find(usersBets, (u) => String(u.userId) === String(participate.userId)) || {}
                     }
@@ -229,13 +364,18 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
         return buildNextGoalViewOthersRows(participates, nextGoalPreview);
     }, [nextGoalPreview, participates]);
 
+    const weekdayBuilt = useMemo(() => {
+        if (!weekdayPathPreview) return null;
+        return buildWeekdayPathViewRows(participates, weekdayPathPreview);
+    }, [weekdayPathPreview, participates]);
+
     if (previewBuilt) {
         const { splitScores, usersBets: previewBets, participatesWithRank: previewRanked } = previewBuilt;
         const side = nextGoalPreview.side === 'away' ? 'away' : 'home';
         return (
             <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
                 <section>
-                    <NextGoalSplitHeader
+                    <NextGoalSplitPanelHeader
                         challenge={nextGoalPreview.challenge}
                         splitScores={splitScores}
                         side={side}
@@ -245,6 +385,35 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview }) => {
                         participates={previewRanked}
                         isOpen={false}
                         showPtsDelta
+                    />
+                </section>
+            </div>
+        );
+    }
+
+    if (weekdayBuilt) {
+        const {
+            segments,
+            usersBets: wBets,
+            participatesWithRank: wRanked,
+            variant,
+            showPtsDelta,
+            viewerUserId: wViewerUserId,
+            viewerPicks: wViewerPicks,
+            multiGameDay: wMultiGameDay,
+        } = weekdayBuilt;
+        return (
+            <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
+                <section>
+                    <WeekdayPathSplitPanelHeader variant={variant} dateLabel={weekdayPathPreview.dateLabel} segments={segments} />
+                    <BetsList
+                        usersBets={wBets}
+                        participates={wRanked}
+                        isOpen={false}
+                        showPtsDelta={showPtsDelta}
+                        viewerUserId={wViewerUserId}
+                        viewerPicks={wViewerPicks}
+                        multiGameDay={wMultiGameDay}
                     />
                 </section>
             </div>

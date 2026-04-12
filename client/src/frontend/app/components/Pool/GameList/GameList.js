@@ -19,6 +19,7 @@ const GameList = ({poolId}) => {
     const dispatch = useDispatch();
     const [viewOthersOpen, setViewOthersOpen] = useState(false);
     const [nextGoalPreview, setNextGoalPreview] = useState(null);
+    const [weekdayPathPreview, setWeekdayPathPreview] = useState(null);
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
     const participates = useSelector(state => state.pools.participates);
@@ -38,9 +39,11 @@ const GameList = ({poolId}) => {
     const handleViewOthersClose = useCallback (() => {
         setViewOthersOpen(false);
         setNextGoalPreview(null);
+        setWeekdayPathPreview(null);
     },[]);
     const onMatchClick = useCallback((challengeId, close) =>  {
         setNextGoalPreview(null);
+        setWeekdayPathPreview(null);
         if (!close) {
             setViewOthersOpen(true);
         } else {
@@ -50,7 +53,19 @@ const GameList = ({poolId}) => {
     }, [poolId, dispatch]);
     const onNextGoalPreviewOpen = useCallback(
         (payload) => {
+            setWeekdayPathPreview(null);
             setNextGoalPreview({
+                ...payload,
+                poolFactors,
+            });
+            setViewOthersOpen(true);
+        },
+        [poolFactors]
+    );
+    const onWeekdayPathPreviewOpen = useCallback(
+        (payload) => {
+            setNextGoalPreview(null);
+            setWeekdayPathPreview({
                 ...payload,
                 poolFactors,
             });
@@ -92,7 +107,11 @@ const GameList = ({poolId}) => {
             onClose={handleViewOthersClose}
             size='small'
         >
-            <ViewOthers clickOnBetChange={clickOnBetChange} nextGoalPreview={nextGoalPreview} />
+            <ViewOthers
+                clickOnBetChange={clickOnBetChange}
+                nextGoalPreview={nextGoalPreview}
+                weekdayPathPreview={weekdayPathPreview}
+            />
         </Modal>)
 
     const roundNode = _.map(_.reverse(_.values(betsGroups)), (roundBets) => {
@@ -109,13 +128,44 @@ const GameList = ({poolId}) => {
             const playAtKey = _.toString(playAt);
             const hasOpenBets = _.some(bets, (bet) => !_.get(bet, 'closed'));
             const assignment = calculatelImpact(userId, participates, bets, roundId);
+            const dateLabel = moment(playAtKey, 'YYYYMMDD').format('dddd DD/MM');
+            const closedCount = _.filter(bets, 'closed').length;
+            const canOpenPath = !hasOpenBets && closedCount > 0 && _.get(assignment, 'best.path.length', 0) > 0;
             agg.push(
                 <li key={`date-hdr-${playAtKey}`} className="date-group-header-wrap">
                     <DateGroupHeader
-                        dateLabel={moment(playAtKey, 'YYYYMMDD').format('dddd DD/MM')}
+                        dateLabel={dateLabel}
                         bestCaseRank={assignment?.best?.rank}
                         worstCaseRank={assignment?.worst?.rank}
                         pending={hasOpenBets}
+                        onBestCaseClick={
+                            canOpenPath
+                                ? () =>
+                                      onWeekdayPathPreviewOpen({
+                                          variant: 'best',
+                                          assignment,
+                                          dateBets: bets,
+                                          dateLabel,
+                                          roundId,
+                                          viewerUserId: userId,
+                                          poolFactors,
+                                      })
+                                : undefined
+                        }
+                        onWorstCaseClick={
+                            canOpenPath
+                                ? () =>
+                                      onWeekdayPathPreviewOpen({
+                                          variant: 'worst',
+                                          assignment,
+                                          dateBets: bets,
+                                          dateLabel,
+                                          roundId,
+                                          viewerUserId: userId,
+                                          poolFactors,
+                                      })
+                                : undefined
+                        }
                     />
                 </li>
             );
