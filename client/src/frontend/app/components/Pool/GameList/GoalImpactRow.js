@@ -11,9 +11,13 @@ const ImpactItem = ({ side, impact, onOpenScenario }) => {
     const hasStandings = Boolean(impact && Array.isArray(impact.finalState) && impact.finalState.length > 0);
     const clickable = hasStandings && typeof onOpenScenario === 'function';
 
+    const isUp = Boolean(impact && impact.rankDiff > 0);
+    const isDown = Boolean(impact && impact.rankDiff < 0);
+    const impactModifier = !impact ? 'neutral' : isUp ? 'up' : isDown ? 'down' : 'neutral';
+
     const open = useCallback(() => {
-        if (clickable && impact) onOpenScenario({ side, impact });
-    }, [clickable, onOpenScenario, side, impact]);
+        if (clickable && impact) onOpenScenario({ side, impact, impactModifier });
+    }, [clickable, impact, impactModifier, onOpenScenario, side]);
 
     const onKeyDown = useCallback(
         (e) => {
@@ -29,10 +33,6 @@ const ImpactItem = ({ side, impact, onOpenScenario }) => {
     if (!impact) {
         return <div className="game-impact-footer__half-inner game-impact-footer__half-inner--neutral" />;
     }
-
-    const isUp = impact.rankDiff > 0;
-    const isDown = impact.rankDiff < 0;
-    const impactModifier = isUp ? 'up' : isDown ? 'down' : 'neutral';
 
     const pts = impact.scoreDiff;
     const ptsText = pts > 0 || impact.rankDiff !== 0 ? `(${pts} pts)` : pts < 0 || impact.rankDiff < 0 ? `(${pts} pts)` : '-';

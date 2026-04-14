@@ -3,8 +3,6 @@ import { getOutcome } from '../../../utils';
 import { rankDeltaFromBaseline } from './viewOthersRankDelta';
 import { findBetOnChallenge, medalFromOutcome } from './viewOthersNextGoalPreview';
 
-const DEFAULT_FACTORS = { 0: 0, 1: 10, 2: 20, 3: 30 };
-
 function normalizeParticipates(participates) {
     if (!participates) return [];
     return Array.isArray(participates) ? participates : _.values(participates);
@@ -43,7 +41,7 @@ function baselineByUserId(baselineFinalState) {
  */
 export function buildWeekdayPathViewRows(
     participates,
-    { assignment, variant, dateBets, dateLabel, roundId, viewerUserId, poolFactors }
+    { assignment, variant, dateBets, dateLabel, roundId, viewerUserId }
 ) {
     const pathObj = variant === 'worst' ? assignment.worst : assignment.best;
     const currentPath = assignment.current;
@@ -110,37 +108,44 @@ export function buildWeekdayPathViewRows(
         };
     });
 
-    const firstBet = segments[0]?.bet;
-    const firstChallengeId = firstBet?.challengeId;
-    const firstPathItem = path[0];
-    const scenarioFirstScore = _.isArray(firstPathItem?.gameScore) ? firstPathItem.gameScore : null;
-    const factorId = _.get(firstBet, 'challenge.factorId', 1) || 1;
-    const factors = poolFactors || DEFAULT_FACTORS;
     const list = normalizeParticipates(participates);
 
     const usersBets = _.map(list, (p) => {
-        const b =
-            firstChallengeId != null && roundId != null
-                ? findBetOnChallenge(p, firstChallengeId, roundId)
-                : {};
-        const pred =
-            b.score1 != null && b.score2 != null && b.score1 !== '' && b.score2 !== ''
-                ? [Number(b.score1), Number(b.score2)]
-                : null;
-        let medal = 0;
-        let rowScore = 0;
-        if (scenarioFirstScore && pred) {
-            const o = getOutcome(pred, scenarioFirstScore);
-            medal = medalFromOutcome(o);
-            rowScore = _.get(factors, medal, 0) * factorId;
-        }
+        const medals = { 1: 0, 2: 0, 3: 0 };
+        _.each(segments, (seg, i) => {
+            const pathItem = path[i];
+            const gs = pathItem?.gameScore;
+            let proposedH;
+            let proposedA;
+            if (_.isArray(gs) && gs.length >= 2) {
+                proposedH = gs[0];
+                proposedA = gs[1];
+            } else {
+                const parts = String(pathItem?.gameScoreLabel || '0-0').split('-');
+                proposedH = Number(parts[0]) || 0;
+                proposedA = Number(parts[1]) || 0;
+            }
+            const scenarioScore = [proposedH, proposedA];
+            const b =
+                seg.bet?.challengeId != null && roundId != null
+                    ? findBetOnChallenge(p, seg.bet.challengeId, roundId)
+                    : {};
+            const pred =
+                b.score1 != null && b.score2 != null && b.score1 !== '' && b.score2 !== ''
+                    ? [Number(b.score1), Number(b.score2)]
+                    : null;
+            if (pred) {
+                const o = getOutcome(pred, scenarioScore);
+                const m = medalFromOutcome(o);
+                if (m > 0) {
+                    const fac = Number(b.factor) || Number(_.get(seg.bet, 'challenge.factorId', 1)) || 1;
+                    medals[m] = (medals[m] || 0) + fac;
+                }
+            }
+        });
         return {
             userId: p.userId,
-            score1: b.score1,
-            score2: b.score2,
-            challengeId: firstChallengeId,
-            medal,
-            score: rowScore,
+            medals,
         };
     });
 

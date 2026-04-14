@@ -166,7 +166,7 @@ function calculateGoalImpact(targetId, gameScore, factorId, players, predictions
  * @param remainingGames - open games, each { id: challengeId, factor }
  */
 function calculatelImpact(targetId, players, bets, roundId) {
-    if (_.isEmpty(players) || _.isEmpty(bets) || roundId < 0) {
+    if (_.isEmpty(players) || _.isEmpty(_.filter(bets, 'closed')) || roundId < 0) {
         return { best: null, worst: null };
     }
     const initialState = _.reduce(players, (playerAgg, player) => {
@@ -453,7 +453,7 @@ function scoreKey({ home, away }) {
  */
 
 function getWeekPathWithFocused(targetId, players, bets, initialState, challengeId) {
-    if (_.isEmpty(players) || _.isEmpty(bets) || _.isEmpty(initialState) || _.isNil(initialState) || _.isNil(challengeId)) {
+    if (_.isEmpty(players) || _.isEmpty(_.filter(bets, 'closed')) || _.isEmpty(initialState) || _.isNil(initialState) || _.isNil(challengeId)) {
         return null;
     }
     const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState);
@@ -472,7 +472,7 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
     const factorId = _.get(focused, 'factorId');
     const sortedGamePaths = sortAddDiffRankAndScore(initialState, gamePaths, targetId, factorId, urgency);
     const status = _.get(focused, 'bet.challenge.game.status');
-    const [home, away] =  _.get(focused, 'current.gameScore', [0, 0]);
+    const [home = 0, away = 0] =  _.get(focused, 'current.gameScore', [0, 0]);
     const currentScore = [home, away];
     const nextHomeTeamScore = [home + 1, away];
     const nextAwayTeamScore = [home, away + 1];

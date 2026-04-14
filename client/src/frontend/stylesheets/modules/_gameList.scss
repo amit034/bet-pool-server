@@ -945,7 +945,7 @@ $frosted-blur: blur(8px);
 }
 
 // ── Mobile: small devices (Galaxy S22 360px, iPhone SE 375px) ──
-@media (max-width: 374px) {
+@media (max-width: 390px) {
   .game-list {
     .date-group-header {
       padding: 7px 8px;
@@ -956,11 +956,11 @@ $frosted-blur: blur(8px);
       }
 
       &__badges {
-        gap: 6px;
+        gap: 2px;
       }
 
       &__pill {
-        padding: 4px 7px;
+        padding: 4px 4px;
         font-size: 9px;
       }
     }

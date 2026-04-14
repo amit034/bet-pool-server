@@ -239,7 +239,16 @@
     }
 
     .view-others-score-split__col-bg--hypo-worst {
-      background: linear-gradient(200deg, #4a1a22 0%, #321016 45%, #220a10 100%);
+      background: linear-gradient(200deg, #7a3542 0%, #5c2a35 42%, #452028 100%);
+    }
+
+    .view-others-score-split__col-bg--hypo-neutral {
+      background: linear-gradient(
+        200deg,
+        #4a5058 0%,
+        #3a3f48 45%,
+        #2e323a 100%
+      );
     }
 
     .view-others-score-split__matrix {
@@ -299,8 +308,20 @@
     }
 
     .view-others-score-split__stack-score--on-hypo-worst {
-      color: rgba(255, 250, 250, 0.96);
-      text-shadow: 0 0 12px rgba(252, 165, 165, 0.35);
+      color: rgba(255, 248, 248, 0.98);
+      text-shadow: 0 0 14px rgba(255, 180, 180, 0.45);
+    }
+
+    .view-others-score-split__stack-score--on-hypo-neutral {
+      color: rgba(245, 248, 252, 0.96);
+      text-shadow: 0 0 12px rgba(200, 210, 220, 0.35);
+    }
+
+    @media (max-width: 349px) {
+      .view-others-score-split__stack-score {
+        font-size: 1em;
+        letter-spacing: 0;
+      }
     }
 
     .view-others-score-split__mini-flag {
@@ -323,13 +344,13 @@
 
   .challenge-row--weekday-lines {
     &.challenge-row--weekday-lines--worst {
-      border-color: rgba(252, 165, 165, 0.32);
+      border-color: rgba(255, 190, 190, 0.38);
       box-shadow:
         0 2px 10px rgba(0, 0, 0, 0.35),
-        0 0 14px rgba(252, 165, 165, 0.08);
+        0 0 14px rgba(255, 190, 190, 0.1);
 
       .game-title--score-split {
-        border-bottom-color: rgba(252, 165, 165, 0.25);
+        border-bottom-color: rgba(255, 190, 190, 0.3);
       }
     }
   }
@@ -488,6 +509,81 @@
             font-weight: 600;
           }
         }
+      }
+
+      // Weekday best/worst path: leaderboard-style medal counts + total pool score (scenario)
+      .user-bet-row--weekday-path {
+        height: auto;
+        min-height: 48px;
+      }
+
+      .user-bet-weekday-summary {
+        display: flex;
+        flex: 0 1 auto;
+        align-items: center;
+        align-self: stretch;
+        min-width: 0;
+        margin-left: 4px;
+      }
+
+      .user-bet-weekday-medals {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-right: 10px;
+        padding: 4px 4px;
+        flex-shrink: 1;
+      }
+
+      .user-bet-weekday-medal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        i.large.icon {
+          font-size: 1em;
+        }
+
+        .medal-badge {
+          margin-top: 2px;
+          font-size: 0.75em;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        .gold-medal {
+          color: #d9a441;
+        }
+
+        .sliver-medal {
+          color: #ccc2c2;
+        }
+
+        .bronze-medal {
+          color: #965a38;
+        }
+      }
+
+      .user-bet-weekday-score-box {
+        box-sizing: border-box;
+        flex: 0 0 auto;
+        min-width: 52px;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 10px;
+        text-align: center;
+        background: rgba(12, 14, 18, 0.88);
+        border-left: 1px solid rgba(0, 0, 0, 0.5);
+        color: #a8c8d4;
+        font-family: $font-ui;
+        font-size: 1.45em;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        border-radius: 0 10px 10px 0;
       }
     }
   }

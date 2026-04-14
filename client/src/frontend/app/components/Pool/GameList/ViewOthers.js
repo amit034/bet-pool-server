@@ -68,7 +68,7 @@ function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
     );
 }
 
-function NextGoalSplitPanelHeader({ challenge, splitScores, side }) {
+function NextGoalSplitPanelHeader({ challenge, splitScores, side, hypoTone }) {
     const {
         id,
         game: { homeTeam, awayTeam },
@@ -79,12 +79,18 @@ function NextGoalSplitPanelHeader({ challenge, splitScores, side }) {
         side === 'home'
             ? homeTeam.shortName || homeTeam.name || 'Home'
             : awayTeam.shortName || awayTeam.name || 'Away';
+    const tone =
+        hypoTone || (side === 'away' ? 'worst' : 'best');
     const hypoAccentClass =
-        side === 'away'
+        tone === 'neutral'
+            ? 'view-others-score-split__col-bg--hypo-neutral'
+            : tone === 'worst'
             ? 'view-others-score-split__col-bg--hypo-worst'
             : 'view-others-score-split__col-bg--hypo-best';
     const hypoScoreClass =
-        side === 'away'
+        tone === 'neutral'
+            ? 'view-others-score-split__stack-score--on-hypo-neutral'
+            : tone === 'worst'
             ? 'view-others-score-split__stack-score--on-hypo-worst'
             : 'view-others-score-split__stack-score--on-hypo-best';
 
@@ -231,6 +237,24 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
             </div>
         );
     };
+
+    const WeekdayPathMedalStrip = ({ medals }) => {
+        const nodes = _.map(_.forOwnRight(medals || {}), (count, idx) => {
+            const medalClass = classNames('icon star large fitted', {
+                'bronze-medal': idx === '1',
+                'sliver-medal': idx === '2',
+                'gold-medal': idx === '3',
+            });
+            return (
+                <div key={idx} className="user-bet-weekday-medal">
+                    <i className={medalClass} />
+                    <div className="medal-badge">{count}</div>
+                </div>
+            );
+        });
+        return <div className="user-bet-weekday-medals">{nodes}</div>;
+    };
+
     const UserBet = ({
         participate,
         bet,
@@ -239,6 +263,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
         viewerUserId,
         viewerPicks,
         multiGameDay,
+        weekdayPathLayout,
     }) => {
         const showViewerPickStrip =
             multiGameDay &&
@@ -252,6 +277,61 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
                   return `${s1} : ${s2}`;
               }).join(' · ')
             : null;
+
+        if (weekdayPathLayout) {
+            return (
+                <li className="user-bet-row user-bet-row--weekday-path">
+                    <div className="user-bet-side">
+                        <img
+                            className="user-bet-image"
+                            src={participate.picture}
+                            alt={participate.username}
+                            title={participate.username}
+                        />
+                    </div>
+                    <div className="user-bet-center">
+                        <div className="user-bet-name">
+                            {participate.firstName} {participate.lastName}
+                        </div>
+                        <div className="user-bet-rank">
+                            Rank: {participate.rank}
+                            {showPtsDelta && participate.ptsDelta != null && participate.ptsDelta !== 0 ? (
+                                <span
+                                    className={
+                                        participate.ptsDelta > 0
+                                            ? 'view-others-shell__pts-delta view-others-shell__pts-delta--up'
+                                            : 'view-others-shell__pts-delta view-others-shell__pts-delta--down'
+                                    }
+                                >
+                                    {participate.ptsDelta > 0 ? '+' : ''}
+                                    {participate.ptsDelta}
+                                </span>
+                            ) : null}
+                            {showPtsDelta && participate.rankDelta != null && participate.rankDelta !== 0 ? (
+                                <span
+                                    className={
+                                        participate.rankDelta > 0
+                                            ? 'view-others-shell__rank-delta view-others-shell__rank-delta--up'
+                                            : 'view-others-shell__rank-delta view-others-shell__rank-delta--down'
+                                    }
+                                >
+                                    {participate.rankDelta > 0
+                                        ? ` ↑${participate.rankDelta}`
+                                        : ` ↓${Math.abs(participate.rankDelta)}`}
+                                </span>
+                            ) : null}
+                        </div>
+                        {pickStrip ? <div className="user-bet-viewer-picks">{pickStrip}</div> : null}
+                    </div>
+                    <div className="user-bet-weekday-summary">
+                        <WeekdayPathMedalStrip medals={bet.medals} />
+                        <div className="user-bet-weekday-score-box">
+                            <span>{participate.score}</span>
+                        </div>
+                    </div>
+                </li>
+            );
+        }
 
         return (
             <li className="user-bet-row">
@@ -331,6 +411,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
         viewerUserId,
         viewerPicks,
         multiGameDay,
+        weekdayPathLayout,
     }) => {
         const userBetsNode = _.map(_.orderBy(participates, 'rank'), (participate) => {
             return (
@@ -342,6 +423,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
                     viewerUserId={viewerUserId}
                     viewerPicks={viewerPicks}
                     multiGameDay={multiGameDay}
+                    weekdayPathLayout={weekdayPathLayout}
                     bet={
                         _.find(usersBets, (u) => String(u.userId) === String(participate.userId)) || {}
                     }
@@ -370,7 +452,12 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
     }, [weekdayPathPreview, participates]);
 
     if (previewBuilt) {
-        const { splitScores, usersBets: previewBets, participatesWithRank: previewRanked } = previewBuilt;
+        const {
+            splitScores,
+            usersBets: previewBets,
+            participatesWithRank: previewRanked,
+            hypoTone,
+        } = previewBuilt;
         const side = nextGoalPreview.side === 'away' ? 'away' : 'home';
         return (
             <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
@@ -379,6 +466,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
                         challenge={nextGoalPreview.challenge}
                         splitScores={splitScores}
                         side={side}
+                        hypoTone={hypoTone}
                     />
                     <BetsList
                         usersBets={previewBets}
@@ -414,6 +502,7 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
                         viewerUserId={wViewerUserId}
                         viewerPicks={wViewerPicks}
                         multiGameDay={wMultiGameDay}
+                        weekdayPathLayout
                     />
                 </section>
             </div>

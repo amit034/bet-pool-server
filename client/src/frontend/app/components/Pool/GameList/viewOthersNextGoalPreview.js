@@ -53,10 +53,21 @@ export function medalFromOutcome(o) {
     return 0;
 }
 
+function hypoToneFromImpactModifier(impactModifier, side) {
+    if (impactModifier === 'up') return 'best';
+    if (impactModifier === 'down') return 'worst';
+    if (impactModifier === 'neutral') return 'neutral';
+    return side === 'away' ? 'worst' : 'best';
+}
+
 /**
  * Same data shape as View Others: header challenge (scores replaced), usersBets, participatesWithRank.
+ * `impactModifier` from open scenario: 'up' | 'down' | 'neutral' → green / red / silver hypo column.
  */
-export function buildNextGoalViewOthersRows(participates, { challenge, impact, baselineFinalState, challengeId, roundId, poolFactors }) {
+export function buildNextGoalViewOthersRows(
+    participates,
+    { challenge, impact, baselineFinalState, challengeId, roundId, poolFactors, side, impactModifier }
+) {
     const factors = poolFactors || DEFAULT_FACTORS;
     const [proposedH, proposedA] = String(impact.gameScoreLabel || '0-0')
         .split('-')
@@ -105,5 +116,7 @@ export function buildNextGoalViewOthersRows(participates, { challenge, impact, b
         };
     });
 
-    return { splitScores, usersBets, participatesWithRank };
+    const hypoTone = hypoToneFromImpactModifier(impactModifier, side);
+
+    return { splitScores, usersBets, participatesWithRank, hypoTone };
 }

@@ -1,8 +1,8 @@
 import React from 'react';
 
 const DateGroupHeader = ({ dateLabel, bestCaseRank, worstCaseRank, pending, onBestCaseClick, onWorstCaseClick }) => {
-    const bestDisplay = pending ? 'Pending' : bestCaseRank != null ? bestCaseRank : '–';
-    const worstDisplay = pending ? 'Pending' : worstCaseRank != null ? worstCaseRank : '–';
+    const bestDisplay = pending ? '-' : bestCaseRank != null ? bestCaseRank : '–';
+    const worstDisplay = pending ? '-' : worstCaseRank != null ? worstCaseRank : '–';
 
     const bestPillProps =
         onBestCaseClick && !pending

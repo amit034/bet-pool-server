@@ -94,7 +94,7 @@ const Game = ({
         return _.find(gamePaths, { gameScoreLabel: currentScoreLabel })?.finalState ?? null;
     }, [gamePaths, currentScoreLabel]);
 
-    const onOpenScenario = useCallback(({ side, impact }) => {
+    const onOpenScenario = useCallback(({ side, impact, impactModifier }) => {
         if (!impact?.finalState?.length || !onNextGoalPreviewOpen) return;
         onNextGoalPreviewOpen({
             challenge,
@@ -103,6 +103,7 @@ const Game = ({
             challengeId,
             roundId,
             side,
+            impactModifier,
         });
     }, [challenge, baselineFinalState, challengeId, roundId, onNextGoalPreviewOpen]);
 
@@ -142,11 +143,11 @@ const Game = ({
                     <MatchResult score1={c_score1} score2={c_score2} />
                     <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
                 </div>
-                <GoalImpactRow
+                {!isOpen ? <GoalImpactRow
                     homeImpact={homeTeamNext}
                     awayImpact={awayTeamNext}
                     onOpenScenario={onOpenScenario}
-                />
+                /> : ''}
             </div>
         </section>)
     return (
