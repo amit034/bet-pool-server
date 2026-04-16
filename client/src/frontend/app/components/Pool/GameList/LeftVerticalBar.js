@@ -168,6 +168,10 @@ const LeftVerticalBar = ({
 
     const data = gameImpacts.map((item, index) => {
       // 1. Normalize val to -1 to +1 range
+      if(_.isNil(item)) {
+        console.log('item is nil', gameImpacts);
+        return null;
+      }
       const val = item.impactValue >= 0 
         ? (maxPos !== 0 ? item.impactValue / maxPos : 0)
         : (maxNeg !== 0 ? item.impactValue / Math.abs(maxNeg) : 0);

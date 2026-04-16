@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { getParticipatesWithRank } from '../../../utils';
+import { getParticipatesWithRank, formatPreviousLegUi } from '../../../utils';
 import { useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { Modal } from 'semantic-ui-react';
@@ -71,9 +71,10 @@ function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
 function NextGoalSplitPanelHeader({ challenge, splitScores, side, hypoTone }) {
     const {
         id,
-        game: { homeTeam, awayTeam },
+        game: { homeTeam, awayTeam, previousLeg },
         playAt,
     } = challenge;
+    const prevLegUi = formatPreviousLegUi(previousLeg);
     const { currentH, currentA, proposedH, proposedA } = splitScores;
     const scoringLabel =
         side === 'home'
@@ -100,6 +101,11 @@ function NextGoalSplitPanelHeader({ challenge, splitScores, side, hypoTone }) {
                 <div className="game-title game-title--score-split">
                     <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                     <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+                    {prevLegUi ? (
+                        <div className="game-previous-leg game-previous-leg--in-split-header" title={prevLegUi.title}>
+                            {prevLegUi.text}
+                        </div>
+                    ) : null}
                 </div>
                 <ScoreSplitBody
                     kickerText={`If ${scoringLabel} scores next…`}
@@ -202,15 +208,21 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
     const ChallengeDetails = ({ challenge }) => {
         const {
             id,
-            game: { homeTeam, awayTeam },
+            game: { homeTeam, awayTeam, previousLeg },
             playAt,
         } = challenge;
+        const prevLegUi = formatPreviousLegUi(previousLeg);
         return (
             <Modal.Header>
                 <li className="challenge-row" key={id}>
                     <div className="game-title">
                         <div className="game-day">{moment(playAt).format('ddd DD/MM')} -</div>
                         <div className="game-hour">{moment(playAt).format('H:mm')}</div>
+                        {prevLegUi ? (
+                            <div className="game-previous-leg game-previous-leg--in-split-header" title={prevLegUi.title}>
+                                {prevLegUi.text}
+                            </div>
+                        ) : null}
                     </div>
                     <div className="game-body">
                         <TeamScore team={homeTeam} />

@@ -5,6 +5,7 @@ import _ from "lodash";
 import Goal from "./Goal";
 import LeftVerticalBar from "./LeftVerticalBar";
 import GoalImpactRow from "./GoalImpactRow";
+import { formatPreviousLegUi } from "../../../utils";
 const Game = ({
     bet,
     goal,
@@ -19,7 +20,7 @@ const Game = ({
         score1, score2, score, medal,
         challenge} = bet;
     const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
-        game: {homeTeam, awayTeam}, playAt, factorId} = challenge
+        game: {homeTeam, awayTeam, previousLeg}, playAt, factorId} = challenge
     const currentDayRef = useRef(null);
     const gameSideRef = useRef(null);
     const className = classNames('match-tip-image icon link small fitted', {
@@ -112,6 +113,8 @@ const Game = ({
         const idx = _.findIndex(gamePaths, {gameScoreLabel: currentScoreLabel});
         return idx >= 0 ? idx : -1;
     }, [gamePaths, currentScoreLabel]);
+
+    const previousLegLabel = useMemo(() => formatPreviousLegUi(previousLeg), [previousLeg]);
     const betRow = (// Game.js - בתוך ה-return של betRow
         <section style={{display: "contents"}}>
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
@@ -134,7 +137,12 @@ const Game = ({
                     <div className="match-tip">
                         <i className={className} onClick={() => onMatchClick(challengeId, !isOpen)}></i>
                     </div>
-                    <div className="match-center">{factorId > 1 ? 'Main Event' : ''}</div>
+                    <div className="match-center">
+                        {previousLegLabel ? (
+                            <div className="game-previous-leg" title={previousLegLabel.title}>{previousLegLabel.text}</div>
+                        ) : null}
+                        {factorId > 1 ? <span className="game-main-event-label">Main Event</span> : null}
+                    </div>
                     <div className="game-hour">{moment(playAt).format('H:mm')}</div>
                 </div>
         

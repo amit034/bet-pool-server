@@ -24,6 +24,19 @@ module.exports = {
         }
         return findGamesByQuery(query, {transaction});
     },
+    findGamesByEventIdsWithTeams(eventIds, {transaction} = {}) {
+        if (!eventIds || eventIds.length === 0) {
+            return Promise.resolve([]);
+        }
+        return Game.findAll({
+            where: {eventId: {[Op.in]: eventIds}},
+            include: [
+                {model: Team, as: 'homeTeam'},
+                {model: Team, as: 'awayTeam'}
+            ],
+            transaction
+        });
+    },
     findGameByIds(gameIds, {transaction}) {
         return Game.findAll({where: {gameId: gameIds}, transaction});
     },

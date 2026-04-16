@@ -11,6 +11,47 @@ const eventRepository = require('../repositories/eventRepository');
 const goalLogRepository = require('../repositories/goalLogRepository');
 const logger = require('../utils/logger');
 
+function teamPairKey(homeTeamId, awayTeamId) {
+    const a = _.toInteger(homeTeamId);
+    const b = _.toInteger(awayTeamId);
+    return a < b ? `${a}-${b}` : `${b}-${a}`;
+}
+
+/**
+ * For each game, find the most recent earlier fixture in the same event between the same two teams
+ * (unordered pair). Used for two-legged ties / head-to-head within a competition.
+ */
+function buildPreviousLegMap(gameRows) {
+    const prevByGameId = {};
+    const byEvent = _.groupBy(gameRows, 'eventId');
+    _.forEach(byEvent, (eventGames) => {
+        const sorted = _.sortBy(eventGames, (g) => new Date(g.playAt).getTime());
+        for (let i = 0; i < sorted.length; i++) {
+            const g = sorted[i];
+            const key = teamPairKey(g.homeTeamId, g.awayTeamId);
+            let prev = null;
+            for (let j = i - 1; j >= 0; j--) {
+                const h = sorted[j];
+                if (teamPairKey(h.homeTeamId, h.awayTeamId) === key) {
+                    prev = h;
+                    break;
+                }
+            }
+            if (prev) {
+                const pj = prev.toJSON();
+                prevByGameId[g.id] = {
+                    homeTeam: pj.homeTeam,
+                    awayTeam: pj.awayTeam,
+                    score1: pj.homeTeamScore,
+                    score2: pj.awayTeamScore,
+                    playAt: pj.playAt
+                };
+            }
+        }
+    });
+    return prevByGameId;
+}
+
 // On success should return status code 201 to notify the client the account
 // creation has been successful
 // On error should return status code 400 and the error message
@@ -169,35 +210,47 @@ function handleGetUserBets(req, res) {
         }
         return getPopulatePoolChallenges(pool)
             .then((challenges) => {
-                let bets = _.map(challenges, (challenge) => {
-                    let betModel = _.find(userBets, {challengeId: challenge.id});
-                    if (!betModel) {
-                        betModel = new Bet({
-                            userId: account.userId,
-                            poolId: pool.id,
-                            challenge,
-                            score1: null,
-                            score2: null,
-                            score: 0
+                const eventIds = _.map(pool.events, 'id');
+                return gameRepository.findGamesByEventIdsWithTeams(eventIds)
+                    .then((allEventGames) => {
+                        const previousLegByGameId = buildPreviousLegMap(allEventGames);
+                        let bets = _.map(challenges, (challenge) => {
+                            let betModel = _.find(userBets, {challengeId: challenge.id});
+                            if (!betModel) {
+                                betModel = new Bet({
+                                    userId: account.userId,
+                                    poolId: pool.id,
+                                    challenge,
+                                    score1: null,
+                                    score2: null,
+                                    score: 0
+                                });
+                            }
+                            const bet = betModel.toJSON();
+                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
+                            const challengeFactor = _.get(challenge, 'factorId', 1);
+                            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+                            bet.medal = medal;
+                            bet.challenge = challenge.toJSON();
+                            const gameId = _.get(bet.challenge, 'game.id');
+                            if (gameId && previousLegByGameId[gameId]) {
+                                bet.challenge.game.previousLeg = previousLegByGameId[gameId];
+                            }
+                            bet.challengeId = challenge.id;
+                            bet.closed = !challenge.isOpen;
+                            return bet;
                         });
-                    }
-                    const bet = betModel.toJSON();
-                    const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                    const challengeFactor = _.get(challenge, 'factorId', 1);
-                    const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-                    bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
-                    bet.medal = medal;
-                    bet.challenge = challenge;
-                    bet.challengeId = challenge.id;
-                    bet.closed = !challenge.isOpen;
-                    return bet;
-                });
-                if (!req.requestForMe) {
-                    bets = _.reject(bets, (b) => {
-                        return b.close && !b.isBot;
+                        return bets;
+                    })
+                    .then((bets) => {
+                        if (!req.requestForMe) {
+                            bets = _.reject(bets, (b) => {
+                                return b.close && !b.isBot;
+                            });
+                        }
+                        return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
                     });
-                }
-                return res.send(_.orderBy(bets, ['challenge.playAt'], ['asc']));
             });
     }).catch(function (err) {
         logger.log('error', 'An error has occurred while processing a request to handleGetUserBets ' +

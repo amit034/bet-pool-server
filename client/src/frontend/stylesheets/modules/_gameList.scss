@@ -496,6 +496,12 @@ $frosted-blur: blur(8px);
 
           .match-center {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            min-width: 0;
             text-align: center;
             color: $title-4;
             font-family: $font-ui;
@@ -504,6 +510,25 @@ $frosted-blur: blur(8px);
             font-style: normal;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+          }
+
+          .game-previous-leg {
+            max-width: 100%;
+            padding: 0 4px;
+            box-sizing: border-box;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .game-main-event-label {
+            display: block;
           }
 
           .game-day {

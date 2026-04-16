@@ -263,6 +263,7 @@ function calculatelImpact(targetId, players, bets, roundId) {
  */
 function createWeekDayPath(players, initialState, targetId) {
     return (pathScores) => {
+        if (_.isEmpty(pathScores)) return null;
         const pathState = _.map(players, (player) => {
             const { userId, isBot } = player;
             const initialTarget = _.find(initialState, { userId });
@@ -288,7 +289,7 @@ function createWeekDayPath(players, initialState, targetId) {
         const targetState = _.find(participantsWithRank, { userId: targetId });
         return {
             path: pathScores,
-            focusedLabel: _.first(pathScores).gameScoreLabel,
+            focusedLabel: _.get(_.first(pathScores), 'gameScoreLabel', 'N/A')   ,
             pathLabel: pathScores.map(({ gameScore }) => `${_.first(gameScore)}-${_.last(gameScore)}`).join(' · '),
             rank: _.get(targetState, 'rank'),
             targetState,
@@ -513,7 +514,23 @@ function getChallangePredictions(initialState, challengeId) {
         return agg;
     }, {});
 }
-export { calculatelImpact, getOutcome , getRoundRankStats, getParticipatesWithRank, calculateGoalImpact, getWeekPathWithFocused};
+
+/**
+ * Label for the earlier fixture between the same teams in the same event (e.g. first leg).
+ * @param {Object} previousLeg - { homeTeam, awayTeam, score1, score2 } from API
+ * @returns {{ text: string, title: string } | null}
+ */
+function formatPreviousLegUi(previousLeg) {
+    if (!previousLeg) return null;
+    const s1 = previousLeg.score1;
+    const s2 = previousLeg.score2;
+    if (!_.isFinite(_.toNumber(s1)) || !_.isFinite(_.toNumber(s2))) return null;
+    const h = _.get(previousLeg, 'homeTeam.shortName') || _.get(previousLeg, 'homeTeam.name', '');
+    const a = _.get(previousLeg, 'awayTeam.shortName') || _.get(previousLeg, 'awayTeam.name', '');
+    return { text: `Prev. leg ${h} ${s1}-${s2} ${a}`, title: `${h} ${s1}-${s2} ${a}` };
+}
+
+export { calculatelImpact, getOutcome , getRoundRankStats, getParticipatesWithRank, calculateGoalImpact, getWeekPathWithFocused, formatPreviousLegUi};
 
     
 
