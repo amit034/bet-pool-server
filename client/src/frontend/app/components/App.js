@@ -4,7 +4,8 @@ import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
 import {useLocalStorage} from "react-use";
 import {useSelector, useDispatch} from 'react-redux';
-import {Route, Switch, useRouteMatch, Redirect, NavLink} from "react-router-dom";
+import {Route, Switch, useRouteMatch, Redirect} from "react-router-dom";
+import moment from 'moment';
 import Intro from "./Intro";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./Auth/LoginPage";
@@ -12,6 +13,8 @@ import PoolContainer from './Pool/PoolContainer';
 import PoolsContainer from './Pools/PoolsContainer';
 import NewPool from './Pools/NewPool';
 import {getParticipatesWithRank} from "../utils";
+import {getUserBets, getPoolParticipates, getUserPools, getPoolGoals} from '../actions/pools';
+import PullToReloadIndicator from './PullToReloadIndicator';
 
 const App = () => {
     const user = getUserFromLocalStorage();
@@ -22,12 +25,18 @@ const App = () => {
         window.addEventListener('pwa-install-available', onInstallAvailable);
         return () => window.removeEventListener('pwa-install-available', onInstallAvailable);
     }, []);
-    const match = useRouteMatch();
+    const poolMatch = useRouteMatch({path: '/pools/:id'});
+    const poolsListMatch = useRouteMatch({path: '/pools', exact: true});
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
     const [showIntro] =  useLocalStorage('showIntro', 'true');
     const participates = useSelector(state => state.pools.participates);
+    const [dataRefreshBusy, setDataRefreshBusy] = React.useState(false);
+    const [lastDataUpdatedAt, setLastDataUpdatedAt] = React.useState(null);
+    const lastRouteDataKeyRef = React.useRef(null);
+
+    const introBlocking = isAuthenticated && skipIntro !== 'true' && showIntro === 'true';
 
     const leaders = getParticipatesWithRank(participates);
     const rank = _.get(_.find(leaders, {userId: _.get(user, 'userId')}), 'rank');
@@ -41,6 +50,44 @@ const App = () => {
     function unMuteSite() {
         setMute('false');
     }
+
+    React.useEffect(() => {
+        if (!isAuthenticated) return;
+        const poolId = _.get(poolMatch, 'params.id');
+        const key = poolId ? `pool:${poolId}` : poolsListMatch ? 'pools-list' : null;
+        if (!key) return;
+        if (lastRouteDataKeyRef.current !== key) {
+            lastRouteDataKeyRef.current = key;
+            setLastDataUpdatedAt(new Date());
+        }
+    }, [isAuthenticated, poolMatch, poolsListMatch]);
+
+    const handleDataRefresh = React.useCallback(() => {
+        if (dataRefreshBusy) return;
+        const poolId = _.get(poolMatch, 'params.id');
+        if (poolId) {
+            setDataRefreshBusy(true);
+            Promise.all([
+                dispatch(getUserBets(poolId)),
+                dispatch(getPoolParticipates(poolId)),
+                dispatch(getPoolGoals(poolId)),
+            ])
+                .then(() => setLastDataUpdatedAt(new Date()))
+                .finally(() => setDataRefreshBusy(false));
+            return;
+        }
+        if (poolsListMatch) {
+            setDataRefreshBusy(true);
+            Promise.resolve(dispatch(getUserPools()))
+                .then(() => setLastDataUpdatedAt(new Date()))
+                .finally(() => setDataRefreshBusy(false));
+        }
+    }, [dataRefreshBusy, poolMatch, poolsListMatch, dispatch]);
+
+    const lastUpdatedLabel = lastDataUpdatedAt
+        ? `Updated ${moment(lastDataUpdatedAt).format('DD/MM HH:mm')}`
+        : '';
+
     const switcher = (<Switch>
         <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
         <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated}/>
@@ -73,15 +120,6 @@ const App = () => {
 
     const menu = isAuthenticated ?
         (<Menu fixed='top' inverted fluid className="top-menu">
-                {match.params.id > 0 && (
-                <Menu.Item
-                    name='pools'
-                    as={NavLink} exact to={`/pools`}
-                >
-                    <Icon name='angle left'/>
-                    Back to Pools
-                </Menu.Item>
-                )}
                 <Dropdown
                     item
                     className="top-menu-user-dropdown"
@@ -130,10 +168,33 @@ const App = () => {
                         </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
+                {(poolMatch || poolsListMatch) ? (
+                    <Menu.Menu position="right" className="top-menu-right-meta">
+                        <Menu.Item className="top-menu-updated-and-hint">
+                            {lastUpdatedLabel ? (
+                                <span className="top-menu-updated-label">{lastUpdatedLabel}</span>
+                            ) : null}
+                            <span className="top-menu-pull-hint">Pull down to reload page</span>
+                        </Menu.Item>
+                        <Menu.Item
+                            className="top-menu-refresh-item"
+                            icon
+                            disabled={dataRefreshBusy}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDataRefresh();
+                            }}
+                            title="Refresh scores and standings"
+                        >
+                            <Icon name="refresh" loading={dataRefreshBusy} />
+                        </Menu.Item>
+                    </Menu.Menu>
+                ) : null}
             </Menu>) : '';
     return (<div className="app-wrapper">
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
+        <PullToReloadIndicator enabled={isAuthenticated && !introBlocking} />
         {switcher}
     </div>);
 };

@@ -41,7 +41,7 @@ const PoolContainer = (props) => {
             socket.off('updateChallenge', handler);
             socket.emit('leavePool', poolId);
         };
-    }, [dispatch]);
+    }, [dispatch, poolId]);
 
     return (<div id="content" className="ui container">
              <Route exact path={`${props.match.path}/participates`} component={LeadersContainer}/>

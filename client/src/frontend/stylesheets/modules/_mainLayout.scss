@@ -63,7 +63,7 @@ $menu-glass-shine: linear-gradient(
   align-items: flex-start;
   text-align: left;
   line-height: 1.2;
-  max-width: 52vw;
+  max-width: 38vw;
   justify-content: center;
   gap: 4px;
   margin-left: 10px;
@@ -139,6 +139,22 @@ $menu-glass-shine: linear-gradient(
       }
     }
 
+    /* Right cluster (updated / refresh): no nested .menu glass — inherit main bar only */
+    & > .menu.right.top-menu-right-meta {
+      background-color: transparent !important;
+      background-image: none !important;
+
+      & > .item {
+        background-color: transparent !important;
+        background-image: none !important;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          background-image: none !important;
+        }
+      }
+    }
+
     .item:before {
       background: none;
     }
@@ -204,6 +220,73 @@ $menu-glass-shine: linear-gradient(
 
   .item {
     color: $title-1 !important;
+  }
+
+  & > .menu.right.top-menu-right-meta {
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    margin-left: auto !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    & > .item {
+      background-color: transparent !important;
+      background-image: none !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        background-image: none !important;
+      }
+    }
+  }
+
+  & > .menu.right > .item.top-menu-updated-and-hint {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 4px 8px 4px 4px !important;
+    max-width: 42vw;
+    pointer-events: none;
+  }
+
+  & > .menu.right > .item.top-menu-updated-and-hint::before {
+    display: none !important;
+  }
+
+  .top-menu-updated-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $title-4 !important;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .top-menu-pull-hint {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.45) !important;
+    line-height: 1.2;
+    margin-top: 2px;
+    text-align: right;
+    max-width: 36vw;
+  }
+
+  & > .menu.right > .item.top-menu-refresh-item {
+    padding-left: 6px !important;
+    padding-right: 14px !important;
+    min-width: 44px;
+    justify-content: center;
+    color: $title-4 !important;
+    align-self: center;
+  }
+
+  & > .menu.right > .item.top-menu-refresh-item .icon {
+    margin: 0 !important;
+    font-size: 1.15rem !important;
   }
 }
 .top-menu-user-dropdown.ui.dropdown .menu {
