@@ -25,6 +25,7 @@ const GameList = ({poolId}) => {
     const participates = useSelector(state => state.pools.participates);
     const pool = useSelector(state => state.pools.pools[poolId]);
     const poolFactors = _.get(pool, 'factors', { 0: 0, 1: 10, 2: 20, 3: 30 });
+    const scoringMode = _.get(pool, 'factorsStrategy', 0);
     const user = getUserFromLocalStorage();
     const userId = _.get(user, 'userId');
 
@@ -57,10 +58,11 @@ const GameList = ({poolId}) => {
             setNextGoalPreview({
                 ...payload,
                 poolFactors,
+                scoringMode,
             });
             setViewOthersOpen(true);
         },
-        [poolFactors]
+        [poolFactors, scoringMode]
     );
     const onWeekdayPathPreviewOpen = useCallback(
         (payload) => {
@@ -68,10 +70,11 @@ const GameList = ({poolId}) => {
             setWeekdayPathPreview({
                 ...payload,
                 poolFactors,
+                scoringMode,
             });
             setViewOthersOpen(true);
         },
-        [poolFactors]
+        [poolFactors, scoringMode]
     );
     const clickOnBetChange = useCallback ((challengeId, score1, score2) => {
         handleViewOthersClose();
@@ -127,7 +130,7 @@ const GameList = ({poolId}) => {
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
             const playAtKey = _.toString(playAt);
             const hasOpenBets = _.some(bets, (bet) => !_.get(bet, 'closed'));
-            const assignment = calculatelImpact(userId, participates, bets, roundId);
+            const assignment = calculatelImpact(userId, participates, bets, roundId, {poolFactors, scoringMode});
             const dateLabel = moment(playAtKey, 'YYYYMMDD').format('dddd DD/MM');
             const closedCount = _.filter(bets, 'closed').length;
             const canOpenPath = !hasOpenBets && closedCount > 0 && _.get(assignment, 'best.path.length', 0) > 0;
@@ -149,6 +152,7 @@ const GameList = ({poolId}) => {
                                           roundId,
                                           viewerUserId: userId,
                                           poolFactors,
+                                          scoringMode,
                                       })
                                 : undefined
                         }
@@ -163,6 +167,7 @@ const GameList = ({poolId}) => {
                                           roundId,
                                           viewerUserId: userId,
                                           poolFactors,
+                                          scoringMode,
                                       })
                                 : undefined
                         }
@@ -172,7 +177,9 @@ const GameList = ({poolId}) => {
             agg.push(..._.map(bets,(bet) => {
                 const {challengeId} = bet;
                 const goal = _.get(goals, challengeId, null);
-                const gameImpact =  getWeekPathWithFocused( userId, participates, roundBets, assignment.initial, challengeId);
+                const gameImpact = getWeekPathWithFocused(
+                    userId, participates, roundBets, assignment.initial, challengeId, {poolFactors, scoringMode}
+                );
                 const gameNode = (
                         <Game
                             bet={bet}

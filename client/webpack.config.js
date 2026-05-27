@@ -78,8 +78,7 @@ var config = {
                 query: {
                     presets: ["@babel/preset-env", "@babel/preset-react"],
                     plugins: [
-                        '@babel/plugin-proposal-object-rest-spread',
-                        '@babel/plugin-transform-async-to-generator'
+                        '@babel/plugin-proposal-object-rest-spread'
                     ]
                 }
             },
@@ -110,11 +109,23 @@ var config = {
                 use: 'svg-url-loader'
             },
             {
-                test: /\.(sa|sc|c)ss$/,
+                test: /\.css$/,
                 use: [
-                    {loader: "style-loader"},
-                    {loader: "css-loader" },
-                    {loader: "sass-loader"}
+                    {loader: 'style-loader'},
+                    {loader: 'css-loader'}
+                ]
+            },
+            {
+                test: /\.(sa|sc)ss$/,
+                use: [
+                    {loader: 'style-loader'},
+                    {loader: 'css-loader'},
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: require('sass')
+                        }
+                    }
                 ]
             },
             {

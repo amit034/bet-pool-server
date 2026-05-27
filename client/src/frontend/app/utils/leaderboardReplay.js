@@ -1,8 +1,9 @@
 'use strict';
 import _ from 'lodash';
 import {getParticipatesWithRank} from '../utils';
+import {computeBetScore, DEFAULT_POOL_FACTORS, SCORING_MODE} from './betScoring';
 
-const DEFAULT_FACTORS = {0: 0, 1: 10, 2: 20, 3: 30};
+const DEFAULT_FACTORS = DEFAULT_POOL_FACTORS;
 
 /**
  * Medal tier for a prediction vs final score (matches server Bet.prototype.score).
@@ -41,7 +42,10 @@ export function buildChallengeMetaFromBets(betsMap) {
         const entry = {
             gameId: gid,
             factor: ch.factorId || 1,
-            round: _.get(ch, 'game.round')
+            round: _.get(ch, 'game.round'),
+            odds1: ch.odds1,
+            oddsX: ch.oddsX,
+            odds2: ch.odds2
         };
         meta[ch.id] = entry;
         meta[String(ch.id)] = entry;
@@ -60,8 +64,9 @@ function scorePairForGame(gameScores, gameId) {
  * Leaderboard rows for a simulated score map. Bets only count once that game has a score
  * in `gameScores` (replay starts at 0; games join as the goal log advances).
  */
-export function computeLeaderboardSnapshot(participates, poolFactors, gameScores, challengeMeta, {roundIndex} = {}) {
+export function computeLeaderboardSnapshot(participates, poolFactors, gameScores, challengeMeta, {roundIndex, scoringMode} = {}) {
     const factors = poolFactors || DEFAULT_FACTORS;
+    const mode = _.isNil(scoringMode) ? SCORING_MODE.CLASSIC : scoringMode;
     const p0 = _.first(participates);
     const roundsLen = _.size(_.get(p0, 'rounds', []));
     const roundIndices = _.isInteger(roundIndex)
@@ -87,13 +92,25 @@ export function computeLeaderboardSnapshot(participates, poolFactors, gameScores
                 }
                 const ah = pair[0];
                 const aa = pair[1];
-                const medal = medalFromPrediction(bet.score1, bet.score2, ah, aa);
-                if (!medal) {
+                const fac = bet.factor || m.factor || 1;
+                const computed = computeBetScore({
+                    bet,
+                    challenge: {
+                        factorId: fac,
+                        odds1: m.odds1,
+                        oddsX: m.oddsX,
+                        odds2: m.odds2
+                    },
+                    poolFactors: factors,
+                    actualScore1: ah,
+                    actualScore2: aa,
+                    scoringMode: mode
+                });
+                if (!computed.medal) {
                     return;
                 }
-                const fac = bet.factor || m.factor || 1;
-                score += _.get(factors, medal, 0) * fac;
-                medals[medal] = (medals[medal] || 0) + fac;
+                score += computed.score;
+                medals[computed.medal] = (medals[computed.medal] || 0) + fac;
             });
         });
         return {
@@ -146,13 +163,16 @@ export function filterGoalLogsByRound(logs, roundId) {
  * @param {number} [roundId] - game.round value; filters log lines for per-round replay
  * @param {number} [roundIndex] - participates[].rounds index; scopes leaderboard to that round only
  */
-export function buildReplaySnapshots(participates, poolFactors, sortedLogs, challengeMeta, {roundId, roundIndex} = {}) {
+export function buildReplaySnapshots(participates, poolFactors, sortedLogs, challengeMeta, {roundId, roundIndex, scoringMode} = {}) {
     const logs = roundId != null && roundId !== '' ? filterGoalLogsByRound(sortedLogs, roundId) : sortedLogs;
     const rIdx = _.isInteger(roundIndex) ? roundIndex : undefined;
     const snapshots = [];
     const gameScores = {};
     const pushSnapshot = (stepIndex, logEntry) => {
-        const leaders = computeLeaderboardSnapshot(participates, poolFactors, gameScores, challengeMeta, {roundIndex: rIdx});
+        const leaders = computeLeaderboardSnapshot(participates, poolFactors, gameScores, challengeMeta, {
+            roundIndex: rIdx,
+            scoringMode
+        });
         snapshots.push({
             stepIndex,
             logEntry: logEntry || null,

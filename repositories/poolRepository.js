@@ -48,6 +48,10 @@ module.exports = {
     createPool(details, {transaction} = {}) {
         return Pool.create(details, {transaction, returning: true});
     },
+    async updatePool(poolId, patch, {transaction} = {}) {
+        await Pool.update(patch, {where: {poolId}, transaction});
+        return Pool.findByPk(poolId, {transaction});
+    },
     async addChallenges(poolId, challenges, {transaction} = {}) {
         const pool = await Pool.findByPk(poolId, {include: [{model: Challenge, as: 'challenges', required: false}], transaction});
         return pool.addChallenges(challenges, {transaction});

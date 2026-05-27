@@ -17,7 +17,7 @@ const Game = ({
     roundId,
 }) => {
     const {
-        score1, score2, score, medal,
+        score1, score2, score, medal, basePoints, oddsMultiplier,
         challenge} = bet;
     const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
         game: {homeTeam, awayTeam, previousLeg}, playAt, factorId} = challenge
@@ -67,14 +67,20 @@ const Game = ({
             </div>
         </div>);
     };
-    const Medal = ({score, medal}) => {
+    const Medal = ({score, medal, basePoints, oddsMultiplier}) => {
         const className = classNames('bet-score-medal', {
             'no-medal': medal === 0,
             'bronze-medal': medal === 1,
             'sliver-medal': medal === 2,
             'gold-medal': medal === 3
         });
+        const showOdds = medal > 0 && basePoints > 0 && oddsMultiplier > 1;
         return <div className="bet-score">
+            {showOdds && (
+                <span className="bet-score-odds" title="Base × match odds">
+                    {basePoints}×{oddsMultiplier}
+                </span>
+            )}
             <label className={className}>{score}</label>
         </div>
     };
@@ -120,7 +126,14 @@ const Game = ({
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
             <div className="game-side" ref={gameSideRef}>
                 <div className="game-side-score">
-                    {!isOpen ? <Medal score={score} medal={medal} /> : ''}
+                    {!isOpen ? (
+                        <Medal
+                            score={score}
+                            medal={medal}
+                            basePoints={basePoints}
+                            oddsMultiplier={oddsMultiplier}
+                        />
+                    ) : ''}
                 </div>
                 {!isOpen ? (
                     <LeftVerticalBar

@@ -121,6 +121,7 @@ const LeadersContainer = () => {
 
     const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
     const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+    const scoringMode = _.get(pool, 'factorsStrategy', 0);
     const challengeMeta = useMemo(() => buildChallengeMetaFromBets(bets), [bets]);
     const sortedLogs = useMemo(() => _.sortBy(goalsLog || [], (g) => new Date(g.createdAt).getTime()), [goalsLog]);
 
@@ -175,8 +176,11 @@ const LeadersContainer = () => {
         if (_.isEmpty(participates)) {
             return [];
         }
-        return buildReplaySnapshots(participates, poolFactors, sortedLogs, challengeMeta, replayScope);
-    }, [participates, poolFactors, sortedLogs, challengeMeta, replayScope]);
+        return buildReplaySnapshots(participates, poolFactors, sortedLogs, challengeMeta, {
+            ...replayScope,
+            scoringMode
+        });
+    }, [participates, poolFactors, sortedLogs, challengeMeta, replayScope, scoringMode]);
 
     const maxStep = Math.max(0, snapshots.length - 1);
     const safeStep = Math.min(replayStep, maxStep);

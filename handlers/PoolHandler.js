@@ -13,6 +13,26 @@ const eventRepository = require('../repositories/eventRepository');
 const goalLogRepository = require('../repositories/goalLogRepository');
 const poolInviteHandler = require('./PoolInviteHandler');
 const logger = require('../utils/logger');
+const betScoring = require('../utils/betScoring');
+const crypto = require('crypto');
+
+function poolScoringMode(pool) {
+    return _.get(pool, 'factorsStrategy', betScoring.SCORING_MODE.CLASSIC);
+}
+
+function scoreBetForChallenge(bet, challenge, pool) {
+    const poolFactors = _.get(pool, 'factors', betScoring.DEFAULT_POOL_FACTORS);
+    const computed = betScoring.computeBetScore({
+        bet,
+        challenge,
+        poolFactors,
+        actualScore1: _.get(challenge, 'score1'),
+        actualScore2: _.get(challenge, 'score2'),
+        scoringMode: poolScoringMode(pool)
+    });
+    betScoring.applyBetScoreFields(bet, computed);
+    return bet;
+}
 
 function poolIdFrom(pool) {
     return pool.poolId || pool.id;
@@ -86,20 +106,33 @@ function buildPreviousLegMap(gameRows) {
 function handleCreatePoolRequest(req, res) {
     const name = req.body.name || null;
     const userId = req.params.userId || null;
+    const factorsStrategy = _.parseInt(req.body.factorsStrategy, 10);
+    const scoringMode = factorsStrategy === betScoring.SCORING_MODE.ODDS
+        ? betScoring.SCORING_MODE.ODDS
+        : betScoring.SCORING_MODE.CLASSIC;
     if (userId) {
         accountRepository.findById(userId)
             .then(
                 function (account) {
                     if (account && account.isActive === true) {
-                        repository.createPool(account, name)
+                        const buyIn = _.parseInt(req.body.buyIn, 10);
+                        const poolDetails = {
+                            ownerId: account.userId,
+                            name,
+                            public: req.body.isPublic !== false && req.body.public !== false,
+                            buyIn: _.isNaN(buyIn) ? 0 : Math.max(0, buyIn),
+                            code: crypto.randomBytes(4).toString('hex'),
+                            factorsStrategy: scoringMode
+                        };
+                        repository.createPool(poolDetails)
                             .then(function (pool) {
                                 return addParticipatesToPool(pool, [userId], true, req);
                             })
                             .then(function (pool) {
-
+                                const full = pool.toJSON ? pool.toJSON() : pool;
                                 logger.log('info', 'Pool for' + userId + ' has been created.' +
                                     'Request from address ' + req.connection.remoteAddress + '.');
-                                res.status(201).send(pool);
+                                res.status(201).send(full);
 
                             }).catch(function (err) {
                             logger.log('error', 'An error has occurred while processing a request to create an ' +
@@ -170,7 +203,6 @@ function handleGetParticipates(req, res) {
                     return [pool, _.map(usersBets, bet => bet.toJSON())];
                 });
         }).then(([pool, usersBets]) => {
-            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
             const challengeRounds = _.groupBy(pool.challenges, c => c.game.round);
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
@@ -182,14 +214,11 @@ function handleGetParticipates(req, res) {
                         roundScore.round = challenge.game.round;
                         const bet = challengeBets[challenge.id];
                         if(bet) {
-                            const betModel = new Bet(bet);
-                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
                             const challengeFactor = _.get(challenge, 'factorId', 1);
-                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+                            scoreBetForChallenge(bet, challenge, pool);
                             bet.closed = !challenge.isOpen;
                             bet.status = challenge.status;
                             bet.factor = challengeFactor;
-                            bet.medal = medal;
                             if(bet.medal){
                                 roundScore.score += bet.score;
                                 _.set(roundScore.medals, bet.medal, _.get(roundScore.medals, bet.medal, 0) + (1 * bet.factor));
@@ -255,11 +284,7 @@ function handleGetUserBets(req, res) {
                                 });
                             }
                             const bet = betModel.toJSON();
-                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                            const challengeFactor = _.get(challenge, 'factorId', 1);
-                            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
-                            bet.medal = medal;
+                            scoreBetForChallenge(bet, challenge, pool);
                             bet.challenge = challenge.toJSON();
                             const gameId = _.get(bet.challenge, 'game.id');
                             if (gameId && previousLegByGameId[gameId]) {
@@ -761,8 +786,68 @@ async function handleGetPoolGoals(req, res) {
     }
 }
 
+async function handleGetPool(req, res) {
+    const poolId = req.params.poolId;
+    const userId = _.toInteger(req.params.userId);
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        if (_.toInteger(pool.ownerId) !== userId) {
+            return res.status(403).send({error: 'you are not the owner of the pool'});
+        }
+        return res.send(pool.toJSON ? pool.toJSON() : pool);
+    } catch (err) {
+        logger.log('error', 'handleGetPool pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
+async function handleUpdatePool(req, res) {
+    const poolId = req.params.poolId;
+    const userId = _.toInteger(req.params.userId);
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        if (_.toInteger(pool.ownerId) !== userId) {
+            return res.status(403).send({error: 'you are not the owner of the pool'});
+        }
+        const patch = {};
+        if (req.body.name != null) {
+            patch.name = String(req.body.name).trim();
+        }
+        if (req.body.public != null || req.body.isPublic != null) {
+            patch.public = req.body.public !== false && req.body.isPublic !== false;
+        }
+        if (req.body.image != null) {
+            patch.image = req.body.image;
+        }
+        if (req.body.factorsStrategy != null) {
+            const fs = _.parseInt(req.body.factorsStrategy, 10);
+            patch.factorsStrategy = fs === betScoring.SCORING_MODE.ODDS
+                ? betScoring.SCORING_MODE.ODDS
+                : betScoring.SCORING_MODE.CLASSIC;
+        }
+        if (_.isEmpty(patch)) {
+            return res.send(pool.toJSON ? pool.toJSON() : pool);
+        }
+        const updated = await repository.updatePool(poolId, patch);
+        return res.send(updated.toJSON ? updated.toJSON() : updated);
+    } catch (err) {
+        logger.log('error', 'handleUpdatePool pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
 module.exports = {
         createPool: handleCreatePoolRequest,
+        getPool: handleGetPool,
+        updatePool: handleUpdatePool,
         addGames: handleAddGames,
         getGames: handleGetGames,
         addEvents: handleAddEvents,

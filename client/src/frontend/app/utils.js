@@ -1,5 +1,6 @@
 'use strict';
 import _ from 'lodash';
+import {scoreFromPrediction, DEFAULT_POOL_FACTORS, SCORING_MODE} from './utils/betScoring';
 
 /**
  * Get the participates with their rank by sorting the participates by the score and medals and return the target player state with the rank.
@@ -135,15 +136,20 @@ function rankInState(state, targetId) {
  * @param predictions - predictions
  * @returns {Object} - { gameScoreLabel: string, gameScore: [number, number], impacts: Array, targetState: Object }
  */
-function calculateGoalImpact(targetId, gameScore, factorId, players, predictions) {
+function calculateGoalImpact(targetId, gameScore, challenge, players, predictions, poolFactors, scoringMode) {
+    const factorId = _.get(challenge, 'factorId', 1);
+    const factors = poolFactors || DEFAULT_POOL_FACTORS;
+    const mode = _.isNil(scoringMode) ? SCORING_MODE.CLASSIC : scoringMode;
+    const chForScore = _.assign({}, challenge, {score1: gameScore[0], score2: gameScore[1]});
     const scenarioData = _.reduce(players, (agg, player) => {
         const {userId, isBot} = player;
         const monkey = _.get(predictions, ['2'], null);
         const prediction = _.get(predictions, `[${userId}]`, monkey);
         const impact = getOutcome(prediction, gameScore);
+        const computed = scoreFromPrediction(prediction, gameScore, chForScore, factors, mode);
         agg.push({
             userId, isBot,
-            score: impact.pts * (factorId * 10),
+            score: computed.score,
             medals: {
                 1: impact.b * (factorId * 10),
                 2: impact.s * (factorId * 10),
@@ -165,7 +171,7 @@ function calculateGoalImpact(targetId, gameScore, factorId, players, predictions
  * @param players - each { id, points, gold, silver, bronze, preds } where preds[challengeId] = [score1, score2] from bet
  * @param remainingGames - open games, each { id: challengeId, factor }
  */
-function calculatelImpact(targetId, players, bets, roundId) {
+function calculatelImpact(targetId, players, bets, roundId, {poolFactors, scoringMode} = {}) {
     if (_.isEmpty(players) || _.isEmpty(_.filter(bets, 'closed')) || roundId < 0) {
         return { best: null, worst: null };
     }
@@ -198,7 +204,7 @@ function calculatelImpact(targetId, players, bets, roundId) {
         return playerAgg;
     }, {});
 
-    const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState);
+    const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState, poolFactors, scoringMode);
 
     const bestScenario = _.map(weekdayScenarios, 'best');
     const worstScenario = _.map(weekdayScenarios, 'worst');
@@ -341,7 +347,7 @@ function getOptionalPredictions(playersPredictions) {
  * @param initialState - initial state
  * @returns {Array} - week day scenarios
  */
-function createWeekDaySenarios(targetId, players, bets, initialState) {
+function createWeekDaySenarios(targetId, players, bets, initialState, poolFactors, scoringMode) {
     const factorSum = _.sumBy(bets, 'challenge.factorId');
     return _.map(_.filter(bets, 'closed'), (bet) => {
         const { challengeId, challenge: { factorId = 1, game:{ homeTeamScore, awayTeamScore, status}}} = bet;
@@ -357,7 +363,9 @@ function createWeekDaySenarios(targetId, players, bets, initialState) {
         const preds = getOptionalPredictions(_.uniqWith(_.values(playersPredictions), _.isEqual));
         const uniqueScores = _.uniqWith(_.concat( preds, [currentScoreLine, homeTeamNextScoreLine, awayTeamNextScoreLine]), _.isEqual);
         const gameResults = uniqueScores.map((score) => {
-            const impact = calculateGoalImpact(targetId, score, factorId, players, playersPredictions);
+            const impact = calculateGoalImpact(
+                targetId, score, bet.challenge, players, playersPredictions, poolFactors, scoringMode
+            );
             return {
                 ...impact,
                 factorId
@@ -453,11 +461,11 @@ function scoreKey({ home, away }) {
  * @returns {Object} - { gamePaths: sorted game paths by game score distance for 0-0, homeTeamNext: game path for home team next score, awayTeamNext: game path for away team next score }
  */
 
-function getWeekPathWithFocused(targetId, players, bets, initialState, challengeId) {
+function getWeekPathWithFocused(targetId, players, bets, initialState, challengeId, {poolFactors, scoringMode} = {}) {
     if (_.isEmpty(players) || _.isEmpty(_.filter(bets, 'closed')) || _.isEmpty(initialState) || _.isNil(initialState) || _.isNil(challengeId)) {
         return null;
     }
-    const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState);
+    const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState, poolFactors, scoringMode);
     if (!_.find(weekdayScenarios, {challengeId})) {
         return null;
     }

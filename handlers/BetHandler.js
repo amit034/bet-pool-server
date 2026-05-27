@@ -5,6 +5,11 @@ const accountRepository = require('../repositories/accountRepository');
 const poolRepository = require('../repositories/poolRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const logger = require('../utils/logger');
+const betScoring = require('../utils/betScoring');
+
+function poolScoringMode(pool) {
+    return _.get(pool, 'factorsStrategy', betScoring.SCORING_MODE.CLASSIC);
+}
 
 function handleGetOthersBets(req, res) {
     const poolId = req.params.poolId ||null;
@@ -15,13 +20,19 @@ function handleGetOthersBets(req, res) {
         repository.findUserBetsByQuery({poolId, challengeId})
     ]).then(function ([pool, challenge, usersBets]) {
             if (challenge) {
-                const challengeFactor = _.get(challenge, 'factorId', 1);
-                const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
+                const poolFactors = _.get(pool, 'factors', betScoring.DEFAULT_POOL_FACTORS);
+                const chJson = challenge.toJSON ? challenge.toJSON() : challenge;
                 const bets = _.map(usersBets, betModel => {
                     const bet = betModel.toJSON();
-                    bet.medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
-                    bet.score = _.get(poolFactors, bet.medal, 0) * challengeFactor;
-                    return bet;
+                    const computed = betScoring.computeBetScore({
+                        bet,
+                        challenge: chJson,
+                        poolFactors,
+                        actualScore1: chJson.score1,
+                        actualScore2: chJson.score2,
+                        scoringMode: poolScoringMode(pool)
+                    });
+                    return betScoring.applyBetScoreFields(bet, computed);
                 });
                 return res.status(200).send({challenge, usersBets: challenge.playAt > moment() ? _.filter(bets, 'isPublic') :  bets});
             } else {

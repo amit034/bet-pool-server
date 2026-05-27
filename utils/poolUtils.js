@@ -1,6 +1,26 @@
 const _ = require('lodash');
 const moment = require('moment');
 const repository = require('../repositories/poolRepository');
+const betScoring = require('./betScoring');
+
+function poolScoringMode(pool) {
+    return _.get(pool, 'factorsStrategy', betScoring.SCORING_MODE.CLASSIC);
+}
+
+function scoreBetForChallenge(bet, challenge, pool) {
+    const poolFactors = _.get(pool, 'factors', betScoring.DEFAULT_POOL_FACTORS);
+    const computed = betScoring.computeBetScore({
+        bet,
+        challenge,
+        poolFactors,
+        actualScore1: _.get(challenge, 'score1'),
+        actualScore2: _.get(challenge, 'score2'),
+        scoringMode: poolScoringMode(pool)
+    });
+    betScoring.applyBetScoreFields(bet, computed);
+    return bet;
+}
+
 const betRepository = require('../repositories/betRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const gameRepository = require('../repositories/gameRepository');
@@ -39,6 +59,8 @@ function getPopulatePoolChallenges(pool, active, challangeId) {
 }
 
 module.exports = {
+    scoreBetForChallenge,
+    poolScoringMode,
 
     /**
      * Get the current round number and check if it's complete
@@ -115,7 +137,6 @@ module.exports = {
                     return [pool, _.map(usersBets, bet => bet.toJSON())];
                 });
         }).then(([pool, usersBets]) => {
-            const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
             const challengeRounds = _.groupBy(pool.challenges, c => c.game.round);
             const participates = _.map(pool.participates, (participateModel) => {
                 const participate = _.pick(participateModel, ['joined']);
@@ -126,14 +147,11 @@ module.exports = {
                     const round = _.reduce(challenges, (roundScore, challenge) => {
                         const bet = challengeBets[challenge.id];
                         if(bet) {
-                            const betModel = new Bet(bet);
-                            const medal = betModel.score(_.parseInt(_.get(challenge, 'score1')), _.parseInt(_.get(challenge, 'score2')));
                             const challengeFactor = _.get(challenge, 'factorId', 1);
-                            bet.score = _.get(poolFactors, medal, 0) * challengeFactor;
+                            scoreBetForChallenge(bet, challenge, pool);
                             bet.closed = !challenge.isOpen;
                             bet.status = challenge.status;
                             bet.factor = challengeFactor;
-                            bet.medal = medal;
                             if(bet.medal){
                                 roundScore.score += bet.score;
                                 _.set(roundScore.medals, bet.medal, _.get(roundScore.medals, bet.medal, 0) + (1 * bet.factor));

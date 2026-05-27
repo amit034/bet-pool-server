@@ -28,6 +28,8 @@ function setup(app, handlers, authorisationPolicy) {
         next();
     } , handlers.pools.getPools);
     app.post('/api/:userId/pools', authorisationPolicy, handlers.pools.createPool);
+    app.get('/api/:userId/pools/:poolId', authorisationPolicy, handlers.pools.getPool);
+    app.put('/api/:userId/pools/:poolId', authorisationPolicy, handlers.pools.updatePool);
     app.get('/api/:userId/pools/:poolId/bets', authorisationPolicy, (req, res, next) => {
         if (req.isDemo) {
             return res.json(demoPool.userBets);

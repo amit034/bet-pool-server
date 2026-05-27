@@ -213,3 +213,5 @@
 {"level":"info","message":"User  is not authorised. Request from address ::ffff:127.0.0.1.","timestamp":"2026-01-19T19:23:23.042Z"}
 {"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-04-10T20:10:09.661Z"}
 {"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-04-10T20:10:09.664Z"}
+{"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-05-27T19:07:57.840Z"}
+{"level":"info","message":"User  is not authorised. Request from address ::1.","timestamp":"2026-05-27T19:07:57.841Z"}

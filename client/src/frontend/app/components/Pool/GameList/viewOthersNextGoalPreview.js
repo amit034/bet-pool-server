@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { getOutcome } from '../../../utils';
 import { rankDeltaFromBaseline } from './viewOthersRankDelta';
+import { computeBetScore, DEFAULT_POOL_FACTORS } from '../../../utils/betScoring';
 
 const DEFAULT_FACTORS = { 0: 0, 1: 10, 2: 20, 3: 30 };
 
@@ -66,7 +67,7 @@ function hypoToneFromImpactModifier(impactModifier, side) {
  */
 export function buildNextGoalViewOthersRows(
     participates,
-    { challenge, impact, baselineFinalState, challengeId, roundId, poolFactors, side, impactModifier }
+    { challenge, impact, baselineFinalState, challengeId, roundId, poolFactors, scoringMode, side, impactModifier }
 ) {
     const factors = poolFactors || DEFAULT_FACTORS;
     const [proposedH, proposedA] = String(impact.gameScoreLabel || '0-0')
@@ -86,15 +87,21 @@ export function buildNextGoalViewOthersRows(
             b.score1 != null && b.score2 != null && b.score1 !== '' && b.score2 !== ''
                 ? [Number(b.score1), Number(b.score2)]
                 : null;
-        const o = getOutcome(pred, [proposedH, proposedA]);
-        const medal = medalFromOutcome(o);
+        const computed = computeBetScore({
+            bet: {score1: b.score1, score2: b.score2},
+            challenge: _.assign({}, challenge, {score1: proposedH, score2: proposedA, factorId}),
+            poolFactors: factors,
+            actualScore1: proposedH,
+            actualScore2: proposedA,
+            scoringMode
+        });
         return {
             userId: p.userId,
             score1: b.score1,
             score2: b.score2,
             challengeId,
-            score: _.get(factors, medal, 0) * factorId,
-            medal,
+            score: computed.score,
+            medal: computed.medal,
         };
     });
 
