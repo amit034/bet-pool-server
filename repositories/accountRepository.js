@@ -5,8 +5,10 @@ module.exports = {
 	findById(userId) {
 		return Account.findByPk(userId);
 	},
-	findActiveAccountsByIds(userId) {
-		return Account.findAll({where: {userId}});
+	findActiveAccountsByIds(userIds) {
+		const {Op} = require('sequelize');
+		const ids = Array.isArray(userIds) ? userIds : [userIds];
+		return Account.findAll({where: {userId: {[Op.in]: ids}, isActive: true}});
 	},
 	createAccount(details, {transaction} = {}) {
 		return Account.create(details, {transaction});

@@ -1,15 +1,43 @@
 const _ = require('lodash');
+const moment = require('moment');
 const Q = require('q');
 const {Bet, Challenge, Sequelize} = require('../models');
 const {Op} = Sequelize;
 const repository = require('../repositories/poolRepository');
 const accountRepository = require('../repositories/accountRepository');
+const poolInviteRepository = require('../repositories/poolInviteRepository');
 const gameRepository = require('../repositories/gameRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const betRepository = require('../repositories/betRepository');
 const eventRepository = require('../repositories/eventRepository');
 const goalLogRepository = require('../repositories/goalLogRepository');
+const poolInviteHandler = require('./PoolInviteHandler');
 const logger = require('../utils/logger');
+
+function poolIdFrom(pool) {
+    return pool.poolId || pool.id;
+}
+
+function formatOwnerAccount(account) {
+    if (!account) {
+        return null;
+    }
+    const a = account.toJSON ? account.toJSON() : account;
+    return {
+        userId: a.userId,
+        username: a.username,
+        firstName: a.firstName,
+        lastName: a.lastName,
+        picture: a.picture
+    };
+}
+
+function isPoolRegistrationOpen(pool) {
+    if (!pool.lastCheckIn) {
+        return true;
+    }
+    return moment(pool.lastCheckIn).isAfter(moment());
+}
 
 function teamPairKey(homeTeamId, awayTeamId) {
     const a = _.toInteger(homeTeamId);
@@ -319,21 +347,199 @@ function handleAddEvents(req, res) {
         .done();
 }
 
-function handleJoinToPool(req, res) {
-    const poolId = req.params.poolId || null;
+async function handleJoinToPool(req, res) {
+    const poolId = _.parseInt(req.params.poolId, 10);
     const userId = req.currentUser.userId;
-    repository.findById(poolId).then(function (pool) {
-        return addParticipatesToPool(pool, [userId], true, req);
-    }).then(function (docs) {
-        return res.status(201).send(docs);
-    }).catch(function (err) {
-        if (err && err.code !== 403) {
-            logger.log('error', 'An error has occurred while processing a request to add participates ' +
-                'for pool id ' + poolId + ' from ' + req.connection.remoteAddress +
-                '. Stack trace: ' + err.stack);
-            return res.status(500).send({error: err.message});
+    const code = _.get(req, 'body.code', req.query.code) || '';
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
         }
-    });
+        const participation = await repository.findByParticipation(poolId, userId);
+        if (participation && participation.joined === true) {
+            const full = await repository.findById(poolId);
+            return res.status(200).send(full);
+        }
+        if (!isPoolRegistrationOpen(pool)) {
+            return res.status(400).send({error: 'Registration is closed for this pool'});
+        }
+        const hasAccess = await repository.userHasPoolAccess(pool, userId, {code});
+        if (!pool.public && !hasAccess) {
+            return res.status(403).send({error: 'Invalid pool code or invite required'});
+        }
+        await addParticipatesToPool(pool, [userId], true, req);
+        await repository.consumeEmailInviteForUser(poolId, userId);
+        const full = await repository.findById(poolId);
+        return res.status(201).send(full);
+    } catch (err) {
+        if (err && err.code === 403) {
+            return;
+        }
+        logger.log('error', 'handleJoinToPool pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
+async function handleGetPoolPreview(req, res) {
+    const poolId = _.parseInt(req.params.poolId, 10);
+    const userId = req.currentUser.userId;
+    const joinCode = req.query.joinCode || '';
+    const inviteToken = req.query.inviteToken || '';
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        const pid = poolIdFrom(pool);
+        const participation = await repository.findByParticipation(pid, userId);
+        const isParticipant = !!(participation && participation.joined === true);
+        const isInvited = !!(participation && participation.joined === false);
+        const hasAccess = await repository.userHasPoolAccess(pool, userId, {code: joinCode, inviteToken});
+        const isOpen = isPoolRegistrationOpen(pool);
+        let canJoin = isOpen && !isParticipant;
+        let joinBlockedReason = null;
+        if (!isOpen) {
+            canJoin = false;
+            joinBlockedReason = 'Registration closed';
+        } else if (!pool.public && !hasAccess && !isInvited && !isParticipant) {
+            canJoin = false;
+            joinBlockedReason = 'Pool code or invite required';
+        } else if (isParticipant) {
+            canJoin = false;
+            joinBlockedReason = 'Already joined';
+        }
+        const botsIds = await repository.getBotUserIds();
+        const players = await repository.getPlayerCounts(pid);
+        const {pot, firstPrize} = repository.computePotAndFirstPrize(pool.participates, pool.buyIn, botsIds);
+        const ownerAccount = await accountRepository.findById(pool.ownerId);
+        const friendsParticipating = await repository.findFriendsInPool(pid, userId, 3);
+        const emailInvited = !isInvited && !isParticipant && hasAccess && !pool.public;
+        return res.send({
+            poolId: pid,
+            name: pool.name,
+            image: pool.image,
+            public: !!pool.public,
+            isOpen,
+            canJoin,
+            joinBlockedReason,
+            lastCheckIn: pool.lastCheckIn,
+            buyIn: pool.buyIn,
+            pot,
+            firstPrize,
+            players,
+            isParticipant,
+            isInvited: isInvited || emailInvited,
+            owner: formatOwnerAccount(ownerAccount),
+            friendsParticipating
+        });
+    } catch (err) {
+        logger.log('error', 'handleGetPoolPreview pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
+async function handleCreatePoolInvites(req, res) {
+    const poolId = _.parseInt(req.params.poolId, 10);
+    const userId = _.parseInt(req.params.userId, 10);
+    const invitees = _.get(req, 'body.invitees', []);
+    const inviteeEmails = _.get(req, 'body.inviteeEmails', []);
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        if (_.toInteger(pool.ownerId) !== userId) {
+            return res.status(403).send({error: 'you are not the owner of the pool'});
+        }
+        const participantEmails = new Set(
+            _.compact(_.map(pool.participates, (p) => {
+                const u = p.user || {};
+                return poolInviteRepository.normalizeEmail(u.email);
+            }))
+        );
+        const addedUserIds = [];
+        if (!_.isEmpty(invitees)) {
+            const ids = _.uniq(_.map(invitees, (id) => _.parseInt(id, 10)).filter((id) => !_.isNaN(id)));
+            const toInvite = [];
+            for (const id of ids) {
+                const existing = await repository.findByParticipation(poolId, id);
+                if (!existing || existing.joined !== true) {
+                    toInvite.push(id);
+                }
+            }
+            if (!_.isEmpty(toInvite)) {
+                await addParticipatesToPool(pool, toInvite, false, req);
+                addedUserIds.push(...toInvite);
+            }
+        }
+        const emailInvites = [];
+        let emailInvitesError = null;
+        for (const rawEmail of inviteeEmails) {
+            const email = poolInviteRepository.normalizeEmail(rawEmail);
+            if (!email || participantEmails.has(email)) {
+                continue;
+            }
+            try {
+                const row = await poolInviteRepository.createForEmail({
+                    poolId,
+                    email,
+                    createdBy: userId
+                });
+                const base = poolInviteHandler.buildInviteBaseUrl(req);
+                emailInvites.push({
+                    email: row.email,
+                    token: row.token,
+                    expiresAt: row.expiresAt,
+                    inviteUrl: `${base}/pools/${poolId}?inviteToken=${encodeURIComponent(row.token)}`
+                });
+                participantEmails.add(email);
+            } catch (ex) {
+                emailInvitesError = ex.message;
+            }
+        }
+        const joinLink = `${poolInviteHandler.buildInviteBaseUrl(req)}/pools/${poolId}?joinCode=${encodeURIComponent(pool.code || '')}`;
+        return res.status(201).send({
+            joinLink,
+            addedUserIds,
+            emailInvites,
+            emailInvitesError
+        });
+    } catch (err) {
+        logger.log('error', 'handleCreatePoolInvites pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
+}
+
+async function handleListPendingPoolInvites(req, res) {
+    const poolId = _.parseInt(req.params.poolId, 10);
+    const userId = _.parseInt(req.params.userId, 10);
+    try {
+        const pool = await repository.findById(poolId);
+        if (!pool) {
+            return res.status(404).send({error: 'Pool not found'});
+        }
+        if (_.toInteger(pool.ownerId) !== userId) {
+            return res.status(403).send({error: 'you are not the owner of the pool'});
+        }
+        const rows = await poolInviteRepository.listPendingForPool(poolId);
+        return res.send(_.map(rows, (row) => {
+            const j = row.toJSON ? row.toJSON() : row;
+            return {
+                id: j.id,
+                email: j.email,
+                expiresAt: j.expiresAt,
+                createdAt: j.createdAt
+            };
+        }));
+    } catch (err) {
+        logger.log('error', 'handleListPendingPoolInvites pool ' + poolId + ' from ' + req.connection.remoteAddress +
+            '. Stack trace: ' + err.stack);
+        return res.status(500).send({error: err.message});
+    }
 }
 
 function handleAddParticipates(req, res) {
@@ -562,6 +768,9 @@ module.exports = {
         addEvents: handleAddEvents,
         addParticipates: handleAddParticipates,
         joinToPool: handleJoinToPool,
+        getPoolPreview: handleGetPoolPreview,
+        createPoolInvites: handleCreatePoolInvites,
+        listPendingPoolInvites: handleListPendingPoolInvites,
         getPools: handleGetUserPools,
         getUserBets: handleGetUserBets,
         getParticipates: handleGetParticipates,

@@ -27,6 +27,10 @@ export const UPDATE_CHALLEGE_SUCCESS = 'UPDATE_CHALLEGE_SUCCESS';
 export const CLEAR_GOAL_ANIMA = 'CLEAR_GOAL_ANIMA';
 export const GET_POOL_GOALS_SUCCESS = 'GET_POOL_GOALS_SUCCESS';
 export const GET_POOL_GOALS_FAILURE = 'GET_POOL_GOALS_FAILURE';
+export const GET_POOL_PREVIEW_REQUEST = 'GET_POOL_PREVIEW_REQUEST';
+export const GET_POOL_PREVIEW_SUCCESS = 'GET_POOL_PREVIEW_SUCCESS';
+export const GET_POOL_PREVIEW_FAILURE = 'GET_POOL_PREVIEW_FAILURE';
+export const CLEAR_POOL_PREVIEW = 'CLEAR_POOL_PREVIEW';
 
 
 function requestUserPools(userId) {
@@ -328,20 +332,84 @@ export function updateUserBet(poolId, challengeId, bet, userId) {
     };
 }
 
-export function joinPool(poolId) {
+function requestPoolPreview(poolId) {
+    return {type: GET_POOL_PREVIEW_REQUEST, poolId};
+}
+
+function receivePoolPreview(poolId, preview) {
+    return {type: GET_POOL_PREVIEW_SUCCESS, poolId, preview};
+}
+
+function poolPreviewFail(poolId, message) {
+    return {type: GET_POOL_PREVIEW_FAILURE, poolId, message};
+}
+
+export function clearPoolPreview(poolId) {
+    return {type: CLEAR_POOL_PREVIEW, poolId};
+}
+
+export function fetchPoolPreview(poolId, {joinCode, inviteToken} = {}) {
     return dispatch => {
         const userId = getUserFromLocalStorage().userId;
-        return axios.post(`/api/${userId}/pools/${poolId}/join`, null, {headers: authHeader()})
+        dispatch(requestPoolPreview(poolId));
+        const params = {};
+        if (joinCode) {
+            params.joinCode = joinCode;
+        }
+        if (inviteToken) {
+            params.inviteToken = inviteToken;
+        }
+        return axios.get(`/api/${userId}/pools/${poolId}/preview`, {
+            headers: authHeader(),
+            params
+        })
             .then((response) => {
-                const pool = response.data;
-                dispatch(receiveJoinToPool(userId, poolId, pool, pool.participates));
-            }).catch((err) => {
+                dispatch(receivePoolPreview(poolId, response.data));
+                return response.data;
+            })
+            .catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) {
                     dispatch(authErr);
                 }
+                const msg = _.get(err, 'response.data.error', err.message);
+                dispatch(poolPreviewFail(poolId, msg));
+                return Promise.reject(err);
             });
     };
+}
+
+export function joinPool(poolId, {code} = {}) {
+    return dispatch => {
+        const userId = getUserFromLocalStorage().userId;
+        const body = code ? {code} : {};
+        return axios.post(`/api/${userId}/pools/${poolId}/join`, body, {headers: authHeader()})
+            .then((response) => {
+                const pool = response.data;
+                const participates = pool.participates || [];
+                dispatch(receiveJoinToPool(userId, poolId, pool, participates));
+                return pool;
+            })
+            .catch((err) => {
+                const authErr = authError(err);
+                if (!_.isEmpty(authErr)) {
+                    dispatch(authErr);
+                }
+                return Promise.reject(err);
+            });
+    };
+}
+
+export function invitePoolParticipants(poolId, body) {
+    const userId = getUserFromLocalStorage().userId;
+    return axios.post(`/api/${userId}/pools/${poolId}/invites`, body, {headers: authHeader()})
+        .then((response) => response.data);
+}
+
+export function fetchPendingPoolInvites(poolId) {
+    const userId = getUserFromLocalStorage().userId;
+    return axios.get(`/api/${userId}/pools/${poolId}/invites/pending`, {headers: authHeader()})
+        .then((response) => response.data);
 }
 
 export function getPoolParticipates(poolId) {

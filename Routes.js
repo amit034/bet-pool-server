@@ -37,8 +37,13 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/bets', authorisationPolicy, handlers.bets.updateUserBets);
     app.post('/api/:userId/pools/:poolId/games', authorisationPolicy, handlers.pools.addGames);
     app.post('/api/:userId/pools/:poolId/events', authorisationPolicy, handlers.pools.addEvents);
+    app.get('/api/:userId/pools/:poolId/preview', authorisationPolicy, handlers.pools.getPoolPreview);
     app.post('/api/:userId/pools/:poolId/join', authorisationPolicy, handlers.pools.joinToPool);
+    app.post('/api/:userId/pools/:poolId/invites', authorisationPolicy, handlers.pools.createPoolInvites);
+    app.get('/api/:userId/pools/:poolId/invites/pending', authorisationPolicy, handlers.pools.listPendingPoolInvites);
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
+    app.get('/api/invites/:token', authorisationPolicy, handlers.poolInvites.getByToken);
+    app.post('/api/invites/:token/accept', authorisationPolicy, handlers.poolInvites.accept);
     app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
     app.get('/api/:userId/pools/:poolId/goals', authorisationPolicy, (req, res, next) => {
         if (req.isDemo) {

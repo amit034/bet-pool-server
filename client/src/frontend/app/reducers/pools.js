@@ -12,7 +12,10 @@ function pools(state = {
     participates: {},
     goals: {},
     goalsLogByPool: {},
-    goalsLogError: null
+    goalsLogError: null,
+    poolPreviewById: {},
+    poolPreviewLoading: false,
+    poolPreviewError: null
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
@@ -88,6 +91,24 @@ function pools(state = {
             });
         case poolActions.GET_POOL_GOALS_FAILURE:
             return update(state, {goalsLogError: {$set: action.message}});
+        case poolActions.GET_POOL_PREVIEW_REQUEST:
+            return update(state, {
+                poolPreviewLoading: {$set: true},
+                poolPreviewError: {$set: null}
+            });
+        case poolActions.GET_POOL_PREVIEW_SUCCESS:
+            return update(state, {
+                poolPreviewLoading: {$set: false},
+                poolPreviewError: {$set: null},
+                poolPreviewById: {$merge: {[String(action.poolId)]: action.preview}}
+            });
+        case poolActions.GET_POOL_PREVIEW_FAILURE:
+            return update(state, {
+                poolPreviewLoading: {$set: false},
+                poolPreviewError: {$set: action.message}
+            });
+        case poolActions.CLEAR_POOL_PREVIEW:
+            return update(state, {poolPreviewById: {$unset: [String(action.poolId)]}});
         default:
             return state;
     }

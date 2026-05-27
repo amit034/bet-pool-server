@@ -24,6 +24,7 @@ const accountHandler = require('./handlers/AccountHandler');
 const eventHandler = require('./handlers/EventHandler');
 const gameHandler = require('./handlers/GameHandler');
 const poolHandler = require('./handlers/PoolHandler');
+const poolInviteHandler = require('./handlers/PoolInviteHandler');
 const betHandler = require('./handlers/BetHandler');
 const FootBallApiHandler = require('./handlers/FootBallApiHandler');
 const authenticationHandler = require('./handlers/AuthenticationHandler');
@@ -73,6 +74,7 @@ const handlers = {
     game : gameHandler,
     auth: authenticationHandler,
     pools: poolHandler,
+    poolInvites: poolInviteHandler,
     bets  : betHandler,
     footballApi: FootBallApiHandler
 };
