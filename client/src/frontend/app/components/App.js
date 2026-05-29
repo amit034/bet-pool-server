@@ -16,6 +16,8 @@ import {getParticipatesWithRank} from "../utils";
 import {getUserBets, getPoolParticipates, getUserPools, getPoolGoals} from '../actions/pools';
 import PullToReloadIndicator from './PullToReloadIndicator';
 
+const EMPTY_PARTICIPATES = {};
+
 const App = () => {
     const user = getUserFromLocalStorage();
     const [mute, setMute] = useLocalStorage('mute', 'false');
@@ -31,15 +33,23 @@ const App = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
     const [showIntro] =  useLocalStorage('showIntro', 'true');
-    const participates = useSelector(state => state.pools.participates);
+    const poolIdForRank = _.get(poolMatch, 'params.id');
+    const participates = useSelector((state) =>
+        poolIdForRank ? state.pools.participates : EMPTY_PARTICIPATES
+    );
     const [dataRefreshBusy, setDataRefreshBusy] = React.useState(false);
     const [lastDataUpdatedAt, setLastDataUpdatedAt] = React.useState(null);
     const lastRouteDataKeyRef = React.useRef(null);
 
     const introBlocking = isAuthenticated && skipIntro !== 'true' && showIntro === 'true';
 
-    const leaders = getParticipatesWithRank(participates);
-    const rank = _.get(_.find(leaders, {userId: _.get(user, 'userId')}), 'rank');
+    const rank = React.useMemo(() => {
+        if (!poolIdForRank || participates === EMPTY_PARTICIPATES) {
+            return null;
+        }
+        const leaders = getParticipatesWithRank(participates);
+        return _.get(_.find(leaders, {userId: _.get(user, 'userId')}), 'rank');
+    }, [poolIdForRank, participates, user]);
     function logout() {
         dispatch(logoutUser());
     }
@@ -89,8 +99,8 @@ const App = () => {
         : '';
 
     const switcher = (<Switch>
-        <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
-        <ProtectedRoute path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated}/>
+        <ProtectedRoute exact path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
+        <ProtectedRoute exact path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated}/>
         <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={isAuthenticated}/>
         <Route exact path="/register" render={(props) => {
             return isAuthenticated ?

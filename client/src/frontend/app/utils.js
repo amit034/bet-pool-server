@@ -1,6 +1,6 @@
 'use strict';
 import _ from 'lodash';
-import {scoreFromPrediction, DEFAULT_POOL_FACTORS, SCORING_MODE} from './utils/betScoring';
+import {scoreFromPrediction, challengeForScoring, DEFAULT_POOL_FACTORS, SCORING_MODE} from './utils/betScoring';
 
 /**
  * Get the participates with their rank by sorting the participates by the score and medals and return the target player state with the rank.
@@ -136,17 +136,38 @@ function rankInState(state, targetId) {
  * @param predictions - predictions
  * @returns {Object} - { gameScoreLabel: string, gameScore: [number, number], impacts: Array, targetState: Object }
  */
+function normalizeMatchScore(score1, score2) {
+    const h = _.toInteger(score1, 10);
+    const a = _.toInteger(score2, 10);
+    return [_.isNaN(h) ? 0 : h, _.isNaN(a) ? 0 : a];
+}
+
+function scoreLineLabel(score1, score2) {
+    const [h, a] = normalizeMatchScore(score1, score2);
+    return `${h}-${a}`;
+}
+
+function challengeActualScore(challenge) {
+    const ch = challenge || {};
+    const game = ch.game || {};
+    return normalizeMatchScore(
+        ch.score1 != null ? ch.score1 : game.homeTeamScore,
+        ch.score2 != null ? ch.score2 : game.awayTeamScore
+    );
+}
+
 function calculateGoalImpact(targetId, gameScore, challenge, players, predictions, poolFactors, scoringMode) {
     const factorId = _.get(challenge, 'factorId', 1);
     const factors = poolFactors || DEFAULT_POOL_FACTORS;
     const mode = _.isNil(scoringMode) ? SCORING_MODE.CLASSIC : scoringMode;
-    const chForScore = _.assign({}, challenge, {score1: gameScore[0], score2: gameScore[1]});
+    const safeScore = normalizeMatchScore(gameScore[0], gameScore[1]);
+    const chForScore = challengeForScoring(challenge, safeScore);
     const scenarioData = _.reduce(players, (agg, player) => {
         const {userId, isBot} = player;
         const monkey = _.get(predictions, ['2'], null);
         const prediction = _.get(predictions, `[${userId}]`, monkey);
-        const impact = getOutcome(prediction, gameScore);
-        const computed = scoreFromPrediction(prediction, gameScore, chForScore, factors, mode);
+        const impact = getOutcome(prediction, safeScore);
+        const computed = scoreFromPrediction(prediction, safeScore, chForScore, factors, mode);
         agg.push({
             userId, isBot,
             score: computed.score,
@@ -160,7 +181,12 @@ function calculateGoalImpact(targetId, gameScore, challenge, players, prediction
     }, []);
     const participatesWithRank = getParticipatesWithRank(scenarioData);
     const targetState = _.find(participatesWithRank, { userId: targetId });
-    return { gameScoreLabel: `${gameScore[0]}-${gameScore[1]}`, gameScore, impacts: scenarioData, targetState };
+    return {
+        gameScoreLabel: scoreLineLabel(safeScore[0], safeScore[1]),
+        gameScore: safeScore,
+        impacts: scenarioData,
+        targetState: targetState || null
+    };
 }
 
 /**
@@ -272,12 +298,20 @@ function createWeekDayPath(players, initialState, targetId) {
         if (_.isEmpty(pathScores)) return null;
         const pathState = _.map(players, (player) => {
             const { userId, isBot } = player;
-            const initialTarget = _.find(initialState, { userId });
-            return _.reduce(pathScores, (agg, pathScore) => {
-                const { factorId = 1, impacts = [] } = pathScore;
-                const impact = _.find(impacts, { userId: userId });
+            const initialTarget = _.find(initialState, { userId }) || {
+                userId,
+                isBot,
+                score: 0,
+                medals: {'1': 0, '2': 0, '3': 0}
+            };
+            return _.reduce(_.compact(pathScores), (agg, pathScore) => {
+                if (!pathScore || !_.isArray(pathScore.impacts)) {
+                    return agg;
+                }
+                const {impacts} = pathScore;
+                const impact = _.find(impacts, {userId});
 
-                if (!impact) return agg;
+                if (!impact || !agg) return agg;
                 const currentScore = agg.score;
                 return {
                     userId, isBot,
@@ -296,7 +330,10 @@ function createWeekDayPath(players, initialState, targetId) {
         return {
             path: pathScores,
             focusedLabel: _.get(_.first(pathScores), 'gameScoreLabel', 'N/A')   ,
-            pathLabel: pathScores.map(({ gameScore }) => `${_.first(gameScore)}-${_.last(gameScore)}`).join(' · '),
+            pathLabel: _.map(_.compact(pathScores), (ps) => {
+                const gs = ps.gameScore || normalizeMatchScore(0, 0);
+                return scoreLineLabel(gs[0], gs[1]);
+            }).join(' · '),
             rank: _.get(targetState, 'rank'),
             targetState,
             finalState: participantsWithRank,
@@ -350,12 +387,13 @@ function getOptionalPredictions(playersPredictions) {
 function createWeekDaySenarios(targetId, players, bets, initialState, poolFactors, scoringMode) {
     const factorSum = _.sumBy(bets, 'challenge.factorId');
     return _.map(_.filter(bets, 'closed'), (bet) => {
-        const { challengeId, challenge: { factorId = 1, game:{ homeTeamScore, awayTeamScore, status}}} = bet;
-        // const gamesPlayed = (round - 1) * 8;
-        // const gamesRemaining = TOTAL_GAMES - gamesPlayed;
-        const hTeamScore = homeTeamScore || 0;
-        const aTeamScore = awayTeamScore || 0;
-        const urgency = factorId / factorSum;
+        const challenge = bet.challenge || {};
+        const challengeId = bet.challengeId || challenge.id;
+        const factorId = challenge.factorId || 1;
+        const game = challenge.game || {};
+        const status = game.status || challenge.status;
+        const [hTeamScore, aTeamScore] = challengeActualScore(challenge);
+        const urgency = factorSum > 0 ? factorId / factorSum : 0;
         const playersPredictions = getChallangePredictions(initialState, challengeId);
         const currentScoreLine = [hTeamScore, aTeamScore];
         const homeTeamNextScoreLine = [hTeamScore + 1, aTeamScore];
@@ -371,9 +409,15 @@ function createWeekDaySenarios(targetId, players, bets, initialState, poolFactor
                 factorId
             };
         });
-        const current = _.find(gameResults, { gameScoreLabel: `${currentScoreLine[0]}-${currentScoreLine[1]}` });
-        const worst = status !== 'FINISHED1' ? _.minBy(gameResults, 'targetState.score') : current;
-        const best = status !== 'FINISHED1' ? _.maxBy(gameResults, 'targetState.score') : current;
+        const currentLabel = scoreLineLabel(currentScoreLine[0], currentScoreLine[1]);
+        const current = _.find(gameResults, {gameScoreLabel: currentLabel}) || _.first(gameResults);
+        const ranked = _.filter(gameResults, (r) => r && r.targetState);
+        const worst = status !== 'FINISHED1' && ranked.length
+            ? _.minBy(ranked, (r) => r.targetState.score)
+            : current;
+        const best = status !== 'FINISHED1' && ranked.length
+            ? _.maxBy(ranked, (r) => r.targetState.score)
+            : current;
         return { challengeId, factorId, best, worst, current, gameResults, bet, urgency};
     });
 }
@@ -395,9 +439,12 @@ export function sortAddDiffRankAndScore(initialRankState, gamePaths, targetId, f
 
     const MIN_SCORING_STEP = 10 * factorId; 
 
-    return _.map(gamePaths, (weekdayPath) => {
-        const { targetState, finalState, gameResult} = weekdayPath;
-        const label = weekdayPath.label || weekdayPath.gameScoreLabel || "0-0";
+    return _.map(_.compact(gamePaths), (weekdayPath) => {
+        if (!weekdayPath) {
+            return null;
+        }
+        const {targetState, finalState, gameResult} = weekdayPath;
+        const label = weekdayPath.label || weekdayPath.gameScoreLabel || '0-0';
 
         const impacts = _.get(gameResult, 'impacts', []);
         const myImpact = _.find(impacts, { userId: targetId });
@@ -430,7 +477,7 @@ export function sortAddDiffRankAndScore(initialRankState, gamePaths, targetId, f
         };
     }).sort((a, b) => {
         return b.sortKey - a.sortKey;
-    });
+    }).filter(Boolean);
 }
 
 /**
@@ -473,20 +520,31 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
     const urgency = _.get(focused, 'urgency');
     const gameResults = _.get(focused, 'gameResults');
     const weekPath = createWeekDayPath(players, initialState, targetId);
-    const gamePaths = _.map(gameResults, (gameResult) => {
-        const { gameScoreLabel } = gameResult;
-        const path = weekPath([gameResult,..._.map(others, 'current')]);
-        return {...path, gameScoreLabel, gameResult};
-    });
+    const othersCurrent = _.compact(_.map(others, 'current'));
+    const gamePaths = _.compact(_.map(gameResults, (gameResult) => {
+        if (!gameResult || gameResult.gameScoreLabel == null) {
+            return null;
+        }
+        const path = weekPath(_.compact([gameResult, ...othersCurrent]));
+        if (!path) {
+            return null;
+        }
+        return {...path, gameScoreLabel: gameResult.gameScoreLabel, gameResult};
+    }));
     const factorId = _.get(focused, 'factorId');
     const sortedGamePaths = sortAddDiffRankAndScore(initialState, gamePaths, targetId, factorId, urgency);
     const status = _.get(focused, 'bet.challenge.game.status');
-    const [home = 0, away = 0] =  _.get(focused, 'current.gameScore', [0, 0]);
+    const currentScenario = focused.current || _.first(gameResults);
+    const [home = 0, away = 0] = _.get(currentScenario, 'gameScore', challengeActualScore(_.get(focused, 'bet.challenge')));
     const currentScore = [home, away];
     const nextHomeTeamScore = [home + 1, away];
     const nextAwayTeamScore = [home, away + 1];
-    const homeTeamNext = status !== 'FINISHED1' ? getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore) : null;
-    const awayTeamNext = status !== 'FINISHED1' ? getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore) : null;
+    const homeTeamNext = status !== 'FINISHED1'
+        ? getDiffScorePath(sortedGamePaths, nextHomeTeamScore, currentScore, targetId)
+        : null;
+    const awayTeamNext = status !== 'FINISHED1'
+        ? getDiffScorePath(sortedGamePaths, nextAwayTeamScore, currentScore, targetId)
+        : null;
     return {gamePaths: sortedGamePaths, homeTeamNext, awayTeamNext};
 }
 
@@ -497,15 +555,30 @@ function getWeekPathWithFocused(targetId, players, bets, initialState, challenge
  * @param scoreB - score B current score
  * @returns {Object} - { gamePath, scoreDiff, rankDiff }
  */
-const getDiffScorePath = (sortedGamePaths, nextScore, currentScore) => {
-    const nextPath = _.find(sortedGamePaths, { gameScoreLabel: `${nextScore[0]}-${nextScore[1]}` });
-    const currentPath = _.find(sortedGamePaths, { gameScoreLabel: `${currentScore[0]}-${currentScore[1]}` });
+const getDiffScorePath = (sortedGamePaths, nextScore, currentScore, targetId) => {
+    if (_.isEmpty(sortedGamePaths)) {
+        return null;
+    }
+    const nextLabel = scoreLineLabel(nextScore[0], nextScore[1]);
+    const currentLabel = scoreLineLabel(currentScore[0], currentScore[1]);
+    const nextPath = _.find(sortedGamePaths, {gameScoreLabel: nextLabel});
+    const currentPath = _.find(sortedGamePaths, {gameScoreLabel: currentLabel});
+    if (!nextPath || !currentPath) {
+        return null;
+    }
     const nextState = _.get(nextPath, 'targetState', null);
     const currentState = _.get(currentPath, 'targetState', null);
-    const scoreDiff = nextState.score - currentState.score;
-    const rankDiff = -(nextState.rank - currentState.rank);
+    let scoreDiff = (nextState?.score || 0) - (currentState?.score || 0);
+    const nextImpact = _.find(_.get(nextPath, 'gameResult.impacts'), {userId: targetId});
+    const curImpact = _.find(_.get(currentPath, 'gameResult.impacts'), {userId: targetId});
+    if (nextImpact && curImpact) {
+        scoreDiff = (nextImpact.score || 0) - (curImpact.score || 0);
+    }
+    const nextRank = nextState?.rank;
+    const currentRank = currentState?.rank;
+    const rankDiff = (nextRank != null && currentRank != null) ? -(nextRank - currentRank) : 0;
     return {...nextPath, scoreDiff, rankDiff};
-}
+};
 
 /**
  * Get the all players predictions for the given challenge id and return them as an object with user id as the key and the prediction as the value.

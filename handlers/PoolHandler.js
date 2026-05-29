@@ -446,6 +446,7 @@ async function handleGetPoolPreview(req, res) {
             name: pool.name,
             image: pool.image,
             public: !!pool.public,
+            factorsStrategy: _.get(pool, 'factorsStrategy', betScoring.SCORING_MODE.CLASSIC),
             isOpen,
             canJoin,
             joinBlockedReason,

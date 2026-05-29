@@ -166,10 +166,8 @@ const LeftVerticalBar = ({
     const maxNeg = Math.abs(_.minBy(gameImpacts, (i) => i.impactValue)?.impactValue || -1);
     const denom = Math.max(gameImpacts.length, 1);
 
-    const data = gameImpacts.map((item, index) => {
-      // 1. Normalize val to -1 to +1 range
-      if(_.isNil(item)) {
-        console.log('item is nil', gameImpacts);
+    const data = _.compact(_.map(gameImpacts, (item, index) => {
+      if (_.isNil(item) || _.isNil(item.gameScoreLabel)) {
         return null;
       }
       const val = item.impactValue >= 0 
@@ -185,12 +183,15 @@ const LeftVerticalBar = ({
     
       const stopPosition = ((index + 0.5) / denom) * 100;
       return { ...item, color, val, stopPosition };
-    });
+    }));
 
-    const stops = data.map((item) => `${item.color} ${item.stopPosition}%`);
-    const gradient = `linear-gradient(to bottom, ${stops.join(', ')})`;
+    const compactData = _.compact(data);
+    const stops = compactData.map((item) => `${item.color} ${item.stopPosition}%`);
+    const gradient = stops.length
+        ? `linear-gradient(to bottom, ${stops.join(', ')})`
+        : 'transparent';
 
-    return { normalizedData: data, gradientString: gradient };
+    return { normalizedData: compactData, gradientString: gradient };
   }, [gameImpacts]);
 
   // 2. Position the Golden Pointer

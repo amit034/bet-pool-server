@@ -62,6 +62,37 @@ export function computeBetScore({
     };
 }
 
+/**
+ * Resolve pool scoring config from Redux (pools list and/or preview payload).
+ */
+export function getPoolScoringFromState(poolsState, poolId) {
+    const key = poolId != null ? String(poolId) : '';
+    const pool = _.get(poolsState, ['pools', poolId])
+        || _.get(poolsState, ['pools', key]);
+    const preview = _.get(poolsState, ['poolPreviewById', key]);
+    return {
+        poolFactors: _.get(pool, 'factors', DEFAULT_POOL_FACTORS),
+        scoringMode: _.get(
+            pool,
+            'factorsStrategy',
+            _.get(preview, 'factorsStrategy', SCORING_MODE.CLASSIC)
+        )
+    };
+}
+
+export function challengeForScoring(challenge, actualScore) {
+    const ch = challenge || {};
+    const score = actualScore || [];
+    return _.assign({}, ch, {
+        score1: score[0],
+        score2: score[1],
+        factorId: ch.factorId || 1,
+        odds1: ch.odds1,
+        oddsX: ch.oddsX,
+        odds2: ch.odds2
+    });
+}
+
 export function scoreFromPrediction(pred, actualScore, challenge, poolFactors, scoringMode) {
     if (!pred || pred.length < 2) {
         return {medal: 0, score: 0, basePoints: 0, oddsMultiplier: 1};

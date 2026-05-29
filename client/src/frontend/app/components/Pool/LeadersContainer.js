@@ -9,6 +9,7 @@ import {getPoolGoals} from '../../actions/pools';
 import LeaderboardReplay, {SPEED_MS} from './LeaderboardReplay';
 import RoundGamesPanel from './RoundGamesPanel';
 import {buildChallengeMetaFromBets, buildReplaySnapshots} from '../../utils/leaderboardReplay';
+import {getPoolScoringFromState} from '../../utils/betScoring';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/swiper.scss';
 import SwiperCore, {Pagination} from 'swiper';
@@ -107,9 +108,7 @@ const LeadersContainer = () => {
     const participates = useSelector((state) => state.pools.participates);
     const bets = useSelector((state) => state.pools.bets);
     const goalsLog = useSelector((s) => _.get(s.pools.goalsLogByPool, String(poolId), null));
-    const pool = useSelector((s) =>
-        _.get(s.pools.pools, String(poolId)) || _.get(s.pools.pools, _.parseInt(poolId, 10)) ||
-        _.find(_.values(s.pools.pools), {poolId: _.parseInt(poolId, 10)}));
+    const poolsState = useSelector((s) => s.pools);
 
     const [live, setLive] = useState(1);
     const [swiperActiveIndex, setSwiperActiveIndex] = useState(0);
@@ -120,8 +119,7 @@ const LeadersContainer = () => {
     const [showRoundGames, setShowRoundGames] = useState(1);
 
     const numberOfRounds = _.size(_.get(_.first(participates), 'rounds', []));
-    const poolFactors = _.get(pool, 'factors', {0: 0, 1: 10, 2: 20, 3: 30});
-    const scoringMode = _.get(pool, 'factorsStrategy', 0);
+    const {poolFactors, scoringMode} = getPoolScoringFromState(poolsState, poolId);
     const challengeMeta = useMemo(() => buildChallengeMetaFromBets(bets), [bets]);
     const sortedLogs = useMemo(() => _.sortBy(goalsLog || [], (g) => new Date(g.createdAt).getTime()), [goalsLog]);
 

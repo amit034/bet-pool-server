@@ -59,23 +59,32 @@ const PoolContainer = (props) => {
         };
     }, [dispatch, poolId, joinCode, inviteToken]);
 
-    const isParticipant = preview && preview.isParticipant;
-    const showPreviewScreen = previewMode || (preview && !preview.isParticipant && !showBetting);
+    const isParticipant = Boolean(preview && preview.isParticipant);
+    const showPreviewScreen = previewMode || (preview && !isParticipant && !showBetting);
+    const bettingActive = !showPreviewScreen && isParticipant;
 
     useEffect(() => {
-        if (!showPreviewScreen && preview && isParticipant) {
-            dispatch(getUserBets(poolId));
-            dispatch(getPoolParticipates(poolId));
-            socket.emit('joinPool', poolId);
-            const handler = (challenge) => { updateChallengeInPool(challenge); };
-            socket.on('updateChallenge', handler);
-            return () => {
-                socket.off('updateChallenge', handler);
-                socket.emit('leavePool', poolId);
-            };
+        if (!bettingActive) {
+            return undefined;
         }
-        return undefined;
-    }, [dispatch, poolId, showPreviewScreen, preview, isParticipant, updateChallengeInPool, previewMode]);
+        dispatch(getUserBets(poolId));
+        dispatch(getPoolParticipates(poolId));
+    }, [bettingActive, dispatch, poolId]);
+
+    useEffect(() => {
+        if (!bettingActive) {
+            return undefined;
+        }
+        socket.emit('joinPool', poolId);
+        const handler = (challenge) => {
+            updateChallengeInPool(challenge);
+        };
+        socket.on('updateChallenge', handler);
+        return () => {
+            socket.off('updateChallenge', handler);
+            socket.emit('leavePool', poolId);
+        };
+    }, [bettingActive, poolId, updateChallengeInPool]);
 
     const handleJoined = useCallback(() => {
         setShowBetting(true);

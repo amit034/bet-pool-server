@@ -257,22 +257,46 @@ export function getPoolGames(poolId, userId) {
     };
 }
 
-export function getUserPools(qs) {
+let userPoolsInflightKey = null;
+let userPoolsInflightPromise = null;
 
-    return dispatch => {
+function userPoolsRequestKey(qs) {
+    const isActive = qs && qs.isActive != null ? String(qs.isActive) : 'true';
+    const code = qs && qs.code != null ? String(qs.code) : '';
+    return `${isActive}|${code}`;
+}
+
+export function getUserPools(qs) {
+    const requestKey = userPoolsRequestKey(qs);
+
+    return (dispatch) => {
+        if (userPoolsInflightKey === requestKey && userPoolsInflightPromise) {
+            return userPoolsInflightPromise;
+        }
+
         const userId = getUserFromLocalStorage().userId;
         dispatch(requestUserPools(userId));
-        return axios.get(`/api/${userId}/pools`, {headers: authHeader(), params: qs})
+        userPoolsInflightKey = requestKey;
+        userPoolsInflightPromise = axios
+            .get(`/api/${userId}/pools`, {headers: authHeader(), params: qs})
             .then((response) => {
-                const pools = response.data;
-                dispatch(receiveUserPools(userId, pools));
-            }).catch((err) => {
+                dispatch(receiveUserPools(userId, response.data));
+            })
+            .catch((err) => {
                 const authErr = authError(err);
                 if (!_.isEmpty(authErr)) {
                     dispatch(authErr);
                 }
                 dispatch(getUserPoolsFail(err.message));
+            })
+            .finally(() => {
+                if (userPoolsInflightKey === requestKey) {
+                    userPoolsInflightKey = null;
+                    userPoolsInflightPromise = null;
+                }
             });
+
+        return userPoolsInflightPromise;
     };
 }
 

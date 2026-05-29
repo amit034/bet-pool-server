@@ -17,10 +17,14 @@ const Game = ({
     roundId,
 }) => {
     const {
-        score1, score2, score, medal, basePoints, oddsMultiplier,
+        score1, score2, score, medal,
         challenge} = bet;
-    const {id: challengeId, isOpen, score1: c_score1, score2: c_score2,
-        game: {homeTeam, awayTeam, previousLeg}, playAt, factorId} = challenge
+    const {id: challengeId, isOpen, score1: c_score1, score2: c_score2, playAt, factorId} = challenge || {};
+    const homeTeam = _.get(challenge, 'game.homeTeam', {});
+    const awayTeam = _.get(challenge, 'game.awayTeam', {});
+    const previousLeg = _.get(challenge, 'game.previousLeg');
+    const matchHome = Number(c_score1) || 0;
+    const matchAway = Number(c_score2) || 0;
     const currentDayRef = useRef(null);
     const gameSideRef = useRef(null);
     const className = classNames('match-tip-image icon link small fitted', {
@@ -67,22 +71,18 @@ const Game = ({
             </div>
         </div>);
     };
-    const Medal = ({score, medal, basePoints, oddsMultiplier}) => {
+    const Medal = ({score, medal}) => {
         const className = classNames('bet-score-medal', {
             'no-medal': medal === 0,
             'bronze-medal': medal === 1,
             'sliver-medal': medal === 2,
             'gold-medal': medal === 3
         });
-        const showOdds = medal > 0 && basePoints > 0 && oddsMultiplier > 1;
-        return <div className="bet-score">
-            {showOdds && (
-                <span className="bet-score-odds" title="Base × match odds">
-                    {basePoints}×{oddsMultiplier}
-                </span>
-            )}
-            <label className={className}>{score}</label>
-        </div>
+        return (
+            <div className="bet-score">
+                <label className={className}>{score}</label>
+            </div>
+        );
     };
 
     const MatchResult = ({score1, score2}) => {
@@ -94,7 +94,7 @@ const Game = ({
     const homeTeamNext = _.get(gameImpact, 'homeTeamNext', null);
     const awayTeamNext = _.get(gameImpact, 'awayTeamNext', null);
     const gamePaths = _.get(gameImpact, 'gamePaths', null);
-    const currentScoreLabel = `${c_score1}-${c_score2}`;
+    const currentScoreLabel = `${matchHome}-${matchAway}`;
 
     const baselineFinalState = useMemo(() => {
         if (!Array.isArray(gamePaths) || gamePaths.length === 0) return null;
@@ -126,14 +126,7 @@ const Game = ({
             {/* צד שמאל - הבר האנכי שמתפרס על כל הגובה */}
             <div className="game-side" ref={gameSideRef}>
                 <div className="game-side-score">
-                    {!isOpen ? (
-                        <Medal
-                            score={score}
-                            medal={medal}
-                            basePoints={basePoints}
-                            oddsMultiplier={oddsMultiplier}
-                        />
-                    ) : ''}
+                    {!isOpen ? <Medal score={score} medal={medal} /> : ''}
                 </div>
                 {!isOpen ? (
                     <LeftVerticalBar
@@ -161,7 +154,7 @@ const Game = ({
         
                 <div className="game-body">
                     <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} challengeId={challengeId} betFieldName="score1" />
-                    <MatchResult score1={c_score1} score2={c_score2} />
+                    <MatchResult score1={matchHome} score2={matchAway} />
                     <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
                 </div>
                 {!isOpen ? <GoalImpactRow

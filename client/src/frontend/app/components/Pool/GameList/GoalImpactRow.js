@@ -56,7 +56,9 @@ const ImpactItem = ({ side, impact, onOpenScenario }) => {
                 <span className="game-impact-footer__rank">{rankText}</span>
                 <span className="game-impact-footer__points">{ptsText}</span>
             </span>
-            <span className="game-impact-footer__pred-score">{formatScoreLabel(impact.gameScoreLabel)}</span>
+            <span className="game-impact-footer__pred-score">
+                {formatScoreLabel(impact.gameScoreLabel || '0-0')}
+            </span>
         </div>
     );
 };

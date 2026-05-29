@@ -12,6 +12,7 @@ import GoalSound from "./GoalSound";
 import Game from "./Game";
 import DateGroupHeader from "./DateGroupHeader";
 import {calculatelImpact, getWeekPathWithFocused} from '../../../utils';
+import {getPoolScoringFromState} from '../../../utils/betScoring';
 import {getUserFromLocalStorage} from '../../../actions/auth';
 SwiperCore.use([Pagination]);
 
@@ -23,9 +24,8 @@ const GameList = ({poolId}) => {
     const bets = useSelector(state => state.pools.bets);
     const goals = useSelector(state => state.pools.goals);
     const participates = useSelector(state => state.pools.participates);
-    const pool = useSelector(state => state.pools.pools[poolId]);
-    const poolFactors = _.get(pool, 'factors', { 0: 0, 1: 10, 2: 20, 3: 30 });
-    const scoringMode = _.get(pool, 'factorsStrategy', 0);
+    const poolsState = useSelector(state => state.pools);
+    const {poolFactors, scoringMode} = getPoolScoringFromState(poolsState, poolId);
     const user = getUserFromLocalStorage();
     const userId = _.get(user, 'userId');
 

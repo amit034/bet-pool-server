@@ -19,9 +19,13 @@ function pools(state = {
 }, action) {
     switch (action.type) {
         case poolActions.GET_USER_POOLS_REQUEST:
-            return update(state, { isFetching: { $set: true }, errorMessage: { $set: null } });
+            return update(state, {errorMessage: {$set: null}});
         case poolActions.GET_USER_POOLS_SUCCESS:
-            return update(state, { isFetching: { $set: false }, pools: { $set: _.keyBy(action.pools, 'poolId') }, errorMessage: { $set: null } });
+            return update(state, {
+                isFetching: {$set: false},
+                pools: {$set: _.keyBy(action.pools, 'poolId')},
+                errorMessage: {$set: null}
+            });
         case poolActions.GET_USER_POOLS_FAILURE:
             return update(state, { isFetching: { $set: false }, pools: { $set: [] }, errorMessage: { $set: action.message } });
         case poolActions.GET_POOL_GAMES_REQUEST:
