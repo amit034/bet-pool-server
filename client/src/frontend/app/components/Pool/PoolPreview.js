@@ -3,9 +3,10 @@ import React, {useState, useCallback} from 'react';
 import {useHistory} from 'react-router-dom';
 import moment from 'moment';
 import _ from 'lodash';
-import {Button, Icon, Image, Input, Loader, Message} from 'semantic-ui-react';
+import {Button, Icon, Input, Loader, Message} from 'semantic-ui-react';
 import {useDispatch} from 'react-redux';
 import {joinPool} from '../../actions/pools';
+import UserAvatar from '../UserAvatar';
 
 function ownerDisplayName(owner) {
     if (!owner) {
@@ -13,13 +14,6 @@ function ownerDisplayName(owner) {
     }
     const full = _.trim(`${owner.firstName || ''} ${owner.lastName || ''}`);
     return full || owner.username || 'Someone';
-}
-
-function avatarSrc(user) {
-    if (user && user.picture) {
-        return user.picture;
-    }
-    return 'https://www.gravatar.com/avatar/?d=mp&f=y';
 }
 
 const PoolPreview = ({
@@ -110,7 +104,7 @@ const PoolPreview = ({
 
                 <div className="pool-preview-card__body">
                     <div className="pool-preview-inviter">
-                        <Image circular src={avatarSrc(preview.owner)} className="pool-preview-avatar" />
+                        <UserAvatar user={preview.owner} className="pool-preview-avatar ui circular image" />
                         <span className="pool-preview-inviter__text">
                             {preview.isInvited ? `${ownerName} invites you to join!` : `Hosted by ${ownerName}`}
                         </span>
@@ -157,11 +151,10 @@ const PoolPreview = ({
                             </h3>
                             <div className="pool-preview-friends">
                                 {_.map(friends.items, (f) => (
-                                    <Image
+                                    <UserAvatar
                                         key={f.userId}
-                                        circular
-                                        src={avatarSrc(f)}
-                                        className="pool-preview-avatar pool-preview-friends__avatar"
+                                        user={f}
+                                        className="pool-preview-avatar pool-preview-friends__avatar ui circular image"
                                         title={f.username}
                                     />
                                 ))}

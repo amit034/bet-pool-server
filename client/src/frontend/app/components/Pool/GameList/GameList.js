@@ -2,7 +2,7 @@ import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
-import {Modal, Form} from 'semantic-ui-react';
+import {Modal, Form, Loader} from 'semantic-ui-react';
 import {getChallengeParticipates, updateUserBet} from '../../../actions/pools';
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/swiper-bundle.css';
@@ -22,6 +22,7 @@ const GameList = ({poolId}) => {
     const [nextGoalPreview, setNextGoalPreview] = useState(null);
     const [weekdayPathPreview, setWeekdayPathPreview] = useState(null);
     const bets = useSelector(state => state.pools.bets);
+    const isFetching = useSelector(state => state.pools.isFetching);
     const goals = useSelector(state => state.pools.goals);
     const participates = useSelector(state => state.pools.participates);
     const poolsState = useSelector(state => state.pools);
@@ -207,6 +208,9 @@ const GameList = ({poolId}) => {
             </SwiperSlide>
         );
     });
+    if (_.isEmpty(bets) && isFetching) {
+        return <Loader active inline="centered">Loading games…</Loader>;
+    }
     return (<div>
             {<GoalSound></GoalSound>}
             {ViewOthersModal}

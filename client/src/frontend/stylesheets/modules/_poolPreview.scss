@@ -62,11 +62,16 @@
   color: $title-1;
 }
 
-.pool-preview-avatar.ui.image {
+.pool-preview-avatar.ui.image,
+.pool-preview-avatar.user-avatar {
   width: 44px !important;
   height: 44px !important;
   border: 2px solid $accent-gold !important;
   box-shadow: 0 0 8px $accent-gold-glow;
+}
+
+.pool-preview-avatar.user-avatar--initials {
+  font-size: 0.95rem;
 }
 
 .pool-preview-section {

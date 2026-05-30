@@ -1,9 +1,9 @@
 'use strict';
-import React, {useEffect, useCallback, useState} from 'react';
+import React, {useEffect, useCallback} from 'react';
 import _ from 'lodash';
 import {io} from 'socket.io-client';
-import {Route, useRouteMatch, useLocation, useHistory} from 'react-router-dom';
-import {Loader} from 'semantic-ui-react';
+import {Route, Switch, useRouteMatch, useLocation, useHistory} from 'react-router-dom';
+import {Loader, Message} from 'semantic-ui-react';
 import {clearGoalAnima, getUserBets, updateChallenge, getPoolParticipates, fetchPoolPreview, clearPoolPreview} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {useDispatch, useSelector} from 'react-redux';
@@ -32,11 +32,13 @@ const PoolContainer = (props) => {
         betsRef.current = bets;
     }, [bets]);
     const poolId = match.params.id;
+    const poolBaseUrl = props.match.url;
+    const wantsBetting = query.get('active') === 'true';
     const previewMode = query.get('preview') === '1';
     const joinCode = query.get('joinCode') || '';
     const inviteToken = query.get('inviteToken') || '';
     const preview = previewById[String(poolId)];
-    const [showBetting, setShowBetting] = useState(false);
+    const poolDataFetchedRef = React.useRef(null);
 
     const updateChallengeInPool = useCallback((challenge) => {
         dispatch(updateChallenge(challenge));
@@ -60,16 +62,24 @@ const PoolContainer = (props) => {
     }, [dispatch, poolId, joinCode, inviteToken]);
 
     const isParticipant = Boolean(preview && preview.isParticipant);
-    const showPreviewScreen = previewMode || (preview && !isParticipant && !showBetting);
+    const showPreviewScreen = previewMode || (preview && !isParticipant);
     const bettingActive = !showPreviewScreen && isParticipant;
 
     useEffect(() => {
-        if (!bettingActive) {
-            return undefined;
+        poolDataFetchedRef.current = null;
+    }, [poolId]);
+
+    useEffect(() => {
+        if (!wantsBetting && !isParticipant) {
+            return;
         }
+        if (poolDataFetchedRef.current === poolId) {
+            return;
+        }
+        poolDataFetchedRef.current = poolId;
         dispatch(getUserBets(poolId));
         dispatch(getPoolParticipates(poolId));
-    }, [bettingActive, dispatch, poolId]);
+    }, [wantsBetting, isParticipant, dispatch, poolId]);
 
     useEffect(() => {
         if (!bettingActive) {
@@ -87,7 +97,6 @@ const PoolContainer = (props) => {
     }, [bettingActive, poolId, updateChallengeInPool]);
 
     const handleJoined = useCallback(() => {
-        setShowBetting(true);
         dispatch(fetchPoolPreview(poolId, {joinCode, inviteToken})).then(() => {
             history.replace(`/pools/${poolId}?active=true`);
         });
@@ -103,6 +112,14 @@ const PoolContainer = (props) => {
         return (
             <div id="content" className="ui container">
                 <Loader active inline="centered">Loading…</Loader>
+            </div>
+        );
+    }
+
+    if (previewError && !preview && !wantsBetting) {
+        return (
+            <div id="content" className="ui container">
+                <Message negative>{previewError}</Message>
             </div>
         );
     }
@@ -127,8 +144,12 @@ const PoolContainer = (props) => {
 
     return (
         <div id="content" className="ui container">
-            <Route exact path={`${props.match.path}/participates`} component={LeadersContainer} />
-            <Route exact path={props.match.path} component={() => <GameList poolId={poolId} />} />
+            <Switch>
+                <Route exact path={`${poolBaseUrl}/participates`} component={LeadersContainer} />
+                <Route exact path={poolBaseUrl}>
+                    <GameList poolId={poolId} />
+                </Route>
+            </Switch>
             <NavigationMenu />
         </div>
     );

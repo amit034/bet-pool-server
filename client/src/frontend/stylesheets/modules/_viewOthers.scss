@@ -401,7 +401,8 @@
         padding: 5px;
         flex: 0 0 auto;
 
-        .user-bet-image {
+        .user-bet-image,
+        .user-avatar.user-bet-image {
           width: 2.285em;
           height: 2.285em;
           align-self: center;

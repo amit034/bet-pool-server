@@ -22,6 +22,7 @@ $menu-glass-shine: linear-gradient(
   letter-spacing: 0.02em;
 }
 .top-menu .ui.avatar.image,
+.top-menu .top-menu-user-avatar.user-avatar,
 .right-menu .ui.avatar.image,
 .top-menu-user-dropdown .ui.avatar.image,
 .top-menu .top-menu-user-avatar.ui.avatar.image {
@@ -29,6 +30,10 @@ $menu-glass-shine: linear-gradient(
   box-shadow: 0 0 8px rgba(234, 183, 4, 0.3);
   width: 36px !important;
   height: 36px !important;
+}
+
+.top-menu .top-menu-user-avatar.user-avatar--initials {
+  font-size: 0.82rem;
 }
 
 .top-menu .top-menu-user-dropdown.item {

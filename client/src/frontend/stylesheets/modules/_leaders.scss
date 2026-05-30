@@ -250,6 +250,9 @@
       width: 1.7em;
       height: 1.7em;
     }
+    .user-avatar.leader-image {
+      font-size: 0.72em;
+    }
   }
 
   .leaders-slide--split .leader-list .leader-rank {
@@ -339,7 +342,8 @@
       .leader-side {
         display:flex;
         padding: 5px;
-        .leader-image {
+        .leader-image,
+        .user-avatar.leader-image {
           width: 2.285em;
           height: 2.285em;
           align-self: center;

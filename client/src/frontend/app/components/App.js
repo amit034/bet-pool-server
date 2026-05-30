@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import {Menu, Icon, Dropdown, Image} from 'semantic-ui-react';
+import {Menu, Icon, Dropdown} from 'semantic-ui-react';
 import {logoutUser, getUserFromLocalStorage} from '../actions/auth';
 import {useLocalStorage} from "react-use";
 import {useSelector, useDispatch} from 'react-redux';
@@ -15,6 +15,7 @@ import NewPool from './Pools/NewPool';
 import {getParticipatesWithRank} from "../utils";
 import {getUserBets, getPoolParticipates, getUserPools, getPoolGoals} from '../actions/pools';
 import PullToReloadIndicator from './PullToReloadIndicator';
+import UserAvatar from './UserAvatar';
 
 const EMPTY_PARTICIPATES = {};
 
@@ -99,7 +100,7 @@ const App = () => {
         : '';
 
     const switcher = (<Switch>
-        <ProtectedRoute exact path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
+        <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
         <ProtectedRoute exact path="/pools" component={PoolsContainer} isAuthenticated={isAuthenticated}/>
         <ProtectedRoute path="/newPool" component={NewPool} isAuthenticated={isAuthenticated}/>
         <Route exact path="/register" render={(props) => {
@@ -135,7 +136,7 @@ const App = () => {
                     className="top-menu-user-dropdown"
                     trigger={(
                         <span className="top-menu-user-trigger">
-                            <Image avatar src={user.picture} className="top-menu-user-avatar" />
+                            <UserAvatar user={user} className="top-menu-user-avatar ui avatar image" />
                             <Icon name="chevron down" className="top-menu-user-chevron" />
                             <span className="top-menu-user-text">
                                 <span className="top-menu-user-name">

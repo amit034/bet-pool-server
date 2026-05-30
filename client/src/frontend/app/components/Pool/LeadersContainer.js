@@ -10,6 +10,8 @@ import LeaderboardReplay, {SPEED_MS} from './LeaderboardReplay';
 import RoundGamesPanel from './RoundGamesPanel';
 import {buildChallengeMetaFromBets, buildReplaySnapshots} from '../../utils/leaderboardReplay';
 import {getPoolScoringFromState} from '../../utils/betScoring';
+import UserAvatar from '../UserAvatar';
+import {Loader} from 'semantic-ui-react';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/swiper.scss';
 import SwiperCore, {Pagination} from 'swiper';
@@ -86,8 +88,12 @@ function LeaderRow({participate, rank, isCurrentUser}) {
             <div className="leader-body">
                 <div className="leader-rank">{rank}.</div>
                 <div className="leader-side">
-                    <img className="leader-image" src={participate.picture} alt={participate.username}
-                        title={participate.username} />
+                    <UserAvatar
+                        className="leader-image"
+                        user={participate}
+                        alt={participate.username}
+                        title={participate.username}
+                    />
                 </div>
                 <div className="leader-center">
                     <div className="leader-name">{participate.firstName} {participate.lastName}</div>
@@ -105,8 +111,15 @@ const LeadersContainer = () => {
     const dispatch = useDispatch();
     const match = useRouteMatch();
     const poolId = match.params.id;
-    const participates = useSelector((state) => state.pools.participates);
+    const participatesRaw = useSelector((state) => state.pools.participates);
+    const participates = useMemo(() => {
+        if (Array.isArray(participatesRaw)) {
+            return participatesRaw;
+        }
+        return _.values(participatesRaw || {});
+    }, [participatesRaw]);
     const bets = useSelector((state) => state.pools.bets);
+    const isFetching = useSelector((state) => state.pools.isFetching);
     const goalsLog = useSelector((s) => _.get(s.pools.goalsLogByPool, String(poolId), null));
     const poolsState = useSelector((s) => s.pools);
 
@@ -163,13 +176,6 @@ const LeadersContainer = () => {
         };
     }, [logicalSlide]);
 
-    useEffect(() => {
-        const hasLiveGames = _.some(bets, bet => {
-            const challengeStatus = _.get(bet, 'challenge.status');
-            return _.includes(['IN_PLAY', 'PAUSED', 'EXTRA_TIME'], challengeStatus);
-        });
-        setShowRoundGames(hasLiveGames || replayPlaying || safeStep > 0 ? 1 : 0);
-    }, [bets, replayPlaying, safeStep]);
     const snapshots = useMemo(() => {
         if (_.isEmpty(participates)) {
             return [];
@@ -184,6 +190,14 @@ const LeadersContainer = () => {
     const safeStep = Math.min(replayStep, maxStep);
     const emptySnap = {leaders: [], logEntry: null, gameScores: {}};
     const currentSnap = snapshots[safeStep] || emptySnap;
+
+    useEffect(() => {
+        const hasLiveGames = _.some(bets, bet => {
+            const challengeStatus = _.get(bet, 'challenge.status');
+            return _.includes(['IN_PLAY', 'PAUSED', 'EXTRA_TIME'], challengeStatus);
+        });
+        setShowRoundGames(hasLiveGames || replayPlaying || safeStep > 0 ? 1 : 0);
+    }, [bets, replayPlaying, safeStep]);
 
     useEffect(() => {
         if (!replayOpen) {
@@ -238,6 +252,10 @@ const LeadersContainer = () => {
         e.preventDefault();
         setLive(!live);
     };
+
+    if (_.isEmpty(participates) && isFetching) {
+        return <Loader active inline="centered">Loading leaderboard…</Loader>;
+    }
 
     return (
         <div className="leaders-layout">

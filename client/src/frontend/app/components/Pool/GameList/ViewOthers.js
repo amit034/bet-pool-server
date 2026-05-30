@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { Modal } from 'semantic-ui-react';
 import { buildNextGoalViewOthersRows } from './viewOthersNextGoalPreview';
 import { buildWeekdayPathViewRows } from './viewOthersWeekdayPathPreview';
+import UserAvatar from '../../UserAvatar';
 
 function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName }) {
     return (
@@ -294,9 +295,9 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
             return (
                 <li className="user-bet-row user-bet-row--weekday-path">
                     <div className="user-bet-side">
-                        <img
+                        <UserAvatar
                             className="user-bet-image"
-                            src={participate.picture}
+                            user={participate}
                             alt={participate.username}
                             title={participate.username}
                         />
@@ -348,9 +349,9 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
         return (
             <li className="user-bet-row">
                 <div className="user-bet-side">
-                    <img
+                    <UserAvatar
                         className="user-bet-image"
-                        src={participate.picture}
+                        user={participate}
                         alt={participate.username}
                         title={participate.username}
                     />
