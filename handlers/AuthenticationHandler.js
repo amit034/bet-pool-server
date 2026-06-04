@@ -3,8 +3,9 @@ const _ = require('lodash');
 const passport = require('passport');
 const accountRepository = require('../repositories/accountRepository');
 const ApiAccessToken = require('../infrastructure/apiAccessToken');
-const {SecurityToken} = require('../models');
+const {SecurityToken, Account} = require('../models');
 const LoginViewModel = require('../viewModels/loginViewModel');
+const {profileFromGoogleRequestBody} = require('../utils/googleAuth');
 const logger = require('../utils/logger');
 
 
@@ -68,6 +69,26 @@ async function handleGoggleRegister(req, res, next) {
         return res.status(401).send({error: err.message});
     }
 
+}
+
+async function handleGoogleAuth(req, res, next) {
+    try {
+        const profile = await profileFromGoogleRequestBody(req.body);
+        const user = await Account.resolveGoogleUser(profile, Boolean(req.register));
+        if (!user) {
+            logger.log('info', `Google login: no account for ${profile.emails[0].value}`);
+            return res.status(401).send({
+                error: 'No account linked to this Google email. Register first or sign in with email and password.',
+            });
+        }
+        req.currentUser = user.toJSON();
+        req.authInfo = profile;
+        return next();
+    } catch (err) {
+        const status = err.status || (err.message === 'email already exist' ? 403 : 401);
+        logger.log('error', `Google auth failed from ${req.connection.remoteAddress}: ${err.message}`);
+        return res.status(status).send({error: err.message || 'Google sign-in failed'});
+    }
 }
 
 function handleLoginRequest(req, res, next) {
@@ -149,6 +170,7 @@ module.exports = {
     handleLoginRequest,
     handleUserPasswordRegister,
     handleGoggleRegister,
+    handleGoogleAuth,
     //this.handleRegisterRequest = handleRegisterRequest;
     postLogin,
     logout: handleLogoutRequest

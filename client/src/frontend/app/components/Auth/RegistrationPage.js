@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 //import FacebookLogin from 'react-facebook-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
-import {GoogleLogin} from 'react-google-login';
+import GoogleSignInButton from './GoogleSignInButton';
 import {TiSocialFacebook} from 'react-icons/ti';
 import {TiSocialGooglePlus} from 'react-icons/ti';
 import {registerUser, registerWithFacebookToken, registerWithGoogleToken} from '../../actions/auth';
@@ -109,17 +109,9 @@ class RegistrationPage extends React.Component {
                                     </div>
                                 )}
                                 callback={this.facebookResponse} />
-                            <GoogleLogin
-                                clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                            <GoogleSignInButton
+                                label="Register with Google"
                                 onSuccess={this.googleResponse}
-                                cssClass="social-login"
-                                render={renderProps => (
-                                    <div className="field">
-                                        <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
-                                            <Icon name='google' /> Register with Google
-                                        </Button>
-                                    </div>
-                                )}
                             />
                         </Grid.Column>
                     </Grid.Row>

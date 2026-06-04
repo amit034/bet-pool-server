@@ -38,8 +38,8 @@ module.exports = function (sequelize, DataTypes) {
         canLogin: {type: BOOLEAN, defaultValue: true, field: 'can_login'},
         // Treated as a set
         //pools: {type: [mongoose.Schema.ObjectId], 'default': []},
-        facebookProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
-        googleProviderId: {type: INTEGER(11), allowNull: true, defaultValue: '0', field: 'google_provider_id'},
+        facebookProviderId: {type: STRING(32), allowNull: true, defaultValue: '0', field: 'facebook_provider_id'},
+        googleProviderId: {type: STRING(32), allowNull: true, defaultValue: '0', field: 'google_provider_id'},
         isBot: {type: BOOLEAN, defaultValue: true, field: 'is_bot'}
     }, {
         tableName: 'accounts',
@@ -76,10 +76,55 @@ module.exports = function (sequelize, DataTypes) {
                 firstName: profile._json.last_name,
                 email: profile.emails[0].value,
                 picture: profile.photos[0].value,
-                facebookProviderId: profile.id
+                facebookProviderId: String(profile.id)
             };
         }
         return Account.upsertUserFromProvider(profile, accessToken, 'facebookProviderId', mapUser, cb);
+    };
+    Account.resolveGoogleUser = async (profile, register) => {
+        const googleId = String(profile.id);
+        const email = _.get(profile, 'emails.0.value');
+
+        const userByGoogle = await Account.findOne({where: {googleProviderId: googleId}});
+        if (userByGoogle) {
+            if (register) {
+                const err = new Error('email already exist');
+                err.status = 403;
+                throw err;
+            }
+            return userByGoogle;
+        }
+
+        let userByEmail = null;
+        if (email) {
+            userByEmail = await Account.findOne({where: {email}});
+        }
+        if (userByEmail) {
+            if (register) {
+                const err = new Error('email already exist');
+                err.status = 403;
+                throw err;
+            }
+            await userByEmail.update({
+                googleProviderId: googleId,
+                picture: profile._json.picture || userByEmail.picture,
+            });
+            return userByEmail;
+        }
+
+        if (!register) {
+            return null;
+        }
+
+        return new Promise((resolve, reject) => {
+            Account.upsertGoogleUser(null, null, profile, (err, user) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(user);
+                }
+            });
+        });
     };
     Account.upsertGoogleUser = (accessToken, refreshToken, profile, cb) => {
         const mapUser = (profile) => {
@@ -90,7 +135,7 @@ module.exports = function (sequelize, DataTypes) {
                 firstName: profile._json.given_name,
                 email: profile.emails[0].value,
                 picture: profile._json.picture,
-                googleProviderId: profile.id
+                googleProviderId: String(profile.id)
             };
         };
         return Account.upsertUserFromProvider(profile, accessToken, 'googleProviderId', mapUser, cb);
@@ -130,7 +175,9 @@ module.exports = function (sequelize, DataTypes) {
         return encrypt === this.hashedPassword;
     };
     Account.prototype.isLocal = function() {
-        return this.facebookProviderId < 1 && this.googleProviderId < 1
+        const fb = String(this.facebookProviderId || '0');
+        const goog = String(this.googleProviderId || '0');
+        return (fb === '0' || fb === '') && (goog === '0' || goog === '');
     };
     Account.prototype.getFullName = function () {
         return `${this.firstName} ${this.lastName}`;

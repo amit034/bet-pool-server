@@ -145,26 +145,23 @@ export function verifyFacebookToken(response) {
 
 export function verifyGoogleToken(response) {
     return dispatch => {
-       // const tokenBlob = new Blob([JSON.stringify({access_token: response.accessToken}, null, 2)], {type : 'application/json'});
-       // const options = {
-       //     method: 'POST',
-       //     body: tokenBlob,
-       //     mode: 'cors',
-       //     cache: 'default'
-       // };
-        axios.post('/api/auth/google',{access_token: response.accessToken, appName:'betPool'},{
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }).then(r => {
+        dispatch(requestLogin({provider: 'google'}));
+        const body = {
+            appName: 'betPool',
+            access_token: response.accessToken,
+            id_token: response.credential || response.idToken,
+        };
+        return axios.post('/api/auth/google', body, {
+            headers: {'Content-Type': 'application/json'},
+        }).then((r) => {
             const user = r.data;
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('apiAccessToken', user.apiAccessToken);
-            dispatch(receiveLogin(user))
+            dispatch(receiveLogin(user));
         }).catch((err) => {
-          dispatch(loginError(err.message));
+            dispatch(loginError(_.get(err, 'response.data.error', err.message || 'Google sign-in failed')));
         });
-    }
+    };
 }
 
 export function registerWithFacebookToken(response){
@@ -187,17 +184,21 @@ export function registerWithFacebookToken(response){
 
 export function registerWithGoogleToken(response){
     return dispatch => {
-           axios.post('/api/auth/register/google',{access_token: response.accessToken, appName:'betPool'},{
-                   headers: {
-                       'Content-Type': 'application/json',
-                   }
-               }).then(r => {
-               const user = r.data;
-               localStorage.setItem('user', JSON.stringify(user));
-               localStorage.setItem('apiAccessToken', user.apiAccessToken);
-               dispatch(receiveLogin(user))
-           }).catch((err) => {
-             dispatch(loginError(err.message));
-           });
-       }
+        dispatch(requestLogin({provider: 'google-register'}));
+        const body = {
+            appName: 'betPool',
+            access_token: response.accessToken,
+            id_token: response.credential || response.idToken,
+        };
+        return axios.post('/api/auth/register/google', body, {
+            headers: {'Content-Type': 'application/json'},
+        }).then((r) => {
+            const user = r.data;
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('apiAccessToken', user.apiAccessToken);
+            dispatch(receiveLogin(user));
+        }).catch((err) => {
+            dispatch(loginError(_.get(err, 'response.data.error', err.message || 'Google registration failed')));
+        });
+    };
 }

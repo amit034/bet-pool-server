@@ -72,17 +72,16 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/auth/login', (req, res, next) => {  req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     //app.post('/api/auth/facebook', handlers.auth.verifyFacebookToken);
     app.post('/api/auth/facebook', (req, res, next) => { req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
-    app.post('/api/auth/google',(req, res, next) => {
-        req.authStrategy = 'google-token'; return next();
-        }, authorisationPolicy, handlers.auth.postLogin);
+    app.post('/api/auth/google', handlers.auth.handleGoogleAuth, handlers.auth.postLogin);
 
     //app.post('/api/auth/register', handlers.auth.handleUserPasswordRegister, handlers.auth.postLogin);
     app.post('/api/auth/register', (req, res, next) => {
         req.register = true; req.authStrategy = 'local'; return next();}, authorisationPolicy , handlers.auth.postLogin);
     app.post('/api/auth/register/facebook', (req, res, next) => { req.register = true; req.authStrategy = 'facebook-token'; return next();}, authorisationPolicy, handlers.auth.postLogin);
     app.post('/api/auth/register/google', (req, res, next) => {
-        req.register = true; req.authStrategy = 'google-token';return next();
-        }, authorisationPolicy, handlers.auth.postLogin);
+        req.register = true;
+        return next();
+    }, handlers.auth.handleGoogleAuth, handlers.auth.postLogin);
     app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
     app.get('*', (req,res) =>{
         res.sendFile(publicPath);

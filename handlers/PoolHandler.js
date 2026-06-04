@@ -106,10 +106,7 @@ function buildPreviousLegMap(gameRows) {
 function handleCreatePoolRequest(req, res) {
     const name = req.body.name || null;
     const userId = req.params.userId || null;
-    const factorsStrategy = _.parseInt(req.body.factorsStrategy, 10);
-    const scoringMode = factorsStrategy === betScoring.SCORING_MODE.ODDS
-        ? betScoring.SCORING_MODE.ODDS
-        : betScoring.SCORING_MODE.CLASSIC;
+    const scoringMode = betScoring.normalizeFactorsStrategy(req.body.factorsStrategy);
     if (userId) {
         accountRepository.findById(userId)
             .then(
@@ -828,10 +825,7 @@ async function handleUpdatePool(req, res) {
             patch.image = req.body.image;
         }
         if (req.body.factorsStrategy != null) {
-            const fs = _.parseInt(req.body.factorsStrategy, 10);
-            patch.factorsStrategy = fs === betScoring.SCORING_MODE.ODDS
-                ? betScoring.SCORING_MODE.ODDS
-                : betScoring.SCORING_MODE.CLASSIC;
+            patch.factorsStrategy = betScoring.normalizeFactorsStrategy(req.body.factorsStrategy);
         }
         if (_.isEmpty(patch)) {
             return res.send(pool.toJSON ? pool.toJSON() : pool);

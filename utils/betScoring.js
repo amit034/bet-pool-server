@@ -4,7 +4,8 @@ const {Bet} = require('../models');
 
 const SCORING_MODE = {
     CLASSIC: 0,
-    ODDS: 1
+    ODDS: 1,
+    WINNER2: 2
 };
 
 const DEFAULT_POOL_FACTORS = {0: 0, 1: 10, 2: 20, 3: 30};
@@ -38,6 +39,23 @@ function isOddsScoringMode(scoringMode) {
     return _.parseInt(scoringMode, 10) === SCORING_MODE.ODDS;
 }
 
+function isWinner2ScoringMode(scoringMode) {
+    return _.parseInt(scoringMode, 10) === SCORING_MODE.WINNER2;
+}
+
+function usesResultOdds(scoringMode) {
+    const mode = _.parseInt(scoringMode, 10);
+    return mode === SCORING_MODE.ODDS || mode === SCORING_MODE.WINNER2;
+}
+
+function normalizeFactorsStrategy(raw) {
+    const fs = _.parseInt(raw, 10);
+    if (fs === SCORING_MODE.ODDS || fs === SCORING_MODE.WINNER2) {
+        return fs;
+    }
+    return SCORING_MODE.CLASSIC;
+}
+
 function computeBetScore({
     bet,
     challenge,
@@ -55,15 +73,26 @@ function computeBetScore({
         return {medal: 0, score: 0, basePoints: 0, oddsMultiplier: 1};
     }
 
-    const oddsMult = isOddsScoringMode(scoringMode)
+    const mode = _.parseInt(scoringMode, 10);
+    const oddsMultiplier = usesResultOdds(mode)
         ? actualResultOdds(actualScore1, actualScore2, challenge)
         : 1;
+
+    if (mode === SCORING_MODE.WINNER2) {
+        const additive = oddsMultiplier + medal;
+        return {
+            medal,
+            basePoints: additive,
+            oddsMultiplier,
+            score: Math.round(additive * factorId * 10)
+        };
+    }
 
     return {
         medal,
         basePoints: base,
-        oddsMultiplier: oddsMult,
-        score: Math.round(base * oddsMult)
+        oddsMultiplier,
+        score: Math.round(base * oddsMultiplier)
     };
 }
 
@@ -81,6 +110,9 @@ module.exports = {
     medalFromBet,
     actualResultOdds,
     isOddsScoringMode,
+    isWinner2ScoringMode,
+    usesResultOdds,
+    normalizeFactorsStrategy,
     computeBetScore,
     applyBetScoreFields
 };

@@ -4,9 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import {useVideo, useLocalStorage} from 'react-use';
 import backgroundVideo from '../../../video/intro.mp4';
-import {GoogleLogin} from 'react-google-login';
-import {
-    loginUser,
+import GoogleSignInButton from './GoogleSignInButton';
+import {loginError, loginUser,
     registerUser,
     registerWithFacebookToken, registerWithGoogleToken,
     verifyFacebookToken,
@@ -64,8 +63,12 @@ const LoginPage = ({register = false}) => {
     }
 
     function googleResponse(response) {
-        const verifyGoogle= register ? registerWithGoogleToken : verifyGoogleToken;
+        const verifyGoogle = register ? registerWithGoogleToken : verifyGoogleToken;
         dispatch(verifyGoogle(response));
+    }
+
+    function googleFailure(err) {
+        dispatch(loginError(_.get(err, 'message', 'Google sign-in failed')));
     }
 
     function processForm(event) {
@@ -134,17 +137,10 @@ const LoginPage = ({register = false}) => {
                                         </div>
                                     )}
                                     callback={facebookResponse} />
-                                <GoogleLogin
-                                    clientId="1082876692474-4f1n956n709jtmufln04rjbnl09fqlni.apps.googleusercontent.com"
+                                <GoogleSignInButton
+                                    label={`${socialPrefix} with Google`}
                                     onSuccess={googleResponse}
-                                    cssClass="social-login"
-                                    render={renderProps => (
-                                        <div className="field login-input">
-                                            <Button fluid size='large' onClick={renderProps.onClick}  className={'social-button google-button'}>
-                                                <Icon name='google' /> {socialPrefix} with Google
-                                            </Button>
-                                        </div>
-                                    )}
+                                    onFailure={googleFailure}
                                 />
                             </Form>
                         </Grid.Column>
