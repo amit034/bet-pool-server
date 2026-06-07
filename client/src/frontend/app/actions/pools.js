@@ -473,6 +473,9 @@ function normalisePoolGoalsPayload(data) {
 
 export function getPoolGoals(poolId) {
     return dispatch => {
+        if (poolId == null || poolId === '' || poolId === 'undefined') {
+            return Promise.resolve();
+        }
         const userId = getUserFromLocalStorage().userId;
         return axios.get(`/api/${userId}/pools/${poolId}/goals`, {headers: authHeader()})
             .then((response) => {

@@ -5,6 +5,7 @@ import _ from "lodash";
 import Goal from "./Goal";
 import LeftVerticalBar from "./LeftVerticalBar";
 import GoalImpactRow from "./GoalImpactRow";
+import GameOddsDisplay from "./GameOddsDisplay";
 import { formatPreviousLegUi } from "../../../utils";
 const Game = ({
     bet,
@@ -19,7 +20,17 @@ const Game = ({
     const {
         score1, score2, score, medal,
         challenge} = bet;
-    const {id: challengeId, isOpen, score1: c_score1, score2: c_score2, playAt, factorId} = challenge || {};
+    const {
+        id: challengeId,
+        isOpen,
+        score1: c_score1,
+        score2: c_score2,
+        playAt,
+        factorId,
+        odds1,
+        oddsX,
+        odds2,
+    } = challenge || {};
     const homeTeam = _.get(challenge, 'game.homeTeam', {});
     const awayTeam = _.get(challenge, 'game.awayTeam', {});
     const previousLeg = _.get(challenge, 'game.previousLeg');
@@ -85,12 +96,17 @@ const Game = ({
         );
     };
 
-    const MatchResult = ({score1, score2}) => {
-        return (<div className="game-result game-body-column">
-            <div className="match-result game-body-column-center">{score1} : {score2}</div>
-            <div className="game-body-column-footer">&nbsp;</div>
-        </div>);
-    };   
+    const MatchResult = ({score1, score2, showResult}) => {
+        return (
+            <div className="game-result game-body-column">
+                <div className="game-body-column-center game-result-stack">
+                    <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} compact />
+                    {showResult ? <div className="match-result">{score1} : {score2}</div> : null}
+                </div>
+                <div className="game-body-column-footer">&nbsp;</div>
+            </div>
+        );
+    };
     const homeTeamNext = _.get(gameImpact, 'homeTeamNext', null);
     const awayTeamNext = _.get(gameImpact, 'awayTeamNext', null);
     const gamePaths = _.get(gameImpact, 'gamePaths', null);
@@ -154,7 +170,7 @@ const Game = ({
         
                 <div className="game-body">
                     <TeamScore team={homeTeam} teamBet={score1} closed={!isOpen} challengeId={challengeId} betFieldName="score1" />
-                    <MatchResult score1={matchHome} score2={matchAway} />
+                    <MatchResult score1={matchHome} score2={matchAway} showResult={!isOpen} />
                     <TeamScore team={awayTeam} teamBet={score2} closed={!isOpen} challengeId={challengeId} betFieldName="score2" reverse={true} />
                 </div>
                 {!isOpen ? <GoalImpactRow

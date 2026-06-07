@@ -8,22 +8,29 @@ import { Modal } from 'semantic-ui-react';
 import { buildNextGoalViewOthersRows } from './viewOthersNextGoalPreview';
 import { buildWeekdayPathViewRows } from './viewOthersWeekdayPathPreview';
 import UserAvatar from '../../UserAvatar';
+import GameOddsDisplay from './GameOddsDisplay';
 
-function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName }) {
+function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName, odds1, oddsX, odds2, showOdds }) {
+    const hasOdds = showOdds && (odds1 != null || oddsX != null || odds2 != null);
     return (
         <div className="view-others-score-split__line">
-            <div className="view-others-score-split__mini-flag">
-                <img src={homeTeam.flag} alt="" />
-            </div>
-            <div className={classNames('view-others-score-split__stack-score', scoreClassName)}>{scoreText}</div>
-            <div className="view-others-score-split__mini-flag">
-                <img src={awayTeam.flag} alt="" />
+            {hasOdds ? (
+                <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} size="xs" />
+            ) : null}
+            <div className="view-others-score-split__line-score">
+                <div className="view-others-score-split__mini-flag">
+                    <img src={homeTeam.flag} alt="" />
+                </div>
+                <div className={classNames('view-others-score-split__stack-score', scoreClassName)}>{scoreText}</div>
+                <div className="view-others-score-split__mini-flag">
+                    <img src={awayTeam.flag} alt="" />
+                </div>
             </div>
         </div>
     );
 }
 
-function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
+function ScoreSplitBody({ hypoAccentClass, kickerText, pairs, showCellOdds }) {
     return (
         <div className="view-others-score-split">
             {kickerText ? (
@@ -43,7 +50,7 @@ function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
                     aria-hidden
                 />
                 <div className="view-others-score-split__matrix">
-                    {_.map(pairs, ({ key, homeTeam, awayTeam, currentText, hypoText, hypoScoreClass }) => (
+                    {_.map(pairs, ({ key, homeTeam, awayTeam, currentText, hypoText, hypoScoreClass, odds1, oddsX, odds2 }) => (
                         <Fragment key={key}>
                             <div className="view-others-score-split__matrix-cell view-others-score-split__matrix-cell--current">
                                 <ScoreLineCell
@@ -51,6 +58,10 @@ function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
                                     awayTeam={awayTeam}
                                     scoreText={currentText}
                                     scoreClassName="view-others-score-split__stack-score--on-current-panel"
+                                    showOdds={showCellOdds}
+                                    odds1={odds1}
+                                    oddsX={oddsX}
+                                    odds2={odds2}
                                 />
                             </div>
                             <div className="view-others-score-split__matrix-cell view-others-score-split__matrix-cell--hypo">
@@ -59,6 +70,10 @@ function ScoreSplitBody({ hypoAccentClass, kickerText, pairs }) {
                                     awayTeam={awayTeam}
                                     scoreText={hypoText}
                                     scoreClassName={hypoScoreClass}
+                                    showOdds={showCellOdds}
+                                    odds1={odds1}
+                                    oddsX={oddsX}
+                                    odds2={odds2}
                                 />
                             </div>
                         </Fragment>
@@ -74,6 +89,9 @@ function NextGoalSplitPanelHeader({ challenge, splitScores, side, hypoTone }) {
         id,
         game: { homeTeam, awayTeam, previousLeg },
         playAt,
+        odds1,
+        oddsX,
+        odds2,
     } = challenge;
     const prevLegUi = formatPreviousLegUi(previousLeg);
     const { currentH, currentA, proposedH, proposedA } = splitScores;
@@ -107,10 +125,20 @@ function NextGoalSplitPanelHeader({ challenge, splitScores, side, hypoTone }) {
                             {prevLegUi.text}
                         </div>
                     ) : null}
+                    <div className="game-title__odds-row">
+                        <GameOddsDisplay
+                            odds1={odds1}
+                            oddsX={oddsX}
+                            odds2={odds2}
+                            size="sm"
+                            className="game-odds--title-bar"
+                        />
+                    </div>
                 </div>
                 <ScoreSplitBody
                     kickerText={`If ${scoringLabel} scores next…`}
                     hypoAccentClass={hypoAccentClass}
+                    showCellOdds={false}
                     pairs={[
                         {
                             key: 'next-goal',
@@ -148,6 +176,9 @@ function WeekdayPathSplitPanelHeader({ variant, dateLabel, segments }) {
             currentText: `${currentH} : ${currentA}`,
             hypoText: `${proposedH} : ${proposedA}`,
             hypoScoreClass,
+            odds1: challenge.odds1,
+            oddsX: challenge.oddsX,
+            odds2: challenge.odds2,
         };
     });
 
@@ -166,29 +197,23 @@ function WeekdayPathSplitPanelHeader({ variant, dateLabel, segments }) {
                     <div className="game-day">{dateLabel}</div>
                     <div className="game-hour game-hour--scenario">{scenarioLabel}</div>
                 </div>
-                <ScoreSplitBody hypoAccentClass={hypoAccentClass} pairs={pairs} />
+                <ScoreSplitBody hypoAccentClass={hypoAccentClass} pairs={pairs} showCellOdds />
             </li>
         </Modal.Header>
     );
 }
 
 const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) => {
-    const MatchResult = ({ challenge: { score1, score2, isOpen, odds1, odds2, oddsX } }) => {
-        return !isOpen ? (
-            <div className="game-result">
-                {score1} : {score2}
-            </div>
-        ) : (
-            <div className="game-odds">
-                <div className="odds-title-row">
-                    <div>Home</div>
-                    <div>Draw</div>
-                    <div>Away</div>
-                </div>
-                <div className="odds-title-values">
-                    <div>{odds1}</div>
-                    <div>{oddsX}</div>
-                    <div>{odds2}</div>
+    const MatchResult = ({ challenge }) => {
+        const { score1, score2, isOpen, odds1, odds2, oddsX } = challenge;
+        if (isOpen) {
+            return <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} size="sm" />;
+        }
+        return (
+            <div className="game-result game-result--stacked">
+                <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} size="xs" />
+                <div className="game-result-score">
+                    {score1} : {score2}
                 </div>
             </div>
         );

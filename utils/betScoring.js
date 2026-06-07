@@ -48,6 +48,24 @@ function usesResultOdds(scoringMode) {
     return mode === SCORING_MODE.ODDS || mode === SCORING_MODE.WINNER2;
 }
 
+/**
+ * Winner2: map decimal odds to tier points (קל / בינוני / קשה / אנדרדוג).
+ * 1–1.5 → 0 | 1.5–2.5 → 5 | 2.5–4 → 10 | 4+ → 15
+ */
+function winner2OddsBase(rawOdds) {
+    const odds = Number(rawOdds);
+    if (!odds || odds < 1.5) {
+        return 0;
+    }
+    if (odds < 2.5) {
+        return 5;
+    }
+    if (odds < 4) {
+        return 10;
+    }
+    return 15;
+}
+
 function normalizeFactorsStrategy(raw) {
     const fs = _.parseInt(raw, 10);
     if (fs === SCORING_MODE.ODDS || fs === SCORING_MODE.WINNER2) {
@@ -79,12 +97,15 @@ function computeBetScore({
         : 1;
 
     if (mode === SCORING_MODE.WINNER2) {
-        const additive = oddsMultiplier + medal;
+        const medalFactor = _.get(factors, medal, 0);
+        const oddsBase = winner2OddsBase(oddsMultiplier);
+        const score = Math.round(medalFactor * factorId + oddsBase);
         return {
             medal,
-            basePoints: additive,
+            basePoints: medalFactor * factorId,
             oddsMultiplier,
-            score: Math.round(additive * factorId * 10)
+            oddsBase,
+            score
         };
     }
 
@@ -109,6 +130,7 @@ module.exports = {
     DEFAULT_POOL_FACTORS,
     medalFromBet,
     actualResultOdds,
+    winner2OddsBase,
     isOddsScoringMode,
     isWinner2ScoringMode,
     usesResultOdds,

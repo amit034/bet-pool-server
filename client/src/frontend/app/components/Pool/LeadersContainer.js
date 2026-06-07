@@ -109,8 +109,8 @@ function LeaderRow({participate, rank, isCurrentUser}) {
 
 const LeadersContainer = () => {
     const dispatch = useDispatch();
-    const match = useRouteMatch();
-    const poolId = match.params.id;
+    const poolMatch = useRouteMatch('/pools/:id');
+    const poolId = poolMatch && poolMatch.params.id;
     const participatesRaw = useSelector((state) => state.pools.participates);
     const participates = useMemo(() => {
         if (Array.isArray(participatesRaw)) {
@@ -200,14 +200,14 @@ const LeadersContainer = () => {
     }, [bets, replayPlaying, safeStep]);
 
     useEffect(() => {
-        if (!replayOpen) {
+        if (!poolId || !replayOpen) {
             return undefined;
         }
         dispatch(getPoolGoals(poolId));
     }, [replayOpen, poolId, dispatch]);
 
     useEffect(() => {
-        if (!showRoundGames || !logicalSlide) {
+        if (!poolId || !showRoundGames || !logicalSlide) {
             return undefined;
         }
         dispatch(getPoolGoals(poolId));
