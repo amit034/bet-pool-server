@@ -7,7 +7,7 @@ import {getUserPools, joinPool} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {getUserFromLocalStorage} from '../../actions/auth';
 import classNames from 'classnames';
-import {Button} from 'semantic-ui-react';
+import {Button, Icon} from 'semantic-ui-react';
 
 function PoolCard({pool, join, enter, preview, urlJoinCode}) {
     const userId = _.get(getUserFromLocalStorage(), 'userId');
@@ -18,72 +18,92 @@ function PoolCard({pool, join, enter, preview, urlJoinCode}) {
     const codeMatchesUrl = urlJoinCode && poolCode === urlJoinCode;
     const showJoinBtn = !joined && poolIsOpen && poolIsActive && codeMatchesUrl;
     const showEnterBtn = joined && poolIsActive;
-    const poolClass = classNames('pool', {
-        'pool-closed': (!poolIsOpen && !joined) || !poolIsActive,
+    const isClosed = (!poolIsOpen && !joined) || !poolIsActive;
+    const playerCount = _.size(_.reject(pool.participates, {isBot: true}));
+    const firstPrize = _.first(pool.prices);
+
+    const poolClass = classNames('pool-card', {
+        'pool-card--closed': isClosed,
+        'pool-card--joined': joined,
+    });
+
+    const statusLabel = !poolIsActive ? 'Inactive' : poolIsOpen ? 'Open' : 'Closed';
+    const statusClass = classNames('pool-card__status', {
+        'pool-card__status--open': poolIsActive && poolIsOpen,
+        'pool-card__status--closed': isClosed,
     });
 
     return (
         <li className={poolClass}>
-            <div className="pool-left-side">
-                <div className="pool-left-title">{pool.name}</div>
-                <div className="pool-left-side-center">
-                    <div className="pool-left-detail">
-                        <div className="pool-left-detail-header">Players</div>
-                        <div className="pool-left-detail-value">
-                            {_.size(_.reject(pool.participates, {isBot: true}))}
-                        </div>
+            <div className="pool-card__header">
+                <div className="pool-card__identity">
+                    <div className="pool-card__image-wrap">
+                        {pool.image ? (
+                            <img className="pool-card__image" src={pool.image} alt="" />
+                        ) : (
+                            <Icon name="futbol" className="pool-card__image-fallback" />
+                        )}
                     </div>
-                    <div className="pool-left-detail">
-                        <div className="pool-left-detail-header">Pot</div>
-                        <div className="pool-left-detail-value">{pool.pot} NIS</div>
+                    <div className="pool-card__title-wrap">
+                        <h3 className="pool-card__title">{pool.name}</h3>
+                        <span className={statusClass}>{statusLabel}</span>
                     </div>
-                    <div className="pool-left-detail">
-                        <div className="pool-left-detail-header">First Price</div>
-                        <div className="pool-left-detail-value">{_.first(pool.prices)} NIS</div>
-                    </div>
+                </div>
+                <div className="pool-card__buyin">
+                    <span className="pool-card__buyin-label">Buy-in</span>
+                    <span className="pool-card__buyin-value">{pool.buyIn} NIS</span>
                 </div>
             </div>
-            <div className="pool-right-side">
-                <div className="pool-right-title">
-                    <img className="pool-image" src={pool.image} alt="" />
+
+            <div className="pool-card__stats">
+                <div className="pool-card__stat">
+                    <span className="pool-card__stat-value">{playerCount}</span>
+                    <span className="pool-card__stat-label">Players</span>
                 </div>
-                <div className="divider" />
-                <div className="pool-right-detail-value">{pool.buyIn} NIS</div>
-                <div className="pool-right-detail-value" style={{fontWeight: 100}}>Check-in DeadLine</div>
-                <div className="pool-right-detail-value">
-                    {moment(pool.lastCheckIn).format('DD/MM/YY HH:mm')}
+                <div className="pool-card__stat">
+                    <span className="pool-card__stat-value">{pool.pot}</span>
+                    <span className="pool-card__stat-label">Pot (NIS)</span>
                 </div>
-                <div className="pool-card-actions">
+                <div className="pool-card__stat">
+                    <span className="pool-card__stat-value">{firstPrize}</span>
+                    <span className="pool-card__stat-label">1st Prize</span>
+                </div>
+            </div>
+
+            <div className="pool-card__meta">
+                <Icon name="clock outline" />
+                <span>Check-in by {moment(pool.lastCheckIn).format('DD/MM/YY HH:mm')}</span>
+            </div>
+
+            <div className="pool-card__actions">
+                <Button
+                    type="button"
+                    size="small"
+                    className="pool-card__action pool-card__action--preview"
+                    onClick={() => preview(pool.poolId)}
+                >
+                    Preview
+                </Button>
+                {showEnterBtn && (
                     <Button
                         type="button"
                         size="small"
-                        className="pool-card-actions__preview"
-                        onClick={() => preview(pool.poolId)}
+                        className="pool-card__action pool-card__action--enter"
+                        onClick={() => enter(pool.poolId)}
                     >
-                        Preview
+                        Enter pool
                     </Button>
-                    {showEnterBtn && (
-                        <Button
-                            type="button"
-                            size="small"
-                            primary
-                            className="pool-card-actions__enter"
-                            onClick={() => enter(pool.poolId)}
-                        >
-                            Enter
-                        </Button>
-                    )}
-                    {showJoinBtn && (
-                        <Button
-                            type="button"
-                            size="small"
-                            className="pool-card-actions__join"
-                            onClick={() => join(pool.poolId, urlJoinCode)}
-                        >
-                            Join
-                        </Button>
-                    )}
-                </div>
+                )}
+                {showJoinBtn && (
+                    <Button
+                        type="button"
+                        size="small"
+                        className="pool-card__action pool-card__action--join"
+                        onClick={() => join(pool.poolId, urlJoinCode)}
+                    >
+                        Join pool
+                    </Button>
+                )}
             </div>
         </li>
     );
@@ -92,8 +112,21 @@ function PoolCard({pool, join, enter, preview, urlJoinCode}) {
 function PoolList({join, enter, preview, urlJoinCode}) {
     const poolsState = useSelector((state) => state.pools.pools);
     const poolArray = useMemo(() => _.values(poolsState || {}), [poolsState]);
+
+    if (!poolArray.length) {
+        return (
+            <div className="pools-empty">
+                <Icon name="futbol" className="pools-empty__icon" />
+                <p className="pools-empty__title">No pools yet</p>
+                <p className="pools-empty__text">
+                    Create a new pool or join one with an invite link.
+                </p>
+            </div>
+        );
+    }
+
     return (
-        <ul className="pool-list" style={{marginTop: '30px'}}>
+        <ul className="pool-list">
             {poolArray.map((pool) => (
                 <PoolCard
                     key={pool.poolId}
@@ -259,8 +292,18 @@ const PoolsContainer = () => {
         history.push(`/pools/${poolId}${qs}`);
     }, [history, urlJoinCode]);
 
+    const poolCount = _.size(userPools);
+
     return (
-        <div id="content" className="ui container">
+        <div id="content" className="ui container pools-page">
+            <header className="pools-page__header">
+                <h1 className="pools-page__title">My Pools</h1>
+                <p className="pools-page__subtitle">
+                    {poolCount
+                        ? `${poolCount} pool${poolCount === 1 ? '' : 's'} available`
+                        : 'Pick a pool to start predicting'}
+                </p>
+            </header>
             <SearchPools />
             <PoolList
                 join={handleJoin}

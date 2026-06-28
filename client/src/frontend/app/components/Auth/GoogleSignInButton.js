@@ -1,41 +1,65 @@
 'use strict';
-import React from 'react';
-import {useGoogleLogin} from '@react-oauth/google';
+import React, {useRef} from 'react';
+import {GoogleLogin} from '@react-oauth/google';
 import {Button, Icon} from 'semantic-ui-react';
 
 /**
- * Google Identity Services (replaces deprecated react-google-login).
- * Uses implicit flow so the backend still receives access_token.
+ * Custom-styled button that triggers Google Identity Services credential flow
+ * via a hidden official Google button (keeps ID token auth working).
  */
-export default function GoogleSignInButton({label, onSuccess, onFailure}) {
-    const login = useGoogleLogin({
-        flow: 'implicit',
-        onSuccess: (tokenResponse) => {
-            if (!tokenResponse || !tokenResponse.access_token) {
-                if (onFailure) {
-                    onFailure(new Error('Google did not return an access token'));
-                }
-                return;
-            }
-            onSuccess({accessToken: tokenResponse.access_token});
-        },
-        onError: (err) => {
+export default function GoogleSignInButton({label, onSuccess, onFailure, disabled}) {
+    const hiddenGoogleRef = useRef(null);
+
+    function triggerGoogleLogin() {
+        const googleButton = hiddenGoogleRef.current?.querySelector('[role="button"]');
+        if (!googleButton) {
             if (onFailure) {
-                onFailure(err || new Error('Google sign-in failed'));
+                onFailure(new Error('Google sign-in is not ready yet'));
             }
-        },
-    });
+            return;
+        }
+        googleButton.click();
+    }
 
     return (
-        <div className="field login-input">
+        <div className="auth-social-button-wrap">
+            <div
+                ref={hiddenGoogleRef}
+                className="auth-social-button-wrap__hidden-google"
+                aria-hidden="true"
+            >
+                <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                        if (!credentialResponse.credential) {
+                            if (onFailure) {
+                                onFailure(new Error('Google did not return a credential'));
+                            }
+                            return;
+                        }
+                        onSuccess({credential: credentialResponse.credential});
+                    }}
+                    onError={() => {
+                        if (onFailure) {
+                            onFailure(new Error('Google sign-in failed'));
+                        }
+                    }}
+                    theme="outline"
+                    size="large"
+                    text="signin_with"
+                    shape="rectangular"
+                    width="1"
+                />
+            </div>
             <Button
                 fluid
                 size="large"
                 type="button"
-                onClick={() => login()}
-                className="social-button google-button"
+                onClick={triggerGoogleLogin}
+                className="auth-social-button auth-social-button--google"
+                disabled={disabled}
             >
-                <Icon name="google" /> {label}
+                <Icon name="google" />
+                {label}
             </Button>
         </div>
     );

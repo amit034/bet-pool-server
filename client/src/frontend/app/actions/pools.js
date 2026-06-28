@@ -31,6 +31,9 @@ export const GET_POOL_PREVIEW_REQUEST = 'GET_POOL_PREVIEW_REQUEST';
 export const GET_POOL_PREVIEW_SUCCESS = 'GET_POOL_PREVIEW_SUCCESS';
 export const GET_POOL_PREVIEW_FAILURE = 'GET_POOL_PREVIEW_FAILURE';
 export const CLEAR_POOL_PREVIEW = 'CLEAR_POOL_PREVIEW';
+export const GET_POOL_STANDINGS_REQUEST = 'GET_POOL_STANDINGS_REQUEST';
+export const GET_POOL_STANDINGS_SUCCESS = 'GET_POOL_STANDINGS_SUCCESS';
+export const GET_POOL_STANDINGS_FAILURE = 'GET_POOL_STANDINGS_FAILURE';
 
 
 function requestUserPools(userId) {
@@ -493,6 +496,42 @@ export function getPoolGoals(poolId) {
                     dispatch(authErr);
                 }
                 dispatch(getPoolGoalsFail(poolId, err.message));
+            });
+    };
+}
+
+function requestPoolStandings(poolId) {
+    return {type: GET_POOL_STANDINGS_REQUEST, poolId};
+}
+
+function receivePoolStandings(poolId, standings) {
+    return {type: GET_POOL_STANDINGS_SUCCESS, poolId, standings};
+}
+
+function poolStandingsFail(poolId, message) {
+    return {type: GET_POOL_STANDINGS_FAILURE, poolId, message};
+}
+
+export function fetchPoolStandings(poolId, eventIds, {force = false} = {}) {
+    return (dispatch, getState) => {
+        const key = String(poolId);
+        if (!force && _.get(getState(), ['pools', 'standingsByPoolId', key])) {
+            return Promise.resolve();
+        }
+        const ids = _.uniq(_.compact(_.castArray(eventIds)));
+        if (_.isEmpty(ids)) {
+            return Promise.resolve();
+        }
+        dispatch(requestPoolStandings(poolId));
+        return Promise.all(
+            ids.map((eventId) => axios.get(`/api/events/${eventId}/standings`))
+        )
+            .then((responses) => {
+                const standings = _.flatten(_.map(responses, (r) => r.data || []));
+                dispatch(receivePoolStandings(poolId, standings));
+            })
+            .catch((err) => {
+                dispatch(poolStandingsFail(poolId, err.message));
             });
     };
 }

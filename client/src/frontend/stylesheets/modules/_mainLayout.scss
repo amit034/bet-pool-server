@@ -91,6 +91,11 @@ $menu-glass-shine: linear-gradient(
 }
 .app-wrapper{
   min-height: 100%;
+
+  &.app-wrapper--with-top-menu {
+    padding-top: var(--app-top-menu-height, calc(56px + env(safe-area-inset-top, 0px)));
+  }
+
   /* iOS standalone: safe-area + stay below Semantic dimmer/modal (~1000). */
   .ui.fixed.menu.top-menu {
     padding-top: env(safe-area-inset-top, 0px);
@@ -198,7 +203,7 @@ $menu-glass-shine: linear-gradient(
 }
 
 .ui#content{
-  padding-top: calc(40px + env(safe-area-inset-top, 0px));
+  padding-top: 0;
   padding-bottom: calc(55px + env(safe-area-inset-bottom, 0px));
   padding-left: 0;
   padding-right: 0;

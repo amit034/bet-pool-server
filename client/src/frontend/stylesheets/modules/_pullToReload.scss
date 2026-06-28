@@ -2,7 +2,7 @@
   position: fixed;
   z-index: 997;
   left: 50%;
-  top: calc(48px + env(safe-area-inset-top, 0px));
+  top: calc(var(--app-top-menu-height, 48px) + 8px);
   pointer-events: none;
   display: flex;
   justify-content: center;

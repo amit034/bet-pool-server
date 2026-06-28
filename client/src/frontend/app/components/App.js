@@ -13,7 +13,7 @@ import PoolContainer from './Pool/PoolContainer';
 import PoolsContainer from './Pools/PoolsContainer';
 import NewPool from './Pools/NewPool';
 import {getParticipatesWithRank} from "../utils";
-import {getUserBets, getPoolParticipates, getUserPools, getPoolGoals} from '../actions/pools';
+import {getUserBets, getPoolParticipates, getUserPools, getPoolGoals, fetchPoolStandings} from '../actions/pools';
 import PullToReloadIndicator from './PullToReloadIndicator';
 import UserAvatar from './UserAvatar';
 
@@ -37,6 +37,9 @@ const App = () => {
     const poolIdForRank = _.get(poolMatch, 'params.id');
     const participates = useSelector((state) =>
         poolIdForRank ? state.pools.participates : EMPTY_PARTICIPATES
+    );
+    const bets = useSelector((state) =>
+        poolIdForRank ? state.pools.bets : {}
     );
     const [dataRefreshBusy, setDataRefreshBusy] = React.useState(false);
     const [lastDataUpdatedAt, setLastDataUpdatedAt] = React.useState(null);
@@ -78,10 +81,14 @@ const App = () => {
         const poolId = _.get(poolMatch, 'params.id');
         if (poolId) {
             setDataRefreshBusy(true);
+            const eventIds = _.uniq(
+                _.map(_.values(bets), (bet) => _.get(bet, 'challenge.game.eventId')).filter(Boolean)
+            );
             Promise.all([
                 dispatch(getUserBets(poolId)),
                 dispatch(getPoolParticipates(poolId)),
                 dispatch(getPoolGoals(poolId)),
+                dispatch(fetchPoolStandings(poolId, eventIds, {force: true})),
             ])
                 .then(() => setLastDataUpdatedAt(new Date()))
                 .finally(() => setDataRefreshBusy(false));
@@ -93,11 +100,43 @@ const App = () => {
                 .then(() => setLastDataUpdatedAt(new Date()))
                 .finally(() => setDataRefreshBusy(false));
         }
-    }, [dataRefreshBusy, poolMatch, poolsListMatch, dispatch]);
+    }, [dataRefreshBusy, poolMatch, poolsListMatch, dispatch, bets]);
 
     const lastUpdatedLabel = lastDataUpdatedAt
         ? `Updated ${moment(lastDataUpdatedAt).format('DD/MM HH:mm')}`
         : '';
+
+    React.useEffect(() => {
+        if (!isAuthenticated) {
+            document.documentElement.style.removeProperty('--app-top-menu-height');
+            return undefined;
+        }
+        const menu = document.querySelector('.top-menu');
+        if (!menu) {
+            return undefined;
+        }
+        const syncTopMenuHeight = () => {
+            document.documentElement.style.setProperty(
+                '--app-top-menu-height',
+                `${menu.getBoundingClientRect().height}px`
+            );
+        };
+        syncTopMenuHeight();
+        const observer = typeof ResizeObserver !== 'undefined'
+            ? new ResizeObserver(syncTopMenuHeight)
+            : null;
+        if (observer) {
+            observer.observe(menu);
+        }
+        window.addEventListener('resize', syncTopMenuHeight);
+        return () => {
+            if (observer) {
+                observer.disconnect();
+            }
+            window.removeEventListener('resize', syncTopMenuHeight);
+            document.documentElement.style.removeProperty('--app-top-menu-height');
+        };
+    }, [isAuthenticated, poolMatch, poolsListMatch, lastUpdatedLabel, rank]);
 
     const switcher = (<Switch>
         <ProtectedRoute path="/pools/:id" component={PoolContainer} isAuthenticated={isAuthenticated}/>
@@ -202,7 +241,7 @@ const App = () => {
                     </Menu.Menu>
                 ) : null}
             </Menu>) : '';
-    return (<div className="app-wrapper">
+    return (<div className={`app-wrapper${isAuthenticated ? ' app-wrapper--with-top-menu' : ''}`}>
         {isAuthenticated && skipIntro !== 'true' && showIntro === 'true' ? <Intro setSkipIntro={setSkipIntro}/> : ''}
         {menu}
         <PullToReloadIndicator enabled={isAuthenticated && !introBlocking} />

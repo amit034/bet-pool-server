@@ -46,6 +46,7 @@ function setup(app, handlers, authorisationPolicy) {
     app.post('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.addParticipates);
     app.get('/api/invites/:token', authorisationPolicy, handlers.poolInvites.getByToken);
     app.post('/api/invites/:token/accept', authorisationPolicy, handlers.poolInvites.accept);
+    app.get('/api/events/:eventId/standings', handlers.event.handleGetStandings);
     app.get('/api/:userId/pools/:poolId/participates', authorisationPolicy, handlers.pools.getParticipates);
     app.get('/api/:userId/pools/:poolId/goals', authorisationPolicy, (req, res, next) => {
         if (req.isDemo) {

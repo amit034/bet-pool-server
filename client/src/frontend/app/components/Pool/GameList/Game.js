@@ -100,7 +100,7 @@ const Game = ({
         return (
             <div className="game-result game-body-column">
                 <div className="game-body-column-center game-result-stack">
-                    <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} compact />
+                    <GameOddsDisplay odds1={odds1} oddsX={oddsX} odds2={odds2} showAsBonus={true} compact />
                     {showResult ? <div className="match-result">{score1} : {score2}</div> : null}
                 </div>
                 <div className="game-body-column-footer">&nbsp;</div>

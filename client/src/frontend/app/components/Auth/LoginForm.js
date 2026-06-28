@@ -1,61 +1,69 @@
 import React from 'react';
-import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
+import {Button, Form} from 'semantic-ui-react';
 
 const LoginForm = ({
-  onSubmit,
-  onChange,
-  errors,
-  successMessage,
-  goToRegister,
-  user
-}) => {
-    return (<div className='login-form'>
-        {/*
-      Heads up! The styles below are necessary for the correct render of this example.
-      You can do same with CSS, the main idea is that all the elements up to the `Grid`
-      below must have a height of 100%.
-    */}
-        <Form size='large' action="/" onSubmit={onSubmit}>
-            <p className="error-message">{errors.summary}</p>
-            <Form.Input fluid icon='user'
-                        iconPosition='left'
-                        name='email'
-                        placeholder='Email'
-                        className={'login-input'}
-                        onChange={onChange}
-                        value={user.email}
+    onSubmit,
+    onChange,
+    errors,
+    goToRegister,
+    user,
+    loading,
+}) => (
+    <div className="auth-form">
+        <Form size="large" action="/" onSubmit={onSubmit}>
+            {errors.summary ? (
+                <p className="auth-form__message auth-form__message--error">{errors.summary}</p>
+            ) : (
+                <p className="auth-form__message auth-form__message--placeholder" aria-hidden="true">
+                    &nbsp;
+                </p>
+            )}
+            <Form.Input
+                fluid
+                icon="mail"
+                iconPosition="left"
+                name="email"
+                placeholder="Email"
+                className="auth-form__input"
+                onChange={onChange}
+                value={user.email || ''}
+                disabled={loading}
             />
             <Form.Input
                 fluid
-                icon='lock'
-                name='password'
-                iconPosition='left'
-                placeholder='Password'
-                type='password'
-                className={'login-input'}
+                icon="lock"
+                name="password"
+                iconPosition="left"
+                placeholder="Password"
+                type="password"
+                className="auth-form__input"
                 onChange={onChange}
-                value={user.password}
+                value={user.password || ''}
+                disabled={loading}
             />
-
-            <Button fluid size='large' className={'login-button'}>
-                LOGIN
+            <Button
+                fluid
+                size="large"
+                type="submit"
+                className="auth-form__submit"
+                loading={loading}
+                disabled={loading}
+            >
+                Sign in
             </Button>
-            <Grid className={'login-help'}>
-                <Grid.Row>
-                    <Grid.Column floated='left' width={6}>
-                        Forget password?
-                    </Grid.Column>
-                    <Grid.Column floated='right' width={7}>
-                        New user? <a onClick={goToRegister} className={'sign-up-button'}>SIGN UP</a>
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
-
+            <div className="auth-form__footer">
+                <span className="auth-form__footer-text">New here?</span>
+                <button
+                    type="button"
+                    className="auth-form__link"
+                    onClick={goToRegister}
+                    disabled={loading}
+                >
+                    Create an account
+                </button>
+            </div>
         </Form>
-        {/*<Message attached='bottom'>*/}
-        {/*  New to us? <a onClick={goToRegister}>Sign Up</a>*/}
-        {/*</Message>*/}
-    </div>);
-};
+    </div>
+);
 
-export default LoginForm
+export default LoginForm;

@@ -1,19 +1,22 @@
 'use strict';
 const schedule = require('node-schedule');
 const bots = require('../bots');
-const _ = require('lodash');
 
 module.exports = {
     start() {
-        schedule.scheduleJob('55 * * * *', async() => {
-            // return Promise.all(_.map(bots, async(bot) => {
-            //     return bot.bet();
-            // }));
+        // Monkey bot places its own bets 24 hours before each game
+        schedule.scheduleJob('10 * * * *', async() => {
+            return bots.monkeyBot.bet(false);
         });
 
-        schedule.scheduleJob('10 * * * *', async() => {
-            return bots.monkeyBot.bet(true);
+        // Smart bot uses odds + historical outcomes, runs after monkey bot
+        schedule.scheduleJob('15 * * * *', async() => {
+            return bots.smartBot.bet(false);
+        });
+
+        // Crowd bot reflects the crowd's consensus, runs after monkey + smart have voted
+        schedule.scheduleJob('20 * * * *', async() => {
+            return bots.crowdBot.bet(false);
         });
     },
-
 };

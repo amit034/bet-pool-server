@@ -10,32 +10,43 @@ class CrowdBot extends Bot{
     constructor() {
         super(4, 'crowdBot', true);
     }
+
     async learningData(openChallenge, {transaction}) {
         const challengeIds = _.map(openChallenge, 'id');
         const otherBets = await betRepository.findUserBetsByQuery({
             challengeId: {[Op.in]: challengeIds},
-            userId: {[Op.notIn]: this.id}
-        },{transaction});
-        return {otherBets: this.removeAnomalies(otherBets)};
-    }
-    setBet({openChallenge = [], learningData}) {
-        const otherBets = _.get(learningData, 'otherBets', []);
-        return _.map(openChallenge, (challenge) => {
-            const challengeBets = _.filter(otherBets, {challengeId: challenge.id});
-            if (_.isEmpty(challengeBets)) {
-                return this.defaultBet(challenge);
-            }
-            const score1Avg = _.mean(_.map(challengeBets, 'score1'));
-            const score2Avg = _.mean(_.map(challengeBets, 'score2'));
-            const score1 = _.isNaN(score1Avg) ? 0 : _.round(score1Avg);
-            const score2 = _.isNaN(score1Avg)? 0 : _.round(score2Avg);
-            return {
-                challengeId: challenge.id, userId: this.id,
-                score1, score2, isPublic: true
-            };
-        });
+            userId: {[Op.notIn]: [this.id]}
+        }, {transaction});
+        return {otherBets};
     }
 
+    // Remove outliers per-challenge (needs ≥ 3 bets for Mahalanobis; falls back to raw bets)
+    cleanedBets(bets) {
+        if (bets.length < 3) return bets;
+        try {
+            return this.removeAnomalies(bets);
+        } catch (e) {
+            return bets;
+        }
+    }
+
+    setBet({openChallenge = [], learningData}) {
+        const allOtherBets = _.get(learningData, 'otherBets', []);
+        const betsByChallenge = _.groupBy(allOtherBets, 'challengeId');
+
+        return _.map(openChallenge, (challenge) => {
+            const raw = betsByChallenge[challenge.id] || [];
+            const bets = this.cleanedBets(raw);
+
+            if (_.isEmpty(bets)) {
+                return this.defaultBet(challenge);
+            }
+
+            const score1 = _.round(_.meanBy(bets, 'score1'));
+            const score2 = _.round(_.meanBy(bets, 'score2'));
+            return {challengeId: challenge.id, userId: this.id, score1, score2, isPublic: true};
+        });
+    }
 }
 
 // CrowdBot.prototype.bet = function (challengeModel) {

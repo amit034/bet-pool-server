@@ -4,7 +4,7 @@ import _ from 'lodash';
 import {io} from 'socket.io-client';
 import {Route, Switch, useRouteMatch, useLocation, useHistory} from 'react-router-dom';
 import {Loader, Message} from 'semantic-ui-react';
-import {clearGoalAnima, getUserBets, updateChallenge, getPoolParticipates, fetchPoolPreview, clearPoolPreview} from '../../actions/pools';
+import {clearGoalAnima, getUserBets, updateChallenge, getPoolParticipates, fetchPoolPreview, clearPoolPreview, fetchPoolStandings} from '../../actions/pools';
 import NavigationMenu from './NavigationMenu';
 import {useDispatch, useSelector} from 'react-redux';
 import GameList from './GameList/GameList';
@@ -24,6 +24,7 @@ const PoolContainer = (props) => {
     const query = useQuery();
     const match = useRouteMatch();
     const bets = useSelector(state => state.pools.bets);
+    const standingsByPoolId = useSelector(state => state.pools.standingsByPoolId);
     const previewById = useSelector(state => state.pools.poolPreviewById);
     const previewLoading = useSelector(state => state.pools.poolPreviewLoading);
     const previewError = useSelector(state => state.pools.poolPreviewError);
@@ -80,6 +81,21 @@ const PoolContainer = (props) => {
         dispatch(getUserBets(poolId));
         dispatch(getPoolParticipates(poolId));
     }, [wantsBetting, isParticipant, dispatch, poolId]);
+
+    useEffect(() => {
+        if (!bettingActive || _.isEmpty(bets)) {
+            return;
+        }
+        if (standingsByPoolId[String(poolId)]) {
+            return;
+        }
+        const eventIds = _.uniq(
+            _.map(_.values(bets), (bet) => _.get(bet, 'challenge.game.eventId')).filter(Boolean)
+        );
+        if (!_.isEmpty(eventIds)) {
+            dispatch(fetchPoolStandings(poolId, eventIds));
+        }
+    }, [bettingActive, poolId, bets, standingsByPoolId, dispatch]);
 
     useEffect(() => {
         if (!bettingActive) {

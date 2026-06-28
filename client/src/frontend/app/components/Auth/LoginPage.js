@@ -1,26 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {useHistory} from 'react-router-dom';
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch, useSelector} from 'react-redux';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
-import {useVideo, useLocalStorage} from 'react-use';
-import backgroundVideo from '../../../video/intro.mp4';
+import _ from 'lodash';
 import GoogleSignInButton from './GoogleSignInButton';
-import {loginError, loginUser,
+import {
+    loginError,
+    loginUser,
     registerUser,
-    registerWithFacebookToken, registerWithGoogleToken,
+    registerWithFacebookToken,
+    registerWithGoogleToken,
     verifyFacebookToken,
-    verifyGoogleToken
+    verifyGoogleToken,
 } from '../../actions/auth';
 import LoginForm from './LoginForm';
-import {Button, Grid, Icon, Header ,Form} from 'semantic-ui-react';
-import RegistrationForm from "./RegistrationForm";
+import {Button, Icon} from 'semantic-ui-react';
+import RegistrationForm from './RegistrationForm';
 
 const LoginPage = ({register = false}) => {
-    const auth = useSelector(state => state.auth);
+    const auth = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const history = useHistory();
-    const [mute, setMute] = useLocalStorage('mute', 'false');
-    const [skipIntro, setSkipIntro] = useLocalStorage('skipIntro', 'false');
     const storedMessage = localStorage.getItem('successMessage');
     let successMessage = '';
 
@@ -29,34 +29,12 @@ const LoginPage = ({register = false}) => {
         localStorage.removeItem('successMessage');
     }
 
-    // set the initial component state
     const [state, setState] = useState({
         errors: {},
         successMessage,
-        user: {
-        }
+        user: {},
     });
 
-    const [video, videoState, controls, ref] = useVideo(
-        <video autoPlay playsInline muted={mute === 'true'} id='video'>
-            <source src={backgroundVideo} type='video/mp4'/>
-        </video>
-    );
-    useEffect(() => {
-        if (ref && ref.current) {
-            setSkipIntro('false');
-            ref.current.addEventListener('ended', () => {
-                controls.mute();
-                controls.play();
-            });
-        }
-    }, [ref]);
-    function muteSite() {
-        setMute('true');
-    }
-    function unMuteSite() {
-        setMute('false');
-    }
     function facebookResponse(response) {
         const verifyFacebook = register ? registerWithFacebookToken : verifyFacebookToken;
         dispatch(verifyFacebook(response));
@@ -77,41 +55,59 @@ const LoginPage = ({register = false}) => {
     }
 
     function processRegisterForm(event) {
-        // prevent default action. in this case, action is the form submission event
         event.preventDefault();
         dispatch(registerUser(state.user));
     }
 
     function changeUser(event) {
         const field = event.target.name;
-        const user = state.user;
-        user[field] = event.target.value;
-        setState({
-            user
-        });
+        const value = event.target.value;
+        setState((prev) => ({
+            ...prev,
+            user: {
+                ...prev.user,
+                [field]: value,
+            },
+        }));
     }
 
-    function goToRegister(){
-        history.push(`/register`);
+    function goToRegister() {
+        history.push('/register');
     }
+
+    function goToLogin() {
+        history.push('/');
+    }
+
     const FormComp = register ? RegistrationForm : LoginForm;
     const onSubmit = register ? processRegisterForm : processForm;
     const socialPrefix = register ? 'Register' : 'Login';
-    return (<div style={{ height: '100%' }} >
-            {video}
-            {<Button className='mute-btn' icon={mute === 'true' ? 'volume up' : 'volume off'}  onClick={mute === 'true' ? unMuteSite : muteSite} />}
-            <div style={{ height: '100%' }} className={'login-page'}>
-                <div className={'login-logo'}>
-                </div>
-                <Header as='h2' textAlign='center' className={'login-header'}>
-                    I Dare U
-                </Header>
-                <Header as='h4' textAlign='center' className={'login-sub-header'}>
-                    Challenge your friends to beat you in football predictions
-                </Header>
-            <Grid columns={2} divided relaxed stackable textAlign='center' verticalAlign='middle'>
-                <Grid.Column  stretched style={{maxWidth:450}}>
-                    <Grid.Column  className={'login-container'}>
+
+    return (
+        <div className="auth-page">
+            <div className="auth-page__inner">
+                <div className="auth-card">
+                    <div className="auth-card__brand">
+                        <div className="auth-card__logo" aria-hidden="true" />
+                        <h1 className="auth-card__title">Liga Bet</h1>
+                        <p className="auth-card__tagline">
+                            Predict results, earn points, beat your friends
+                        </p>
+                    </div>
+
+                    <div className="auth-card__header">
+                        <h2 className="auth-card__heading">
+                            {register ? 'Create your account' : 'Welcome back'}
+                        </h2>
+                        <p className="auth-card__subheading">
+                            {register
+                                ? 'Join pools and compete on live football predictions.'
+                                : 'Sign in to view your pools and place your bets.'}
+                        </p>
+                    </div>
+
+                    <div className="auth-card__body">
+                        <div className="auth-card__form">
                             <FormComp
                                 onSubmit={onSubmit}
                                 onChange={changeUser}
@@ -119,33 +115,44 @@ const LoginPage = ({register = false}) => {
                                 successMessage={state.successMessage}
                                 user={state.user}
                                 goToRegister={goToRegister}
+                                goToLogin={goToLogin}
+                                loading={auth.isFetching}
                             />
-                        </Grid.Column>
-                    <Grid.Column  className={'social-login-container'}>
-                            <Form size='large'>
-                                <p className='social-login-title'><span>Or</span></p>
-                                <FacebookLogin
-                                    appId="476316572540105"
-                                    autoLoad={false}
-                                    fields="name,email,picture,app_name"
+                        </div>
 
-                                    render={renderProps => (
-                                        <div className="field login-input">
-                                            <Button fluid size='large' onClick={renderProps.onClick} className={'social-button facebook-button'}>
-                                                <Icon name='facebook' /> {socialPrefix} with Facebook
-                                            </Button>
-                                        </div>
-                                    )}
-                                    callback={facebookResponse} />
-                                <GoogleSignInButton
-                                    label={`${socialPrefix} with Google`}
-                                    onSuccess={googleResponse}
-                                    onFailure={googleFailure}
-                                />
-                            </Form>
-                        </Grid.Column>
-                </Grid.Column>
-                </Grid>
+                        <div className="auth-card__divider" aria-hidden="true">
+                            <span>or</span>
+                        </div>
+
+                        <div className="auth-card__social">
+                            <FacebookLogin
+                                appId="476316572540105"
+                                autoLoad={false}
+                                fields="name,email,picture,app_name"
+                                render={(renderProps) => (
+                                    <Button
+                                        fluid
+                                        size="large"
+                                        type="button"
+                                        onClick={renderProps.onClick}
+                                        className="auth-social-button auth-social-button--facebook"
+                                        disabled={auth.isFetching}
+                                    >
+                                        <Icon name="facebook" />
+                                        {socialPrefix} with Facebook
+                                    </Button>
+                                )}
+                                callback={facebookResponse}
+                            />
+                            <GoogleSignInButton
+                                label={`${socialPrefix} with Google`}
+                                onSuccess={googleResponse}
+                                onFailure={googleFailure}
+                                disabled={auth.isFetching}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

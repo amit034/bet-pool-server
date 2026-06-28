@@ -49,10 +49,10 @@ export function usesResultOdds(scoringMode) {
  */
 export function winner2OddsBase(rawOdds) {
     const odds = Number(rawOdds);
-    if (!odds || odds < 1.5) {
+    if (!odds || odds < 1.6) {
         return 0;
     }
-    if (odds < 2.5) {
+    if (odds < 2.6) {
         return 5;
     }
     if (odds < 4) {

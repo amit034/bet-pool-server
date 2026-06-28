@@ -3,6 +3,7 @@ const _ = require('lodash');
 const repository = require('../repositories/eventRepository');
 const challengeRepository = require('../repositories/challengeRepository');
 const TeamRepository = require('../repositories/teamRepository');
+const standingRepository = require('../repositories/standingRepository');
 const apiFootballSdk = require('../lib/apiFootballSDK');
 const logger = require('../utils/logger');
 
@@ -154,10 +155,24 @@ function handleGetTeamsRequest(req, res) {
         });
     });
 }
+function handleGetStandings(req, res) {
+    const eventId = req.params.eventId || null;
+    if (!eventId) {
+        return res.status(400).send({ error: 'eventId is required' });
+    }
+    return standingRepository.findByEventId(eventId)
+        .then(function (standings) {
+            return res.send(standings);
+        })
+        .catch(function (err) {
+            return res.status(500).send({ error: err.message });
+        });
+}
 
 module.exports = {
     handleActiveEventsRequest,
     handleGetEventsRequest,
+    handleGetStandings,
     handleCreateAndGetEventsRequest,
     createEvent: handleCreateEventRequest,
     addTeam: handleAddTeamToEventRequest,

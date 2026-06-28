@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useRef, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
@@ -89,18 +89,19 @@ const GameList = ({poolId}) => {
     }, [bets]);
 
     const [swiper, setSwiper] = useState(null);
+    const initialSlideDone = useRef(false);
     const betArray = _.orderBy(_.values(bets), 'challenge.playAt');
     const betsGroups = _.groupBy(betArray, 'challenge.game.round');
     useEffect(() => {
-         if(swiper){
-            const currentBet = _.find(betArray, (bet) => {
-                return moment(_.get(bet, 'challenge.playAt')).isSameOrAfter(moment().add(10, 'days'), 'day');
-            });
-            const currentRound = _.get(currentBet, 'challenge.game.round', 1);
+         if(swiper && !initialSlideDone.current && !_.isEmpty(bets)){
+            const openBet = _.find(betArray, (bet) => !_.get(bet, 'closed'));
+            const maxRound = _.max(_.map(betArray, 'challenge.game.round'));
+            const currentRound = _.get(openBet, 'challenge.game.round', maxRound);
             const currSlide = _.size(betsGroups)-currentRound;
             swiper.slideTo(currSlide);
+            initialSlideDone.current = true;
          }
-    },[bets]);
+    },[swiper, bets]);
 
     const ViewOthersModal =  (<Modal
             // className='fullscreen' style={{}}
@@ -112,6 +113,7 @@ const GameList = ({poolId}) => {
             size='small'
         >
             <ViewOthers
+                poolId={poolId}
                 clickOnBetChange={clickOnBetChange}
                 nextGoalPreview={nextGoalPreview}
                 weekdayPathPreview={weekdayPathPreview}

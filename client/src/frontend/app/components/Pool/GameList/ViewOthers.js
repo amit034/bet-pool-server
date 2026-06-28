@@ -9,6 +9,8 @@ import { buildNextGoalViewOthersRows } from './viewOthersNextGoalPreview';
 import { buildWeekdayPathViewRows } from './viewOthersWeekdayPathPreview';
 import UserAvatar from '../../UserAvatar';
 import GameOddsDisplay from './GameOddsDisplay';
+import GroupStandingsTable from './GroupStandingsTable';
+import { getGroupStandingsForMatch } from '../../../utils/groupStandings';
 
 function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName, odds1, oddsX, odds2, showOdds }) {
     const hasOdds = showOdds && (odds1 != null || oddsX != null || odds2 != null);
@@ -203,7 +205,8 @@ function WeekdayPathSplitPanelHeader({ variant, dateLabel, segments }) {
     );
 }
 
-const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) => {
+const ViewOthers = ({ poolId, clickOnBetChange, nextGoalPreview, weekdayPathPreview }) => {
+    const standings = useSelector((state) => _.get(state.pools.standingsByPoolId, String(poolId), []));
     const MatchResult = ({ challenge }) => {
         const { score1, score2, isOpen, odds1, odds2, oddsX } = challenge;
         if (isOpen) {
@@ -234,10 +237,14 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
     const ChallengeDetails = ({ challenge }) => {
         const {
             id,
+            isOpen,
             game: { homeTeam, awayTeam, previousLeg },
             playAt,
         } = challenge;
         const prevLegUi = formatPreviousLegUi(previousLeg);
+        const groupRows = isOpen
+            ? getGroupStandingsForMatch(standings, homeTeam.id, awayTeam.id)
+            : [];
         return (
             <Modal.Header>
                 <li className="challenge-row" key={id}>
@@ -255,6 +262,12 @@ const ViewOthers = ({ clickOnBetChange, nextGoalPreview, weekdayPathPreview }) =
                         <MatchResult challenge={challenge} />
                         <TeamScore team={awayTeam} reverse={true} />
                     </div>
+                    {isOpen ? (
+                        <GroupStandingsTable
+                            rows={groupRows}
+                            highlightTeamIds={[homeTeam.id, awayTeam.id]}
+                        />
+                    ) : null}
                 </li>
             </Modal.Header>
         );
