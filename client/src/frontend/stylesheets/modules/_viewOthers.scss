@@ -514,6 +514,12 @@
         letter-spacing: 0.02em;
         border-radius: 0 10px 10px 0;
 
+        .user-bet-unset {
+          font-size: 0.7em;
+          color: rgba(168, 200, 212, 0.4);
+          font-style: italic;
+        }
+
         .users-bets-use-it {
           margin-left: 0;
           margin-top: 2px;
@@ -636,6 +642,22 @@
 
   .view-others-shell__rank-delta--down {
     color: #fca5a5;
+  }
+
+  .group-standings-dual {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 6px;
+    margin: 0 10px 4px;
+
+    .group-standings {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      padding-top: 0;
+      border-top: none;
+    }
   }
 
   .group-standings {

@@ -197,7 +197,7 @@ function calculateGoalImpact(targetId, gameScore, challenge, players, prediction
  * @param players - each { id, points, gold, silver, bronze, preds } where preds[challengeId] = [score1, score2] from bet
  * @param remainingGames - open games, each { id: challengeId, factor }
  */
-function calculatelImpact(targetId, players, bets, roundId, {poolFactors, scoringMode} = {}) {
+function calculatelImpact(targetId, players, bets, roundId, {poolFactors, scoringMode, priorClosedBets} = {}) {
     if (_.isEmpty(players) || _.isEmpty(_.filter(bets, 'closed')) || roundId < 0) {
         return { best: null, worst: null };
     }
@@ -222,13 +222,31 @@ function calculatelImpact(targetId, players, bets, roundId, {poolFactors, scorin
                     1: agg.medals['1'] + round.medals['1'],
                     2: agg.medals['2'] + round.medals['2'],
                     3: agg.medals['3'] + round.medals['3']
-                }, 
+                },
                 currentPredictions: agg.currentPredictions
             }
         }, { score: 0, medals: {1: 0, 2: 0, 3: 0}, currentPredictions: {}});
         playerAgg[userId] = ({ userId, ...playerInitState });
         return playerAgg;
     }, {});
+
+    // Apply already-closed bets from earlier days in the same round so the
+    // initial state reflects the true standing before today's games.
+    _.each(_.filter(priorClosedBets, 'closed'), (priorBet) => {
+        const challenge = priorBet.challenge || {};
+        const challengeId = priorBet.challengeId || challenge.id;
+        const [hScore, aScore] = challengeActualScore(challenge);
+        const predictions = getChallangePredictions(initialState, challengeId);
+        const impact = calculateGoalImpact(targetId, [hScore, aScore], challenge, players, predictions, poolFactors, scoringMode);
+        _.each(impact.impacts, ({userId, score, medals}) => {
+            if (initialState[userId]) {
+                initialState[userId].score += score;
+                initialState[userId].medals['1'] += medals['1'];
+                initialState[userId].medals['2'] += medals['2'];
+                initialState[userId].medals['3'] += medals['3'];
+            }
+        });
+    });
 
     const weekdayScenarios = createWeekDaySenarios(targetId, players, bets, initialState, poolFactors, scoringMode);
 

@@ -10,7 +10,7 @@ import { buildWeekdayPathViewRows } from './viewOthersWeekdayPathPreview';
 import UserAvatar from '../../UserAvatar';
 import GameOddsDisplay from './GameOddsDisplay';
 import GroupStandingsTable from './GroupStandingsTable';
-import { getGroupStandingsForMatch } from '../../../utils/groupStandings';
+import { getGroupStandingsBothSides } from '../../../utils/groupStandings';
 
 function ScoreLineCell({ homeTeam, awayTeam, scoreText, scoreClassName, odds1, oddsX, odds2, showOdds }) {
     const hasOdds = showOdds && (odds1 != null || oddsX != null || odds2 != null);
@@ -242,9 +242,9 @@ const ViewOthers = ({ poolId, clickOnBetChange, nextGoalPreview, weekdayPathPrev
             playAt,
         } = challenge;
         const prevLegUi = formatPreviousLegUi(previousLeg);
-        const groupRows = isOpen
-            ? getGroupStandingsForMatch(standings, homeTeam.id, awayTeam.id)
-            : [];
+        const { homeRows, awayRows, sameGroup } = isOpen
+            ? getGroupStandingsBothSides(standings, homeTeam.id, awayTeam.id)
+            : { homeRows: [], awayRows: [], sameGroup: true };
         return (
             <Modal.Header>
                 <li className="challenge-row" key={id}>
@@ -262,11 +262,23 @@ const ViewOthers = ({ poolId, clickOnBetChange, nextGoalPreview, weekdayPathPrev
                         <MatchResult challenge={challenge} />
                         <TeamScore team={awayTeam} reverse={true} />
                     </div>
-                    {isOpen ? (
+                    {isOpen && sameGroup ? (
                         <GroupStandingsTable
-                            rows={groupRows}
+                            rows={homeRows}
                             highlightTeamIds={[homeTeam.id, awayTeam.id]}
                         />
+                    ) : null}
+                    {isOpen && !sameGroup ? (
+                        <div className="group-standings-dual">
+                            <GroupStandingsTable
+                                rows={homeRows}
+                                highlightTeamIds={[homeTeam.id]}
+                            />
+                            <GroupStandingsTable
+                                rows={awayRows}
+                                highlightTeamIds={[awayTeam.id]}
+                            />
+                        </div>
                     ) : null}
                 </li>
             </Modal.Header>
@@ -431,23 +443,29 @@ const ViewOthers = ({ poolId, clickOnBetChange, nextGoalPreview, weekdayPathPrev
                 </div>
                 <div className="user-bet-medal">{!isOpen ? <Medal score={bet.score} medal={bet.medal} /> : ''}</div>
                 <div className="user-bet-score">
-                    <div>
-                        <span>
-                            {bet.score1} : {bet.score2}
-                        </span>
-                    </div>
-                    {isOpen ? (
-                        <div className="users-bets-use-it">
-                            <a
-                                onClick={() => {
-                                    clickOnBetChange(bet.challengeId, bet.score1, bet.score2);
-                                }}
-                            >
-                                Use it!
-                            </a>
-                        </div>
+                    {bet.score1 == null && bet.score2 == null ? (
+                        <div className="user-bet-unset">unset</div>
                     ) : (
-                        ''
+                        <>
+                            <div>
+                                <span>
+                                    {bet.score1} : {bet.score2}
+                                </span>
+                            </div>
+                            {isOpen ? (
+                                <div className="users-bets-use-it">
+                                    <a
+                                        onClick={() => {
+                                            clickOnBetChange(bet.challengeId, bet.score1, bet.score2);
+                                        }}
+                                    >
+                                        Use it!
+                                    </a>
+                                </div>
+                            ) : (
+                                ''
+                            )}
+                        </>
                     )}
                 </div>
             </li>
@@ -560,10 +578,7 @@ const ViewOthers = ({ poolId, clickOnBetChange, nextGoalPreview, weekdayPathPrev
         );
     }
 
-    const viewableUsersIds = _.map(usersBets, 'userId');
-    const othersParticipatesRanked = _.filter(getParticipatesWithRank(participates), ({ userId }) =>
-        _.includes(viewableUsersIds, userId)
-    );
+    const othersParticipatesRanked = getParticipatesWithRank(participates);
     return (
         <div id="content" className="view-others-shell" style={{ margin: '35px 8px 8px 8px' }}>
             {challenge ? (

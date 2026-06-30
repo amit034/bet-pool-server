@@ -133,7 +133,13 @@ const GameList = ({poolId}) => {
         const gameNodes = _.reduce(dateGroup, (agg, bets, playAt) => {
             const playAtKey = _.toString(playAt);
             const hasOpenBets = _.some(bets, (bet) => !_.get(bet, 'closed'));
-            const assignment = calculatelImpact(userId, participates, bets, roundId, {poolFactors, scoringMode});
+            const dayIds = new Set(_.map(bets, 'challengeId'));
+            const priorClosedBets = _.filter(roundBets, (b) =>
+                b.closed &&
+                !dayIds.has(b.challengeId) &&
+                moment(_.get(b, 'challenge.playAt')).format('YYYYMMDD') < playAt
+            );
+            const assignment = calculatelImpact(userId, participates, bets, roundId, {poolFactors, scoringMode, priorClosedBets});
             const dateLabel = moment(playAtKey, 'YYYYMMDD').format('dddd DD/MM');
             const closedCount = _.filter(bets, 'closed').length;
             const canOpenPath = !hasOpenBets && closedCount > 0 && _.get(assignment, 'best.path.length', 0) > 0;
@@ -181,7 +187,7 @@ const GameList = ({poolId}) => {
                 const {challengeId} = bet;
                 const goal = _.get(goals, challengeId, null);
                 const gameImpact = getWeekPathWithFocused(
-                    userId, participates, roundBets, assignment.initial, challengeId, {poolFactors, scoringMode}
+                    userId, participates, bets, assignment.initial, challengeId, {poolFactors, scoringMode}
                 );
                 const gameNode = (
                         <Game
